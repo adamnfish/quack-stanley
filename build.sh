@@ -8,7 +8,7 @@ reset=`tput sgr0`
 cd $(dirname $(realpath $0))
 
 # package zip file
-#sbt universal:packageBin
+sbt universal:packageBin
 
 echo "${green}Created zip bundle at ${PWD}/target/universal/quack-stanley.zip${reset}"
 
