@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create infrastructure to run Quack Stanley
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Stage:
+    Type: String
+    Description: Environment name
+    Default: PROD
+  DistBucket:
+    Type: String
+    Description: S3 Bucket that will contain the backend artifacts
+
+Resources:
+  Backend:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub quack-stanley-${Stage}
+      Description: Backend for Quack Stanley application
+      CodeUri:
+        Bucket: !Ref DistBucket
+        Key: !Sub quack-stanley/${Stage}/quack-stanley.zip
+      Handler: com.adamnfish.quackstanley.Main::handleRequest
+      Runtime: java8
+      Timeout: 20
+      MemorySize: 512
+      Environment:
+        Variables:
+          STAGE: !Ref Stage
+#          TABLE_NAME: !Ref Table
+      Events:
+        BackendEvent:
+          Type: Api
+          Properties:
+            Path: /api
+            Method: post
+
+#  Table:
+#    Type: AWS::Serverless::SimpleTable
+#    Properties:
+#      PrimaryKey:
+#        Name: id
+#        Type: String
+#      ProvisionedThroughput:
+#        ReadCapacityUnits: 5
+#        WriteCapacityUnits: 2
