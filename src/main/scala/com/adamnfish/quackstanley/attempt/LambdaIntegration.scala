@@ -42,67 +42,29 @@ object LambdaIntegration {
     )
   }
 
-  /**
-    * Simple Lambda action
-    *
-    * Attempts provided action function, serialises result and responds.
-    */
-  def action[Out](inputStream: InputStream, outputStream: OutputStream, context: Context)
-                 (action: (LambdaRequest, Context) => Attempt[Out])
-                 (implicit outEncoder: Encoder[Out], ec: ExecutionContext): Unit = {
-    val resultAttempt = for {
-      requestJson <- parseLambdaRequest(inputStream)
-      lambdaRequest <- extractLambdaRequest(requestJson)
-      out <- action(lambdaRequest, context)
-    } yield out
-    handleAttempt[Out](resultAttempt, outputStream, context)
-  }
-
-  /**
-    * Lambda action with typed body content
-    *
-    * Attempts to deserialise body JSON into provided In type.
-    *
-    * If successful the provided action function is executed with this value as an argument,
-    * the result is serialised and returned.
-    */
-  def bodyAction[In, Out](inputStream: InputStream, outputStream: OutputStream, context: Context)
-                         (action: (In, LambdaRequest, Context) => Attempt[Out])
-                         (implicit inDecoder: Decoder[In], outEncoder: Encoder[Out], ec: ExecutionContext): Unit = {
-    val resultAttempt = for {
+  def parseBody[A](inputStream: InputStream)
+                  (implicit inDecoder: Decoder[A], ec: ExecutionContext): Attempt[(A, LambdaRequest)] = {
+    for {
       requestJson <- parseLambdaRequest(inputStream)
       lambdaRequest <- extractLambdaRequest(requestJson)
       body <- extractLambdaRequestBody(lambdaRequest)
       bodyJson <- parseLambdaRequestBody(body)
-      in <- extractJson[In](bodyJson)
-      out <- action(in, lambdaRequest, context)
-    } yield out
-    handleAttempt[Out](resultAttempt, outputStream, context)
+      a <- extractJson[A](bodyJson)
+    } yield (a, lambdaRequest)
   }
 
-  /**
-    * Lambda action with untyped (Json) body content
-    *
-    * Extracts JSON body into untyped Json value.
-    *
-    * If successful the provided action function is executed with this value as an argument,
-    * the result is serialised and returned.
-    */
-  def jsonAction[Out](inputStream: InputStream, outputStream: OutputStream, context: Context)
-                     (action: (Json, LambdaRequest, Context) => Attempt[Out])
-                     (implicit outEncoder: Encoder[Out], ec: ExecutionContext): Unit = {
-    val resultAttempt = for {
+  def parseJson(inputStream: InputStream)
+    (implicit ec: ExecutionContext): Attempt[(Json, LambdaRequest)] = {
+    for {
       requestJson <- parseLambdaRequest(inputStream)
       lambdaRequest <- extractLambdaRequest(requestJson)
       body <- extractLambdaRequestBody(lambdaRequest)
       bodyJson <- parseLambdaRequestBody(body)
-      out <- action(bodyJson, lambdaRequest, context)
-    } yield out
-    handleAttempt[Out](resultAttempt, outputStream, context)
+    } yield (bodyJson, lambdaRequest)
   }
 
-  private def handleAttempt[A](attempt: Attempt[A], outputStream: OutputStream, context: Context)
-                              (implicit encoder: Encoder[A], ec: ExecutionContext): Unit = {
+  def respond[A](attempt: Attempt[A], outputStream: OutputStream, context: Context)
+                (implicit encoder: Encoder[A], ec: ExecutionContext): Unit = {
     val resultFuture = attempt.asFuture.map {
       case Right(out) =>
         LambdaResponse(200, headers, out.asJson.noSpaces)

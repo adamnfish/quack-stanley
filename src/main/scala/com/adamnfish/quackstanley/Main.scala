@@ -11,15 +11,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class Main {
   def handleRequest[ApiOperation, ApiResponse](in: InputStream, out: OutputStream, context: Context): Unit = {
-    bodyAction(in, out, context) { (apiOperation: ApiOperation, lambdaRequest, context) =>
-      apiOperation match {
-        case data: CreateGame => createGame(data)
-        case data: RegisterPlayer => registerPlayer(data)
-        case data: AwardPoint => awardPoint(data)
-        case data: Mulligan => mulligan(data)
-        case data: Ping => ping(data)
-      }
-    }
+    for {
+      (apiOperation, request) <- parseBody[ApiOperation](in)
+    } yield 1
+
+//    bodyAction(in, out, context) { (apiOperation: ApiOperation, lambdaRequest, context) =>
+//      apiOperation match {
+//        case data: CreateGame => createGame(data)
+//        case data: RegisterPlayer => registerPlayer(data)
+//        case data: AwardPoint => awardPoint(data)
+//        case data: Mulligan => mulligan(data)
+//        case data: Ping => ping(data)
+//      }
+//    }
   }
 
   def createGame(data: CreateGame): Attempt[Registered] = {

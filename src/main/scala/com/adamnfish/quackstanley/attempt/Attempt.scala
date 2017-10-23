@@ -7,7 +7,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * Represents a value that will need to be calculated using an asynchronous
   * computation that may fail.
   */
-case class Attempt[+A] private (underlying: Future[Either[FailedAttempt, A]]) {
+case class Attempt[A] private (underlying: Future[Either[FailedAttempt, A]]) {
   def map[B](f: A => B)(implicit ec: ExecutionContext): Attempt[B] =
     flatMap(a => Attempt.Right(f(a)))
 
