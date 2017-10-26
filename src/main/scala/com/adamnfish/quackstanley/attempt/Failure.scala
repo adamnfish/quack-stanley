@@ -3,7 +3,11 @@ package com.adamnfish.quackstanley.attempt
 
 case class FailedAttempt(failures: List[Failure]) {
   def statusCode: Int = failures.map(_.statusCode).max
-  def logString: String = failures.map(_.message).mkString(", ")
+  def logString: String = failures.map { failure =>
+    failure.context.fold(failure.message){ context =>
+      s"${failure.message}: $context"
+    }
+  }.mkString(", ")
 }
 object FailedAttempt {
   def apply(error: Failure): FailedAttempt = {

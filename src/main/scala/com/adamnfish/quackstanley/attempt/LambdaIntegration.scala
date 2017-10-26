@@ -82,15 +82,15 @@ object LambdaIntegration {
     outputStream.flush()
   }
 
-  private def extractLambdaRequest(json: Json): Attempt[LambdaRequest] = {
-    Attempt.fromEither(json.as[LambdaRequest].left.map { decodingFailure =>
-      Failure(s"Failed to parse lambda request ${decodingFailure.message}", "Failed to parse request JSON", 400).asAttempt
-    })
-  }
-
   private def parseLambdaRequest(inputStream: InputStream): Attempt[Json] = {
     Attempt.fromEither(parse(Source.fromInputStream(inputStream, "UTF-8").mkString).left.map { parseFailure =>
       Failure(s"Could not parse request as JSON: ${parseFailure.message}", "Could not parse request JSON", 400).asAttempt
+    })
+  }
+
+  private def extractLambdaRequest(json: Json): Attempt[LambdaRequest] = {
+    Attempt.fromEither(json.as[LambdaRequest].left.map { decodingFailure =>
+      Failure(s"Failed to extract lambda request ${decodingFailure.message}", "Failed to extract request JSON", 400, Some(decodingFailure.history.mkString("|"))).asAttempt
     })
   }
 
@@ -106,7 +106,7 @@ object LambdaIntegration {
 
   private def extractJson[A](json: Json)(implicit decoder: Decoder[A]): Attempt[A] = {
     Attempt.fromEither(json.as[A].left.map { decodingFailure =>
-      Failure(s"Failed to parse request body as expected type: ${decodingFailure.message}", "Failed to parse request JSON", 400).asAttempt
+      Failure(s"Failed to parse request body as expected type: ${decodingFailure.message}", "Failed to parse request JSON", 400, Some(decodingFailure.history.mkString("|"))).asAttempt
     })
   }
 }
