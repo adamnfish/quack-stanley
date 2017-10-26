@@ -6,7 +6,7 @@ import org.joda.time.DateTime
 
 
 // typed JSON API operations, represent the possible client requests
-trait ApiOperation
+sealed trait ApiOperation
 case class CreateGame(
   name: String
 ) extends ApiOperation
@@ -58,7 +58,7 @@ object ApiOperation {
   )
 }
 
-trait ApiResponse
+sealed trait ApiResponse
 // data returned to clients after all requests
 case class PlayerInfo(
   state: PlayerState,
@@ -93,6 +93,9 @@ case class GameState(
 
 // used to authenticate users
 case class PlayerKey(value: String) extends AnyVal
+object PlayerKey {
+  implicit val encoder: Encoder[PlayerKey] = deriveEncoder
+}
 
 // representation of a player
 case class PlayerState(
@@ -102,7 +105,16 @@ case class PlayerState(
   role: Option[Role], // current player has a role
   points: List[Role]
 )
+object PlayerState {
+  implicit val encoder: Encoder[PlayerState] = deriveEncoder
+}
 
 // game data
 case class Role(value: String) extends AnyVal
+object Role {
+  implicit val encoder: Encoder[Role] = deriveEncoder
+}
 case class Word(value: String) extends AnyVal
+object Word {
+  implicit val encoder: Encoder[Word] = deriveEncoder
+}
