@@ -29,6 +29,7 @@ class Main {
       apiOperation match {
         case data: CreateGame => createGame(data)
         case data: RegisterPlayer => registerPlayer(data)
+        case data: FinishPitch => finishPitch(data)
         case data: AwardPoint => awardPoint(data)
         case data: Mulligan => mulligan(data)
         case data: Ping => ping(data)

@@ -7,6 +7,7 @@ import io.circe.{Decoder, Encoder, Json}
 import io.circe.parser._
 import io.circe.generic.extras.semiauto._
 import Serialization._
+import org.joda.time.DateTime
 
 
 class SerializationTest extends FreeSpec with Matchers with EitherValues {

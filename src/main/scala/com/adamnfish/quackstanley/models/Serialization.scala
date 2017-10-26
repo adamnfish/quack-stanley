@@ -1,7 +1,7 @@
 package com.adamnfish.quackstanley.models
 
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.extras.semiauto.{deriveDecoder, deriveEncoder}
+import io.circe.{Decoder, Encoder}
 
 
 object Serialization {

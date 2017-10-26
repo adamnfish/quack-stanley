@@ -13,6 +13,10 @@ object QuackStanley {
     Attempt.Right(Registered("game-id", PlayerKey("player-key")))
   }
 
+  def finishPitch(data: FinishPitch): Attempt[PlayerInfo] = {
+    ???
+  }
+
   def awardPoint(data: AwardPoint): Attempt[PlayerInfo] = {
     ???
   }
