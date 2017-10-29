@@ -11,7 +11,9 @@ case class GameId(value: String) extends AnyVal
 
 // representation of a player
 case class PlayerState(
-  name: String,
+  gameId: GameId,
+  gameName: String,
+  screenName: String,
   hand: List[Word],
   discardedWords: List[Word], // these words are no longer available
   role: Option[Role], // current player has a role
@@ -20,6 +22,8 @@ case class PlayerState(
 
 // private global gamestate
 case class GameState(
+  gameId: GameId,
+  gameName: String,
   startTime: DateTime,
   started: Boolean, // once game has started players cannot be added
   creator: PlayerKey,
@@ -29,7 +33,8 @@ case class GameState(
 // typed JSON API operations, represent the possible client requests
 sealed trait ApiOperation
 case class CreateGame(
-  name: String
+  screenName: String,
+  gameName: String
 ) extends ApiOperation
 case class RegisterPlayer(
   gameId: GameId,
@@ -63,13 +68,12 @@ sealed trait ApiResponse
 // data returned to clients after all requests
 case class PlayerInfo(
   state: PlayerState,
-  gameId: GameId,
   started: Boolean,
   otherPlayers: List[String]
 ) extends ApiResponse
 // registers a user with a game
 case class Registered(
-  gameId: GameId,
+  state: PlayerState,
   playerKey: PlayerKey
 ) extends ApiResponse
 object ApiResponse

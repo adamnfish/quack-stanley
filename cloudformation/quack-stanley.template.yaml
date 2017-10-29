@@ -2,6 +2,19 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Create infrastructure to run Quack Stanley
 Transform: AWS::Serverless-2016-10-31
 
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Configuration
+      Parameters:
+      - Stage
+      - DistBucket
+    - Label:
+        default: Application Storage
+      Parameters:
+      - DataStorageBucket
+
 Parameters:
   Stage:
     Type: String
@@ -10,6 +23,9 @@ Parameters:
   DistBucket:
     Type: String
     Description: S3 Bucket that will contain the backend artifacts
+  DataStorageBucket:
+    Type: String
+    Description: Name of the S3 bucket that will store application data
 
 Resources:
   Backend:
@@ -26,21 +42,26 @@ Resources:
       MemorySize: 512
       Environment:
         Variables:
-          STAGE: !Ref Stage
-#          TABLE_NAME: !Ref Table
+          APP_DATA_S3_BUCKET: !Ref DataStorageBucket
+          APP_STAGE: !Ref Stage
       Events:
         BackendEvent:
           Type: Api
           Properties:
             Path: /api
             Method: post
-
-#  Table:
-#    Type: AWS::Serverless::SimpleTable
-#    Properties:
-#      PrimaryKey:
-#        Name: id
-#        Type: String
-#      ProvisionedThroughput:
-#        ReadCapacityUnits: 5
-#        WriteCapacityUnits: 2
+      Policies:
+      - Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:ListBucket
+          Resource: !Sub arn:aws:s3:::${DataStorageBucket}
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          - s3:PutObject
+          Resource: !Sub arn:aws:s3:::${DataStorageBucket}/*
+      Tags:
+        app: quack-stanley
+        stage: !Ref Stage

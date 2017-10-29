@@ -17,22 +17,23 @@ class Main {
   def handleRequest(in: InputStream, out: OutputStream, context: Context): Unit = {
     respond[ApiResponse]({
       for {
+        config <- Config.fromEnvironment()
         tmp <- parseBody[ApiOperation](in)
         (apiOperation, request) = tmp
-        response <- dispatch(apiOperation, context: Context)
+        response <- dispatch(apiOperation, context: Context, config)
       } yield response
     }, out, context)
   }
 
-  def dispatch(apiOperation: ApiOperation, context: Context): Attempt[ApiResponse] = {
+  def dispatch(apiOperation: ApiOperation, context: Context, config: Config): Attempt[ApiResponse] = {
     try {
       apiOperation match {
-        case data: CreateGame => createGame(data)
-        case data: RegisterPlayer => registerPlayer(data)
-        case data: FinishPitch => finishPitch(data)
-        case data: AwardPoint => awardPoint(data)
-        case data: Mulligan => mulligan(data)
-        case data: Ping => ping(data)
+        case data: CreateGame => createGame(data, config)
+        case data: RegisterPlayer => registerPlayer(data, config)
+        case data: FinishPitch => finishPitch(data, config)
+        case data: AwardPoint => awardPoint(data, config)
+        case data: Mulligan => mulligan(data, config)
+        case data: Ping => ping(data, config)
       }
     } catch {
       case NonFatal(e) =>

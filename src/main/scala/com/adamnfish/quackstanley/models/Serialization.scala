@@ -50,10 +50,10 @@ object Serialization {
   )
 
   // response types
-  implicit val playerInfoencoder: Encoder[PlayerInfo] = deriveEncoder[PlayerInfo]
+  implicit val playerInfoEncoder: Encoder[PlayerInfo] = deriveEncoder[PlayerInfo]
   implicit val registeredEncoder: Encoder[Registered] = deriveEncoder[Registered]
-  implicit val apiResponseencoder: Encoder[ApiResponse] = Encoder.instance {
-    case playerInfo: PlayerInfo => playerInfoencoder.apply(playerInfo)
+  implicit val apiResponsEencoder: Encoder[ApiResponse] = Encoder.instance {
+    case playerInfo: PlayerInfo => playerInfoEncoder.apply(playerInfo)
     case registered: Registered => registeredEncoder.apply(registered)
   }
 

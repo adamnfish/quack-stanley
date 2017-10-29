@@ -15,10 +15,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class LambdaIntegrationTest extends org.scalatest.FreeSpec with Matchers with AttemptValues {
   "parseBody" - {
     "parses a create game request" in {
-      val data = """"{ \"operation\": \"create-game\", \"name\": \"test-game\" }""""
+      val data = """"{ \"operation\": \"create-game\", \"gameName\": \"test-game\", \"screenName\": \"player-one\" }""""
       val (operation, _) = parseBody[ApiOperation](asLambdaRequest(data)).value()
       operation should have(
-        'name ("test-game")
+        'gameName ("test-game"),
+        'screenName ("player-one")
       )
     }
   }

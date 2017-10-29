@@ -11,22 +11,26 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
     "parses a create game request" in {
       val data = """{
                    |  "operation": "create-game",
-                   |  "name": "test-game"
+                   |  "gameName": "test-game",
+                   |  "screenName": "player-one"
                    |}""".stripMargin
       parse(data).right.value.as[CreateGame]
         .right.value should have(
-          'name ("test-game")
+          'gameName ("test-game"),
+          'screenName ("player-one")
         )
     }
 
     "parses a create game request from an ApiOperation instance" in {
       val data = """{
                    |  "operation": "create-game",
-                   |  "name": "test-game"
+                   |  "gameName": "test-game",
+                   |  "screenName": "player-one"
                    |}""".stripMargin
       parse(data).right.value.as[ApiOperation]
         .right.value should have(
-          'name ("test-game")
+          'gameName ("test-game"),
+          'screenName ("player-one")
         )
     }
   }
@@ -34,6 +38,10 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
   "Value classes are encoded as values" - {
     "player key" in {
       PlayerKey("player-key").asJson.noSpaces shouldEqual "\"player-key\""
+    }
+
+    "game id" in {
+      GameId("123-456").asJson.noSpaces shouldEqual "\"123-456\""
     }
 
     "word" in {
@@ -49,6 +57,21 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
     "player key" in {
       parse("\"player-key\"").right.value.as[PlayerKey]
         .right.value shouldEqual PlayerKey("player-key")
+    }
+
+    "game ID" in {
+      parse("\"game-id\"").right.value.as[GameId]
+        .right.value shouldEqual GameId("game-id")
+    }
+
+    "word" in {
+      parse("\"word\"").right.value.as[Word]
+        .right.value shouldEqual Word("word")
+    }
+
+    "role" in {
+      parse("\"role\"").right.value.as[Role]
+        .right.value shouldEqual Role("role")
     }
   }
 }

@@ -1,5 +1,6 @@
 package com.adamnfish.quackstanley.aws
 
+import com.adamnfish.quackstanley.Config
 import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import io.circe.{Json, ParsingFailure}
@@ -16,9 +17,10 @@ object S3 {
       .build()
   }
 
-  def getJson(bucketName: String, path: String, client: AmazonS3): Attempt[Json] = {
+  // TODO maybe run in a Future?
+  private def getJson(path: String, client: AmazonS3, config: Config): Attempt[Json] = {
     try {
-      val s3obj = client.getObject(bucketName, path)
+      val s3obj = client.getObject(config.s3Bucket, path)
       val objStream = s3obj.getObjectContent
       Attempt.fromEither(parse(Source.fromInputStream(objStream, "UTF-8").mkString).left.map { parsingFailure =>
         Failure(s"Failed to parse JSON from S3 object $path", "Failed to parse persistent data", 500).asAttempt
@@ -31,10 +33,10 @@ object S3 {
     }
   }
 
-  def writeJson(json: Json, bucktName: String, path: String, client: AmazonS3): Attempt[Unit] = {
+  private def writeJson(json: Json, path: String, client: AmazonS3, config: Config): Attempt[Unit] = {
     try {
       Attempt.Right {
-        client.putObject(bucktName, path, json.noSpaces)
+        client.putObject(config.s3Bucket, path, json.noSpaces)
       }
     } catch {
       case NonFatal(e) =>
