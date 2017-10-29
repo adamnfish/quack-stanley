@@ -27,7 +27,7 @@ case class GameState(
   startTime: DateTime,
   started: Boolean, // once game has started players cannot be added
   creator: PlayerKey,
-  players: Map[PlayerKey, PlayerState]
+  players: Map[PlayerKey, String]
 )
 
 // typed JSON API operations, represent the possible client requests
@@ -38,7 +38,6 @@ case class CreateGame(
 ) extends ApiOperation
 case class RegisterPlayer(
   gameId: GameId,
-  playerKey: PlayerKey,
   playerName: String
 ) extends ApiOperation
 case class AwardPoint(

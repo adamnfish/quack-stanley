@@ -32,7 +32,7 @@ object S3 {
     writeJson(gameState.asJson, gameStatePath(gameState.gameId), config)
   }
 
-  def getGameState(playerKey: PlayerKey, gameId: GameId, s3Client: AmazonS3, config: Config)(implicit ec: ExecutionContext): Attempt[GameState] = {
+  def getGameState(gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[GameState] = {
     for {
       json <- getJson(gameStatePath(gameId), config)
       gameState <- LambdaIntegration.extractJson[GameState](json)
@@ -43,7 +43,7 @@ object S3 {
     writeJson(playerState.asJson, playerStatePath(playerState.gameId, playerKey), config)
   }
 
-  def getPlayerState(playerKey: PlayerKey, gameId: GameId, s3Client: AmazonS3, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerState] = {
+  def getPlayerState(playerKey: PlayerKey, gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerState] = {
     for {
       json <- getJson(gameStatePath(gameId), config)
       playerState <- LambdaIntegration.extractJson[PlayerState](json)

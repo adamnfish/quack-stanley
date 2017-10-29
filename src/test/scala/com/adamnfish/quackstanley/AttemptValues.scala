@@ -1,6 +1,6 @@
 package com.adamnfish.quackstanley
 
-import com.adamnfish.quackstanley.attempt.Attempt
+import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt}
 import org.scalatest.{EitherValues, Matchers}
 
 import scala.concurrent.{Await, ExecutionContext}
@@ -18,6 +18,18 @@ trait AttemptValues extends EitherValues with Matchers {
         )
       } {
         result.right.value
+      }
+    }
+
+    def leftValue()(implicit ec: ExecutionContext): FailedAttempt = {
+      val result = Await.result(attempt.asFuture, 5.seconds)
+      withClue {
+        result.fold(
+          fa => s"${fa.logString}",
+          _ => ""
+        )
+      } {
+        result.left.value
       }
     }
   }
