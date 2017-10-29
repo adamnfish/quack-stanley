@@ -104,7 +104,7 @@ object LambdaIntegration {
     })
   }
 
-  private def extractJson[A](json: Json)(implicit decoder: Decoder[A]): Attempt[A] = {
+  def extractJson[A](json: Json)(implicit decoder: Decoder[A]): Attempt[A] = {
     Attempt.fromEither(json.as[A].left.map { decodingFailure =>
       Failure(s"Failed to parse request body as expected type: ${decodingFailure.message}", "Failed to parse request JSON", 400, Some(decodingFailure.history.mkString("|"))).asAttempt
     })
