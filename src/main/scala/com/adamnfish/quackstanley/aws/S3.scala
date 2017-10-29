@@ -10,9 +10,10 @@ import scala.util.control.NonFatal
 
 object S3 {
   def client(): AmazonS3 = {
-    AmazonS3ClientBuilder.
+    AmazonS3ClientBuilder
       .standard()
       .withRegion("eu-west-1")
+      .build()
   }
 
   def getJson(bucketName: String, path: String, client: AmazonS3): Attempt[Json] = {
@@ -24,13 +25,22 @@ object S3 {
       })
     } catch {
       case NonFatal(e) =>
-        Failure(s"Error fetching file from S3 $path", "Error fetching persistent data", 500, Some(e.getMessage)
+        Attempt.Left {
+          Failure(s"Error fetching file from S3 $path", "Error fetching persistent data", 500, Some(e.getMessage)).asAttempt
+        }
     }
   }
 
   def writeJson(json: Json, bucktName: String, path: String, client: AmazonS3): Attempt[Unit] = {
-    val tmp = client.putObject(bucktName, path, json.noSpaces)
-//    tmp.
-    ???
+    try {
+      Attempt.Right {
+        client.putObject(bucktName, path, json.noSpaces)
+      }
+    } catch {
+      case NonFatal(e) =>
+        Attempt.Left {
+          Failure(s"Error writing JSON to S3 $path", "Error writing persistent data", 500, Some(e.getMessage)).asAttempt
+        }
+    }
   }
 }
