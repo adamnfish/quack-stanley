@@ -1,13 +1,9 @@
 package com.adamnfish.quackstanley.models
 
-import org.scalatest.{EitherValues, FreeSpec, Matchers}
+import com.adamnfish.quackstanley.models.Serialization._
 import io.circe.parser._
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder, Json}
-import io.circe.parser._
-import io.circe.generic.extras.semiauto._
-import Serialization._
-import org.joda.time.DateTime
+import org.scalatest.{EitherValues, FreeSpec, Matchers}
 
 
 class SerializationTest extends FreeSpec with Matchers with EitherValues {

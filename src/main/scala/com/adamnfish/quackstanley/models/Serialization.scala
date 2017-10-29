@@ -1,15 +1,44 @@
 package com.adamnfish.quackstanley.models
 
-import io.circe.generic.extras.semiauto.{deriveDecoder, deriveEncoder}
-import io.circe.{Decoder, Encoder}
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder}
+import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
+
+import scala.util.control.NonFatal
 
 
 object Serialization {
-  implicit val createGameDecoder: Decoder[CreateGame] = deriveDecoder
-  implicit val registerPlayerDecoder: Decoder[RegisterPlayer] = deriveDecoder
-  implicit val awardPointDecoder: Decoder[AwardPoint] = deriveDecoder
-  implicit val mulliganDecoder: Decoder[Mulligan] = deriveDecoder
-  implicit val pingDecoder: Decoder[Ping] = deriveDecoder
+  // dependencyDateTimetypes
+  private val dtfmt = ISODateTimeFormat.dateTime()
+  implicit val dateTimeEncoder: Encoder[DateTime] = Encoder.encodeString.contramap[DateTime](dtfmt.print)
+  implicit val dateTimeDecoder: Decoder[DateTime] = Decoder.decodeString.emap { str =>
+    try {
+      Right(dtfmt.parseDateTime(str))
+    } catch {
+      case NonFatal(e) =>
+        Left(s"Failed to parse DateTime, ${e.getMessage}")
+    }
+  }
+
+  // value classes
+  implicit val playerKeyEncoder: Encoder[PlayerKey] = Encoder.encodeString.contramap[PlayerKey](_.value)
+  implicit val playerKeyDecoder: Decoder[PlayerKey] = Decoder.decodeString.emap(str => Right(PlayerKey(str)))
+  implicit val playerKeyAsMapKeyEncoder: KeyEncoder[PlayerKey] = (pk: PlayerKey) => pk.value
+  implicit val playerKeyAsMapKeyDecoder: KeyDecoder[PlayerKey] = (pkStr: String) => Some(PlayerKey(pkStr))
+  implicit val gameIdEncoder: Encoder[GameId] = Encoder.encodeString.contramap[GameId](_.value)
+  implicit val gameIdDecoder: Decoder[GameId] = Decoder.decodeString.emap(str => Right(GameId(str)))
+  implicit val roleEncoder: Encoder[Role] = Encoder.encodeString.contramap[Role](_.value)
+  implicit val roleDecoder: Decoder[Role] = Decoder.decodeString.emap(str => Right(Role(str)))
+  implicit val wordEncoder: Encoder[Word] = Encoder.encodeString.contramap[Word](_.value)
+  implicit val wordDecoder: Decoder[Word] = Decoder.decodeString.emap(str => Right(Word(str)))
+
+  // inputs
+  implicit val createGameDecoder: Decoder[CreateGame] = deriveDecoder[CreateGame]
+  implicit val registerPlayerDecoder: Decoder[RegisterPlayer] = deriveDecoder[RegisterPlayer]
+  implicit val awardPointDecoder: Decoder[AwardPoint] = deriveDecoder[AwardPoint]
+  implicit val mulliganDecoder: Decoder[Mulligan] = deriveDecoder[Mulligan]
+  implicit val pingDecoder: Decoder[Ping] = deriveDecoder[Ping]
   implicit val apiOperationDecoder: Decoder[ApiOperation] = Decoder.instance(c =>
     c.downField("operation").as[String].flatMap {
       case "create-game" => c.as[CreateGame]
@@ -20,17 +49,17 @@ object Serialization {
     }
   )
 
-  implicit val playerKeyencoder: Encoder[PlayerKey] = Encoder.encodeString.contramap[PlayerKey](_.value)
-  implicit val playerKeyDecoder: Decoder[PlayerKey] = Decoder.decodeString.emap(str => Right(PlayerKey(str)))
-
-  implicit val playerInfoencoder: Encoder[PlayerInfo] = deriveEncoder
-  implicit val registeredEncoder: Encoder[Registered] = deriveEncoder
+  // response types
+  implicit val playerInfoencoder: Encoder[PlayerInfo] = deriveEncoder[PlayerInfo]
+  implicit val registeredEncoder: Encoder[Registered] = deriveEncoder[Registered]
   implicit val apiResponseencoder: Encoder[ApiResponse] = Encoder.instance {
     case playerInfo: PlayerInfo => playerInfoencoder.apply(playerInfo)
     case registered: Registered => registeredEncoder.apply(registered)
   }
-  implicit val playerStateEncoder: Encoder[PlayerState] = deriveEncoder
 
-  implicit val roleEncoder: Encoder[Role] = Encoder.encodeString.contramap[Role](_.value)
-  implicit val wordEncoder: Encoder[Word] = Encoder.encodeString.contramap[Word](_.value)
+  implicit val playerStateEncoder: Encoder[PlayerState] = deriveEncoder[PlayerState]
+  implicit val playerStateDecoder: Decoder[PlayerState] = deriveDecoder[PlayerState]
+
+  implicit val gameStateEncoder: Encoder[GameState] = deriveEncoder[GameState]
+  implicit val gameStateDecoder: Decoder[GameState] = deriveDecoder[GameState]
 }

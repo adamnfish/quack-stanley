@@ -6,7 +6,7 @@ import com.amazonaws.services.lambda.runtime.Context
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, Json}
 import io.circe.parser._
-import io.circe.generic.extras.semiauto._
+import io.circe.generic.semiauto._
 
 import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._

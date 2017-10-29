@@ -3,56 +3,11 @@ package com.adamnfish.quackstanley.models
 import org.joda.time.DateTime
 
 
-// typed JSON API operations, represent the possible client requests
-sealed trait ApiOperation
-case class CreateGame(
-  name: String
-) extends ApiOperation
-case class RegisterPlayer(
-  gameId: String,
-  playerKey: String,
-  playerName: String
-) extends ApiOperation
-case class AwardPoint(
-  gameId: String,
-  playerKey: String,
-  role: String,
-  awardToPlayerWithName: String
-) extends ApiOperation
-case class Mulligan(
-  gameId: String,
-  playerKey: String,
-  role: String
-) extends ApiOperation
-case class FinishPitch(
-  gameId: String,
-  playerKey: PlayerKey,
-  words: (Word, Word)
-) extends ApiOperation
-case class Ping(
-  gameId: String,
-  playerKey: String
-) extends ApiOperation
-object ApiOperation
+case class Role(value: String) extends AnyVal
+case class Word(value: String) extends AnyVal
 
-
-sealed trait ApiResponse
-// data returned to clients after all requests
-case class PlayerInfo(
-  state: PlayerState,
-  gameId: String,
-  started: Boolean,
-  otherPlayers: List[String]
-) extends ApiResponse
-// registers a user with a game
-case class Registered(
-  gameId: String,
-  playerKey: PlayerKey
-) extends ApiResponse
-object ApiResponse
-
-// used to authenticate users
 case class PlayerKey(value: String) extends AnyVal
+case class GameId(value: String) extends AnyVal
 
 // representation of a player
 case class PlayerState(
@@ -71,5 +26,50 @@ case class GameState(
   players: Map[PlayerKey, PlayerState]
 )
 
-case class Role(value: String) extends AnyVal
-case class Word(value: String) extends AnyVal
+// typed JSON API operations, represent the possible client requests
+sealed trait ApiOperation
+case class CreateGame(
+  name: String
+) extends ApiOperation
+case class RegisterPlayer(
+  gameId: GameId,
+  playerKey: PlayerKey,
+  playerName: String
+) extends ApiOperation
+case class AwardPoint(
+  gameId: GameId,
+  playerKey: PlayerKey,
+  role: Role,
+  awardToPlayerWithName: String
+) extends ApiOperation
+case class Mulligan(
+  gameId: GameId,
+  playerKey: PlayerKey,
+  role: Role
+) extends ApiOperation
+case class FinishPitch(
+  gameId: GameId,
+  playerKey: PlayerKey,
+  words: (Word, Word)
+) extends ApiOperation
+case class Ping(
+  gameId: GameId,
+  playerKey: PlayerKey
+) extends ApiOperation
+object ApiOperation
+
+
+sealed trait ApiResponse
+// data returned to clients after all requests
+case class PlayerInfo(
+  state: PlayerState,
+  gameId: GameId,
+  started: Boolean,
+  otherPlayers: List[String]
+) extends ApiResponse
+// registers a user with a game
+case class Registered(
+  gameId: GameId,
+  playerKey: PlayerKey
+) extends ApiResponse
+object ApiResponse

@@ -20,10 +20,8 @@ lazy val root = (project in file(".")).
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
       "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
       "joda-time" % "joda-time" % "2.9.9",
-      "io.circe" %% "circe-parser" % "0.7.0",
-      "io.circe" %% "circe-generic-extras_sjs0.6" % "0.7.0"
-        exclude("org.typelevel", "cats-core_sjs0.6_2.12" )
-        exclude("com.chuusai", "shapeless_sjs0.6_2.12"),
+      "io.circe" %% "circe-parser" % "0.8.0",
+      "io.circe" %% "circe-generic" % "0.8.0",
       "org.scalatest" %% "scalatest" % "3.0.4" % Test
     )
   )
