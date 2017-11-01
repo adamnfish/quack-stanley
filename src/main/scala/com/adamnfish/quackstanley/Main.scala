@@ -30,6 +30,7 @@ class Main {
       apiOperation match {
         case data: CreateGame => createGame(data, config)
         case data: RegisterPlayer => registerPlayer(data, config)
+        case data: StartGame => startGame(data, config)
         case data: FinishPitch => finishPitch(data, config)
         case data: AwardPoint => awardPoint(data, config)
         case data: Mulligan => mulligan(data, config)

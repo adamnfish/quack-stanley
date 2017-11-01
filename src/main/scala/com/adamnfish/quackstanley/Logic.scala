@@ -38,4 +38,14 @@ object Logic {
       Failure("Player key not found in game state", "Invalid player", 404).asAttempt
     )
   }
+
+  def authenticateCreator(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[PlayerKey] = {
+    if (gameState.creator == playerKey) {
+      Attempt.Right(gameState.creator)
+    } else {
+      Attempt.Left {
+        Failure("Player key not found in game state", "Invalid player", 404).asAttempt
+      }
+    }
+  }
 }

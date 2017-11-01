@@ -1,10 +1,9 @@
 package com.adamnfish.quackstanley
 
-import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
-import com.adamnfish.quackstanley.models._
-import com.adamnfish.quackstanley.models.Serialization._
 import com.adamnfish.quackstanley.Logic._
+import com.adamnfish.quackstanley.attempt.Attempt
 import com.adamnfish.quackstanley.aws.S3._
+import com.adamnfish.quackstanley.models._
 
 import scala.concurrent.ExecutionContext
 
@@ -36,6 +35,27 @@ object QuackStanley {
       playerState = newPlayer(gameState.gameId, gameState.gameName,data.playerName)
       _ <- writePlayerState(playerState, newPlayerKey, config)
     } yield Registered(playerState, newPlayerKey)
+  }
+
+  /**
+    * Sets this game's state to "started".
+    *
+    * This is also the chance to write the player names/keys into the game state.
+    * Doing it from here prevents race hazards since reading and writing S3 files is not atomic.
+    */
+  def startGame(data: StartGame, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+    for {
+      gameState <- getGameState(data.gameId, config)
+      _ <- authenticateCreator(data.playerKey, gameState)
+      players <- getRegisteredPlayers(data.gameId, config)
+      playerNames = players.values.toList
+      updatedGameState = gameState.copy(
+        players = players,
+        started = true
+      )
+      _ <- writeGameState(updatedGameState, config)
+      playerState <- getPlayerState(data.playerKey, data.gameId, config)
+    } yield PlayerInfo(playerState, started = true, playerNames)
   }
 
   /**

@@ -40,6 +40,10 @@ case class RegisterPlayer(
   gameId: GameId,
   playerName: String
 ) extends ApiOperation
+case class StartGame(
+  gameId: GameId,
+  playerKey: PlayerKey
+) extends ApiOperation
 case class AwardPoint(
   gameId: GameId,
   playerKey: PlayerKey,

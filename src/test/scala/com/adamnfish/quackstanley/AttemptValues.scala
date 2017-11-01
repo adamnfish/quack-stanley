@@ -32,5 +32,17 @@ trait AttemptValues extends EitherValues with Matchers {
         result.left.value
       }
     }
+
+    def isSuccessfulAttempt()(implicit ec: ExecutionContext): Boolean = {
+      val result = Await.result(attempt.asFuture, 5.seconds)
+      result.fold(
+        fa => false,
+        _ => true
+      )
+    }
+
+    def isFailedAttempt()(implicit ec: ExecutionContext): Boolean = {
+      !isSuccessfulAttempt()
+    }
   }
 }

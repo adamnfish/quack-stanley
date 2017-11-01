@@ -12,6 +12,7 @@ import io.circe.syntax._
 import scala.concurrent.ExecutionContext
 import scala.io.Source
 import scala.util.control.NonFatal
+import scala.collection.JavaConverters._
 
 
 object S3 {
@@ -26,7 +27,10 @@ object S3 {
     s"data/${gameId.value}/game.json"
 
   private[aws] def playerStatePath(gameId: GameId, playerKey: PlayerKey): String =
-    s"data/${gameId.value}/${playerKey.value}.json"
+    s"${playerStateDir(gameId)}${playerKey.value}.json"
+
+  private[aws] def playerStateDir(gameId: GameId): String =
+    s"data/${gameId.value}/players/"
 
   def writeGameState(gameState: GameState, config: Config): Attempt[Unit] = {
     writeJson(gameState.asJson, gameStatePath(gameState.gameId), config)
@@ -48,6 +52,18 @@ object S3 {
       json <- getJson(gameStatePath(gameId), config)
       playerState <- LambdaIntegration.extractJson[PlayerState](json)
     } yield playerState
+  }
+
+  def getRegisteredPlayers(gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[Map[PlayerKey, String]] = {
+    for {
+      playerKeyIds <- listFiles(playerStateDir(gameId), config)
+      playerKeys = playerKeyIds.map(PlayerKey)
+      playerStates <- Attempt.traverse(playerKeys) { playerKey =>
+        getPlayerState(playerKey, gameId, config).map(playerKey -> _)
+      }
+    } yield playerStates.map { case (playerKey, playerState) =>
+      playerKey -> playerState.screenName
+    }.toMap
   }
 
   // TODO maybe run in a Future?
@@ -75,6 +91,20 @@ object S3 {
       case NonFatal(e) =>
         Attempt.Left {
           Failure(s"Error writing JSON to S3 $path", "Error writing persistent data", 500, Some(e.getMessage)).asAttempt
+        }
+    }
+  }
+
+  private def listFiles(path: String, config: Config): Attempt[List[String]] = {
+    try {
+      Attempt.Right {
+        val objectListings = config.s3Client.listObjects(config.s3Bucket, path)
+        objectListings.getObjectSummaries.asScala.toList.map(_.getKey)
+      }
+    } catch {
+      case NonFatal(e) =>
+        Attempt.Left {
+          Failure(s"Error listing files in S3 $path", "Error reading from persistent data storage", 500, Some(e.getMessage))
         }
     }
   }

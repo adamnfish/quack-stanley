@@ -66,4 +66,25 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues {
       }
     }
   }
+
+  "authenticateCreator" - {
+    val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"),
+      Map(
+        PlayerKey("player") -> "player-name",
+        PlayerKey("foo") -> "another-player"
+      )
+    )
+
+    "fails if the key is not in the group" in {
+      authenticateCreator(PlayerKey("bar"), gameState)
+    }
+
+    "fails if the provided key is not the creator" in {
+      authenticateCreator(PlayerKey("player"), gameState)
+    }
+
+    "succeeds if the provided player isthe creator" in {
+      authenticateCreator(PlayerKey("foo"), gameState).isSuccessfulAttempt() shouldEqual true
+    }
+  }
 }
