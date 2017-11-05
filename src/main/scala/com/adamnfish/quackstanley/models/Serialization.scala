@@ -1,7 +1,8 @@
 package com.adamnfish.quackstanley.models
 
+import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder}
+import io.circe._
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 
@@ -62,4 +63,10 @@ object Serialization {
 
   implicit val gameStateEncoder: Encoder[GameState] = deriveEncoder[GameState]
   implicit val gameStateDecoder: Decoder[GameState] = deriveDecoder[GameState]
+
+  def extractJson[A](json: Json)(implicit decoder: Decoder[A]): Attempt[A] = {
+    Attempt.fromEither(json.as[A].left.map { decodingFailure =>
+      Failure(s"Failed to parse request body as expected type: ${decodingFailure.message}", "Failed to parse request JSON", 400, Some(decodingFailure.history.mkString("|"))).asAttempt
+    })
+  }
 }

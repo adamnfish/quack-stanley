@@ -1,9 +1,9 @@
 package com.adamnfish.quackstanley
 
 import com.adamnfish.quackstanley.Logic._
-import com.adamnfish.quackstanley.attempt.Attempt
-import com.adamnfish.quackstanley.aws.S3._
+import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
 import com.adamnfish.quackstanley.models._
+import com.adamnfish.quackstanley.persistence.GameIO._
 
 import scala.concurrent.ExecutionContext
 
@@ -42,6 +42,8 @@ object QuackStanley {
     *
     * This is also the chance to write the player names/keys into the game state.
     * Doing it from here prevents race hazards since reading and writing S3 files is not atomic.
+    *
+    * TODO: deal words and role
     */
   def startGame(data: StartGame, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
@@ -63,19 +65,49 @@ object QuackStanley {
    */
 //  def startPitch
 
+  /**
+    * Discards player's words, replaces them with new ones.
+    */
   def finishPitch(data: FinishPitch, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+    // auth
+    // check words belong to player
+    // discard cards
+    // refill player's hand
     ???
   }
 
+  /**
+    * Ends the round and gives the point (word) to another player.
+    * Starts the next round by assigning a role to the next player.
+    */
   def awardPoint(data: AwardPoint, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+    // auth as buyer
+    // lookup winning player
+    // add word to winning player's points
+    // find next player
+    // assign next player a word
     ???
   }
 
+  /**
+    * Player discards a point (if they have one) and their current hand.
+    * Player is given a new hand of words.
+    */
   def mulligan(data: Mulligan, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+    // auth
+    // verify role is provided if they have any points
+    // discard words
+    // get new words for the player
     ???
   }
 
+  /**
+    * return current state for the player.
+    * This is particularly to check for
+    */
   def ping(data: Ping, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+    // auth
+    // return player state
     ???
   }
 }

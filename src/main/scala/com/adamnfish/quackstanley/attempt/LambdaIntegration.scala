@@ -2,6 +2,7 @@ package com.adamnfish.quackstanley.attempt
 
 import java.io.{InputStream, OutputStream}
 
+import com.adamnfish.quackstanley.models.Serialization
 import com.amazonaws.services.lambda.runtime.Context
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, Json}
@@ -49,7 +50,7 @@ object LambdaIntegration {
       lambdaRequest <- extractLambdaRequest(requestJson)
       body <- extractLambdaRequestBody(lambdaRequest)
       bodyJson <- parseLambdaRequestBody(body)
-      a <- extractJson[A](bodyJson)
+      a <- Serialization.extractJson[A](bodyJson)
     } yield (a, lambdaRequest)
   }
 
@@ -101,12 +102,6 @@ object LambdaIntegration {
   private def parseLambdaRequestBody(body: String): Attempt[Json] = {
     Attempt.fromEither(parse(body).left.map { parsingFailure =>
       Failure(s"Could not parse request body as JSON: ${parsingFailure.message}", "Could not parse request body JSON", 400).asAttempt
-    })
-  }
-
-  def extractJson[A](json: Json)(implicit decoder: Decoder[A]): Attempt[A] = {
-    Attempt.fromEither(json.as[A].left.map { decodingFailure =>
-      Failure(s"Failed to parse request body as expected type: ${decodingFailure.message}", "Failed to parse request JSON", 400, Some(decodingFailure.history.mkString("|"))).asAttempt
     })
   }
 }
