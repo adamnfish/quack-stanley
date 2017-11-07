@@ -92,22 +92,30 @@ object Logic {
     val next = shuffle(roles).filterNot(used.contains).take(n)
     if (next.size < n) {
       Attempt.Left {
-        Failure("Exhausted available roles", "Ran out of roles", 500).asAttempt
+        Failure("Exhausted available roles", "Ran out of roles", 500)
       }
     } else {
       Attempt.Right(next)
     }
   }
 
-  def dealWords(words: List[Word], players: Map[PlayerKey, PlayerState]): Map[PlayerKey, PlayerState] = {
-    words.grouped(QuackStanley.handSize)
-    val (_, dealtPlayers) = players.foldLeft[(List[Word], Map[PlayerKey, PlayerState])]((Nil, Map.empty)) {
-      case ((remainingWords, acc), (playerKey, playerState)) =>
-        (
-          remainingWords.drop(QuackStanley.handSize),
-          acc + (playerKey -> playerState.copy(hand = remainingWords.take(QuackStanley.handSize)))
-        )
+  def dealWords(words: List[Word], players: Map[PlayerKey, PlayerState]): Attempt[Map[PlayerKey, PlayerState]] = {
+    if (words.size < players.size * QuackStanley.handSize) {
+      Attempt.Left(
+        Failure("dealWords wasn't given enough words for the players", "Failed to get words for all players", 500)
+      )
+    } else {
+      Attempt.Right {
+        words.grouped(QuackStanley.handSize)
+        val (_, dealtPlayers) = players.foldLeft[(List[Word], Map[PlayerKey, PlayerState])]((Nil, Map.empty)) {
+          case ((remainingWords, acc), (playerKey, playerState)) =>
+            (
+              remainingWords.drop(QuackStanley.handSize),
+              acc + (playerKey -> playerState.copy(hand = remainingWords.take(QuackStanley.handSize)))
+            )
+        }
+        dealtPlayers
+      }
     }
-    dealtPlayers
   }
 }

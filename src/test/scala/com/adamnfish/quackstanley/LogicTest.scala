@@ -187,8 +187,21 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues {
   }
 
   "dealWords" - {
-    "fails if there aren't enough words provided" ignore {}
+    val template = PlayerState(GameId("game-id"), "game-name", "sreen-name", Nil, Nil, None, Nil)
+    val players = Map(
+      PlayerKey("one") -> template.copy(screenName = "player one"),
+      PlayerKey("two") -> template.copy(screenName = "player two")
+    )
 
-    "deals each player 'hand size' words" ignore {}
+    "fails if there aren't enough words provided" in {
+      dealWords(Nil, players).isFailedAttempt() shouldEqual true
+    }
+
+    "deals each player 'hand size' words" in {
+      val words = List.fill(QuackStanley.handSize * 2)(Word("test"))
+      dealWords(words, players).value().forall { case (_, state) =>
+        state.hand.size == QuackStanley.handSize
+      }
+    }
   }
 }

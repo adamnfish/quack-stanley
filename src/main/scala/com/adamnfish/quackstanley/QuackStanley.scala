@@ -57,7 +57,7 @@ object QuackStanley {
       words <- nextWords(handSize * players.size, allWords, Set.empty)
       role <- nextRoles(1, allRoles, Set.empty)
       names = makePlayerNames(players)
-      dealtPlayers = dealWords(words, players)
+      dealtPlayers <- dealWords(words, players)
       // deal a role as well?
       creatorState <- lookupPlayer(dealtPlayers, data.playerKey)
       updatedGameState = startGameState(gameState, names)
