@@ -22,7 +22,8 @@ case class Failure(
   message: String,
   friendlyMessage: String,
   statusCode: Int,
-  context: Option[String] = None
+  context: Option[String] = None,
+  exception: Option[Throwable] = None
 ) {
   def asAttempt = FailedAttempt(this)
 }

@@ -12,7 +12,7 @@ class TestPersistence extends Persistence {
 
   override def getJson(path: String, config: Config): Attempt[Json] = {
     Attempt.fromOption(data.get(path),
-      Failure("Test data not found", "Test data not found", 500, Some(path)).asAttempt
+      Failure("Test data not found", "Test data not found", 500, Some(path), None).asAttempt
     )
   }
 

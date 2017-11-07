@@ -1,0 +1,5 @@
+teacher
+cleaner
+president
+programmer
+manager

@@ -41,15 +41,13 @@ object GameIO {
     } yield playerState
   }
 
-  def getRegisteredPlayers(gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[Map[PlayerKey, String]] = {
+  def getRegisteredPlayers(gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[Map[PlayerKey, PlayerState]] = {
     for {
       playerKeyIds <- config.ioClient.listFiles(playerStateDir(gameId), config)
       playerKeys = playerKeyIds.map(PlayerKey)
       playerStates <- Attempt.traverse(playerKeys) { playerKey =>
         getPlayerState(playerKey, gameId, config).map(playerKey -> _)
       }
-    } yield playerStates.map { case (playerKey, playerState) =>
-      playerKey -> playerState.screenName
-    }.toMap
+    } yield playerStates.toMap
   }
 }

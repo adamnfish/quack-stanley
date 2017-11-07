@@ -96,7 +96,9 @@ object LambdaIntegration {
   }
 
   private def extractLambdaRequestBody(lambdaRequest: LambdaRequest): Attempt[String] = {
-    Attempt.fromOption(lambdaRequest.body, Failure("No body on request", "Could not parse missing request body", 400).asAttempt)
+    Attempt.fromOption(lambdaRequest.body,
+      Failure("No body on request", "Could not parse missing request body", 400).asAttempt
+    )
   }
 
   private def parseLambdaRequestBody(body: String): Attempt[Json] = {

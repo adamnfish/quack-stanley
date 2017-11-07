@@ -9,6 +9,8 @@ import scala.concurrent.ExecutionContext
 
 
 object QuackStanley {
+  val handSize = 5
+
   /**
     * Creates a new game and automatically registers this player as the creator.
     */
@@ -43,21 +45,24 @@ object QuackStanley {
     * This is also the chance to write the player names/keys into the game state.
     * Doing it from here prevents race hazards since reading and writing S3 files is not atomic.
     *
-    * TODO: deal words and role
+    * TODO: deal words to all players and role to first player
     */
   def startGame(data: StartGame, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
       gameState <- getGameState(data.gameId, config)
       _ <- authenticateCreator(data.playerKey, gameState)
       players <- getRegisteredPlayers(data.gameId, config)
-      playerNames = players.values.toList
-      updatedGameState = gameState.copy(
-        players = players,
-        started = true
-      )
+      allRoles <- Resources.roles()
+      allWords <- Resources.words()
+      words <- nextWords(handSize * players.size, allWords, Set.empty)
+      role <- nextRoles(1, allRoles, Set.empty)
+      names = makePlayerNames(players)
+      dealtPlayers = dealWords(words, players)
+      // deal a role as well?
+      creatorState <- lookupPlayer(dealtPlayers, data.playerKey)
+      updatedGameState = startGameState(gameState, names)
       _ <- writeGameState(updatedGameState, config)
-      playerState <- getPlayerState(data.playerKey, data.gameId, config)
-    } yield PlayerInfo(playerState, started = true, playerNames)
+    } yield PlayerInfo(creatorState, started = true, names.values.toList)
   }
 
   /**
