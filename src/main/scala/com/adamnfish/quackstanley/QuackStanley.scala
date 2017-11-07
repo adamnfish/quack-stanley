@@ -40,12 +40,10 @@ object QuackStanley {
   }
 
   /**
-    * Sets this game's state to "started".
+    * Sets this game's state to "started" and sets up the initial player states (e.g. dealing them words).
     *
     * This is also the chance to write the player names/keys into the game state.
     * Doing it from here prevents race hazards since reading and writing S3 files is not atomic.
-    *
-    * TODO: deal words to all players and role to first player
     */
   def startGame(data: StartGame, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
@@ -58,7 +56,6 @@ object QuackStanley {
       role <- nextRoles(1, allRoles, Set.empty)
       names = makePlayerNames(players)
       dealtPlayers <- dealWords(words, players)
-      // deal a role as well?
       creatorState <- lookupPlayer(dealtPlayers, data.playerKey)
       updatedGameState = startGameState(gameState, names)
       _ <- writeGameState(updatedGameState, config)
@@ -66,9 +63,30 @@ object QuackStanley {
   }
 
   /**
-   * Is this required?
+    * Signals that the player would like to be the next "buyer".
+    * We can deal them a role and wait for people to pitch to that player.
+    */
+  def becomeBuyer(data: BecomeBuyer, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+    // auth
+    // validate no one else is currently a buyer
+    // deal role
+    // update game state to say this player is the current buyer
+    // write player state
+    ???
+  }
+
+  /**
+   * Marks this player as "pitching" so that other clients can see that.
+    *
+    * Is this necessary?
    */
-//  def startPitch
+  def startPitch(data: StartPitch, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+    // auth
+    // validate no one else is pitching
+    // write player state
+    // update game state
+    ???
+  }
 
   /**
     * Discards player's words, replaces them with new ones.
@@ -83,14 +101,11 @@ object QuackStanley {
 
   /**
     * Ends the round and gives the point (word) to another player.
-    * Starts the next round by assigning a role to the next player.
     */
   def awardPoint(data: AwardPoint, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     // auth as buyer
     // lookup winning player
     // add word to winning player's points
-    // find next player
-    // assign next player a word
     ???
   }
 
@@ -108,7 +123,6 @@ object QuackStanley {
 
   /**
     * return current state for the player.
-    * This is particularly to check for
     */
   def ping(data: Ping, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     // auth

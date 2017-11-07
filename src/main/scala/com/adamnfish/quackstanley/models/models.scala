@@ -18,6 +18,7 @@ case class PlayerState(
   discardedWords: List[Word], // these words are no longer available
   role: Option[Role], // current player has a role
   points: List[Role]
+  // pitching: Boolean  <- required?
 )
 
 // private global gamestate
@@ -28,6 +29,8 @@ case class GameState(
   started: Boolean, // once game has started players cannot be added
   creator: PlayerKey,
   players: Map[PlayerKey, String]
+  // buyer: Option[PlayerKey]  <- required?
+  // pitching: Option[PlayerKey]  <- required?
 )
 
 // typed JSON API operations, represent the possible client requests
@@ -44,27 +47,35 @@ case class StartGame(
   gameId: GameId,
   playerKey: PlayerKey
 ) extends ApiOperation
-case class AwardPoint(
+case class BecomeBuyer(
   gameId: GameId,
-  playerKey: PlayerKey,
-  role: Role,
-  awardToPlayerWithName: String
+  playerKey: PlayerKey
 ) extends ApiOperation
-case class Mulligan(
+case class StartPitch(
   gameId: GameId,
-  playerKey: PlayerKey,
-  role: Role
+  playerKey: PlayerKey
 ) extends ApiOperation
 case class FinishPitch(
   gameId: GameId,
   playerKey: PlayerKey,
   words: (Word, Word)
 ) extends ApiOperation
+case class AwardPoint(
+  gameId: GameId,
+  playerKey: PlayerKey,
+  role: Role,
+  awardToPlayerWithName: String
+) extends ApiOperation
 case class Ping(
   gameId: GameId,
   playerKey: PlayerKey
 ) extends ApiOperation
 object ApiOperation
+case class Mulligan(
+  gameId: GameId,
+  playerKey: PlayerKey,
+  role: Role
+) extends ApiOperation
 
 
 sealed trait ApiResponse
@@ -73,6 +84,7 @@ case class PlayerInfo(
   state: PlayerState,
   started: Boolean,
   otherPlayers: List[String]
+  // buyer: Option[(String, Word)]
 ) extends ApiResponse
 // registers a user with a game
 case class Registered(
