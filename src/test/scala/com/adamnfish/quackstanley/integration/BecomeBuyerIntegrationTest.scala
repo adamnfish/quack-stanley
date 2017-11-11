@@ -10,11 +10,11 @@ import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class PingIntegrationTest extends FreeSpec with Matchers with OneInstancePerTest with AttemptValues {
+class BecomeBuyerIntegrationTest extends FreeSpec with Matchers with OneInstancePerTest with AttemptValues {
   val persistence = new TestPersistence
   val testConfig = Config("test", "test", persistence)
 
-  "ping" - {
+  "becomeBuyer" - {
     "if the game exists" - {
       val creator = PlayerKey("creator")
       val gameId = GameId("test-game")
@@ -30,10 +30,24 @@ class PingIntegrationTest extends FreeSpec with Matchers with OneInstancePerTest
         GameIO.writeGameState(gameState, testConfig)
         GameIO.writePlayerState(playerState, playerKey, testConfig)
 
-        "returns correct player info for player" in {
-          val request = Ping(gameId, playerKey)
-          val playerInfo = ping(request, testConfig).value()
-          playerInfo.state.screenName shouldEqual screenName
+        "returns role in player info" in {
+          val request = BecomeBuyer(gameId, playerKey)
+          val playerInfo = becomeBuyer(request, testConfig).value()
+          playerInfo.state.role.isDefined shouldEqual true
+        }
+
+        "persists role in player state" in {
+          val request = BecomeBuyer(gameId, playerKey)
+          val playerInfo = becomeBuyer(request, testConfig).value()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
+          persistedPlayerState.role.isDefined shouldEqual true
+        }
+
+        "persists buyer in game state" in {
+          val request = BecomeBuyer(gameId, playerKey)
+          val playerInfo = becomeBuyer(request, testConfig).value()
+          val persistedState = GameIO.getGameState(gameId, testConfig).value()
+          persistedState.buyer.isDefined shouldEqual true
         }
       }
 
@@ -42,14 +56,14 @@ class PingIntegrationTest extends FreeSpec with Matchers with OneInstancePerTest
           Map(creator -> "Creator")
         )
         GameIO.writeGameState(gameState, testConfig)
-        val request = Ping(gameId, PlayerKey("does not exist"))
-        ping(request, testConfig).isFailedAttempt() shouldEqual true
+        val request = BecomeBuyer(gameId, PlayerKey("does not exist"))
+        becomeBuyer(request, testConfig).isFailedAttempt() shouldEqual true
       }
     }
 
     "if the game does not exist, fails to auth the player" in {
-      val request = Ping(GameId("does-not-exist"), PlayerKey("no-player"))
-      ping(request, testConfig).isFailedAttempt() shouldEqual true
+      val request = BecomeBuyer(GameId("does-not-exist"), PlayerKey("no-player"))
+      becomeBuyer(request, testConfig).isFailedAttempt() shouldEqual true
     }
   }
 }

@@ -53,13 +53,13 @@ object QuackStanley {
       allRoles <- Resources.roles()
       allWords <- Resources.words()
       words <- nextWords(handSize * players.size, allWords, Set.empty)
-      role <- nextRoles(1, allRoles, Set.empty)
+      role <- nextRole(allRoles, Set.empty)
       names = makePlayerNames(players)
       dealtPlayers <- dealWords(words, players)
       creatorState <- lookupPlayer(dealtPlayers, data.playerKey)
       updatedGameState = startGameState(gameState, names)
       _ <- writeGameState(updatedGameState, config)
-    } yield PlayerInfo(creatorState, started = true, names.values.toList)
+    } yield PlayerInfo(creatorState, updatedGameState)
   }
 
   /**
@@ -71,8 +71,21 @@ object QuackStanley {
     // validate no one else is currently a buyer
     // deal role
     // update game state to say this player is the current buyer
+    // write game state
     // write player state
-    ???
+    for {
+      gameState <- getGameState(data.gameId, config)
+      _ <- authenticate(data.playerKey, gameState)
+      _ <- verifyNoBuyer(gameState)
+      players <- getRegisteredPlayers(data.gameId, config)
+      player <- lookupPlayer(players, data.playerKey)
+      allRoles <- Resources.roles()
+      role <- nextRole(allRoles, usedRoles(players.values.toList))
+      playerWithRole = player.copy(role = Some(role))
+      gameWithBuyer = gameState.copy(buyer = Some(data.playerKey))
+      _ <- writeGameState(gameWithBuyer, config)
+      _ <- writePlayerState(playerWithRole, data.playerKey, config)
+    } yield PlayerInfo(playerWithRole, gameWithBuyer)
   }
 
   /**
@@ -106,6 +119,7 @@ object QuackStanley {
     // auth as buyer
     // lookup winning player
     // add word to winning player's points
+    // set game state to "no buyer"
     ???
   }
 

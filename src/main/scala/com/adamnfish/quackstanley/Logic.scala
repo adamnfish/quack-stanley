@@ -23,7 +23,7 @@ object Logic {
     val gameId = generateGameId()
     val playerKey = generatePlayerKey()
     GameState(
-      gameId, gameName, DateTime.now(), started = false, playerKey,
+      gameId, gameName, DateTime.now(), started = false, playerKey, None,
       Map(
         playerKey -> playerName
       )
@@ -69,6 +69,14 @@ object Logic {
     )
   }
 
+  def verifyNoBuyer(gameState: GameState): Attempt[Unit] = {
+    if (gameState.buyer.isDefined) {
+      Attempt.Left(Failure("Buyer already exists", "This game already has a buyer", 400))
+    } else {
+      Attempt.Right(())
+    }
+  }
+
   def usedWords(states: List[PlayerState]): Set[Word] = {
     states.flatMap(state => state.hand ++ state.discardedWords).toSet
   }
@@ -88,15 +96,10 @@ object Logic {
     states.flatMap(state => state.points ++ state.role).toSet
   }
 
-  def nextRoles(n: Int, roles: List[Role], used: Set[Role]): Attempt[List[Role]] = {
-    val next = shuffle(roles).filterNot(used.contains).take(n)
-    if (next.size < n) {
-      Attempt.Left {
-        Failure("Exhausted available roles", "Ran out of roles", 500)
-      }
-    } else {
-      Attempt.Right(next)
-    }
+  def nextRole(roles: List[Role], used: Set[Role]): Attempt[Role] = {
+    Attempt.fromOption(shuffle(roles).filterNot(used.contains).headOption,
+      Failure("Exhausted available roles", "Ran out of roles", 500).asAttempt
+    )
   }
 
   def dealWords(words: List[Word], players: Map[PlayerKey, PlayerState]): Attempt[Map[PlayerKey, PlayerState]] = {
@@ -117,5 +120,9 @@ object Logic {
         dealtPlayers
       }
     }
+  }
+
+  def dealRole(role: Role, player: PlayerState): PlayerState = {
+    player.copy(role = Some(role))
   }
 }

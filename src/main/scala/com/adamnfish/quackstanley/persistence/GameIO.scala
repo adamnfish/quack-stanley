@@ -1,7 +1,7 @@
 package com.adamnfish.quackstanley.persistence
 
 import com.adamnfish.quackstanley.Config
-import com.adamnfish.quackstanley.attempt.{Attempt, LambdaIntegration}
+import com.adamnfish.quackstanley.attempt.{Attempt, Failure, LambdaIntegration}
 import com.adamnfish.quackstanley.models._
 import io.circe.syntax._
 import com.adamnfish.quackstanley.models.Serialization._

@@ -28,8 +28,8 @@ case class GameState(
   startTime: DateTime,
   started: Boolean, // once game has started players cannot be added
   creator: PlayerKey,
+  buyer: Option[PlayerKey],
   players: Map[PlayerKey, String]
-  // buyer: Option[PlayerKey]  <- required?
   // pitching: Option[PlayerKey]  <- required?
 )
 

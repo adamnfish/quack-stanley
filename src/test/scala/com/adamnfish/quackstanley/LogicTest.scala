@@ -23,6 +23,10 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues {
       newGame("test-game", "test-player").started shouldEqual false
     }
 
+    "sets buyer to None" in {
+      newGame("test-game", "test-player").buyer shouldEqual None
+    }
+
     "submitting player is in players " in {
       val initialGameState = newGame("test-game", "test-player")
       initialGameState.creator shouldEqual initialGameState.players.keys.head
@@ -42,7 +46,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues {
     val playerKey = PlayerKey("player")
 
     "when user exists in player map" - {
-      val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"),
+      val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"), None,
         Map(
           PlayerKey("player") -> "player-name",
           PlayerKey("foo") -> "another-player"
@@ -55,7 +59,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues {
     }
 
     "when user does not exist in player map" - {
-      val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"),
+      val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"), None,
         Map(
           PlayerKey("foo") -> "another-player"
         )
@@ -68,7 +72,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues {
   }
 
   "authenticateCreator" - {
-    val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"),
+    val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"), None,
       Map(
         PlayerKey("player") -> "player-name",
         PlayerKey("foo") -> "another-player"
@@ -101,6 +105,18 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues {
         PlayerKey("two") -> "player two",
         PlayerKey("three") -> "player three"
       )
+    }
+  }
+
+  "verifyNoBuyer" - {
+    "returns sucessful attempt if there is no buyer" in {
+      val game = newGame("game name", "creator").copy(buyer = None)
+      verifyNoBuyer(game).isFailedAttempt() shouldEqual false
+    }
+
+    "returns failed attempt if there is already a buyer" in {
+      val game = newGame("game name", "creator").copy(buyer = Some(PlayerKey("player")))
+      verifyNoBuyer(game).isFailedAttempt() shouldEqual true
     }
   }
 
@@ -166,23 +182,23 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues {
     )
   }
 
-  "nextRoles" - {
+  "nextRole" - {
     "fails if no roles are provided" in {
       val roles = Nil
       val usedRoles = Set.empty[Role]
-      nextRoles(1, roles, usedRoles).isFailedAttempt() shouldEqual true
+      nextRole(roles, usedRoles).isFailedAttempt() shouldEqual true
     }
 
     "fails if remaining roles have been used" in {
       val roles = List(Role("one"), Role("two"), Role("three"))
       val usedRoles = Set(Role("one"), Role("two"), Role("three"))
-      nextRoles(1, roles, usedRoles).isFailedAttempt() shouldEqual true
+      nextRole(roles, usedRoles).isFailedAttempt() shouldEqual true
     }
 
     "returns an unused role" in {
       val roles = List(Role("one"), Role("two"), Role("three"))
       val usedRoles = Set(Role("one"), Role("two"))
-      nextRoles(1, roles, usedRoles).value() shouldEqual List(Role("three"))
+      nextRole(roles, usedRoles).value() shouldEqual Role("three")
     }
   }
 

@@ -18,7 +18,7 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers with OneInsta
     "if the game exists" - {
       val creator = PlayerKey("creator")
       val gameId = GameId("test-game")
-      val gameState = GameState(gameId, "game-name", DateTime.now(), false, creator, Map(creator -> "Creator"))
+      val gameState = GameState(gameId, "game-name", DateTime.now(), false, creator, None, Map(creator -> "Creator"))
       GameIO.writeGameState(gameState, testConfig)
 
       "uses provided screen name" in {
