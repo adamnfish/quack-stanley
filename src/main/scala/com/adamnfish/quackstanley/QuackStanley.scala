@@ -125,8 +125,10 @@ object QuackStanley {
     * return current state for the player.
     */
   def ping(data: Ping, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
-    // auth
-    // return player state
-    ???
+    for {
+      gameState <- getGameState(data.gameId, config)
+      _ <- authenticate(data.playerKey, gameState)
+      playerState <- getPlayerState(data.playerKey, gameState.gameId, config)
+    } yield PlayerInfo(playerState, gameState)
   }
 }
