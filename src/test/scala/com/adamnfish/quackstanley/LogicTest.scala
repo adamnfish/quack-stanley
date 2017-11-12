@@ -80,15 +80,73 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     )
 
     "fails if the key is not in the group" in {
-      authenticateCreator(PlayerKey("bar"), gameState)
+      authenticateCreator(PlayerKey("bar"), gameState).isFailedAttempt() shouldEqual true
     }
 
     "fails if the provided key is not the creator" in {
-      authenticateCreator(PlayerKey("player"), gameState)
+      authenticateCreator(PlayerKey("player"), gameState).isFailedAttempt() shouldEqual true
     }
 
-    "succeeds if the provided player isthe creator" in {
+    "succeeds if the provided player is the creator" in {
       authenticateCreator(PlayerKey("foo"), gameState).isSuccessfulAttempt() shouldEqual true
+    }
+  }
+
+  "authenticateBuyer" - {
+    val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"),
+      buyer = Some(PlayerKey("foo")),
+      Map(
+        PlayerKey("player") -> "player-name",
+        PlayerKey("foo") -> "another-player"
+      )
+    )
+
+    "fails if the key is not in the group" in {
+      authenticateBuyer(PlayerKey("bar"), gameState).isFailedAttempt() shouldEqual true
+    }
+
+    "fails if the provided key is not the buyer" in {
+      authenticateBuyer(PlayerKey("player"), gameState).isFailedAttempt() shouldEqual true
+    }
+
+    "succeeds if the provided player is the buyer" in {
+      authenticateBuyer(PlayerKey("foo"), gameState).isSuccessfulAttempt() shouldEqual true
+    }
+  }
+
+  "lookupPlayerByName" - {
+    val playerState = PlayerState(GameId("game"), "game name", "screen-name", Nil, Nil, None, Nil)
+    val playerKey = PlayerKey("player")
+    val players = Map(
+      playerKey -> playerState,
+      PlayerKey("player-2") -> PlayerState(GameId("game"), "game name", "another-screen-name", Nil, Nil, None, Nil)
+    )
+
+    "fails if the name is not found" in {
+      lookupPlayerByName(players, "name-not-in-game").isFailedAttempt() shouldEqual true
+    }
+
+    "returns the player details if the player is found" in {
+      val (key, playerState) = lookupPlayerByName(players, "screen-name").value()
+      key shouldEqual playerKey
+      playerState shouldEqual playerState
+    }
+  }
+
+  "playerHasRole" - {
+    "fails if the player has no role" in {
+      val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil)
+      playerHasRole(playerState, Role("role")).isFailedAttempt() shouldEqual true
+    }
+
+    "fails if the player does not have the provided role" in {
+      val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, Some(Role("role")), Nil)
+      playerHasRole(playerState, Role("test")).isFailedAttempt() shouldEqual true
+    }
+
+    "succeeds if we provide the player's current role" in {
+      val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, Some(Role("role")), Nil)
+      playerHasRole(playerState, Role("role")).isSuccessfulAttempt() shouldEqual true
     }
   }
 
@@ -259,6 +317,15 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
       val words = List.fill(QuackStanley.handSize)(Word("one"))
       val updatedPlayerState = fillHand(words, PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil)).value()
       updatedPlayerState.hand shouldEqual words
+    }
+  }
+
+  "addRoleToPoints" - {
+    val points = List(Role("one"), Role("two"))
+    val playerState = PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, points)
+
+    "adds the provided role to the already-received points" in {
+      addRoleToPoints(playerState, Role("test-role")).points shouldEqual (points :+ Role("test-role"))
     }
   }
 }

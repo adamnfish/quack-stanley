@@ -49,9 +49,7 @@ class FinishPitchIntegrationTest extends FreeSpec with Matchers with OneInstance
 
         "persists new hand in player state" in {
           val playerInfo = finishPitch(request, testConfig).value()
-          println(playerInfo.state)
           val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
-          println(persistedPlayerState)
           persistedPlayerState.hand shouldEqual playerInfo.state.hand
         }
       }

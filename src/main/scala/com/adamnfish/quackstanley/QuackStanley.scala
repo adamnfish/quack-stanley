@@ -117,11 +117,19 @@ object QuackStanley {
     * Ends the round and gives the point (word) to another player.
     */
   def awardPoint(data: AwardPoint, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
-    // auth as buyer
-    // lookup winning player
-    // add word to winning player's points
-    // set game state to "no buyer"
-    ???
+    for {
+      gameState <- getGameState(data.gameId, config)
+      _ <- authenticateBuyer(data.playerKey, gameState)
+      players <- getRegisteredPlayers(data.gameId, config)
+      playerState <- lookupPlayer(players, data.playerKey)
+      updatedPlayerState = playerState.copy(role = None)
+      _ <- playerHasRole(playerState, data.role)
+      winningPlayerDetails <- lookupPlayerByName(players, data.awardToPlayerWithName)
+      (winningPlayerKey, winningPlayer) = winningPlayerDetails
+      updatedWinningPlayer = addRoleToPoints(winningPlayer, data.role)
+      _ <- writePlayerState(updatedPlayerState, data.playerKey, config)
+      _ <- writePlayerState(updatedWinningPlayer, winningPlayerKey, config)
+    } yield PlayerInfo(updatedPlayerState, gameState)
   }
 
   /**

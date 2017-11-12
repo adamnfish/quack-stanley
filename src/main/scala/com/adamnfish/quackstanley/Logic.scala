@@ -50,6 +50,21 @@ object Logic {
     }
   }
 
+  def authenticateBuyer(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[PlayerKey] = {
+    Attempt.fromOption(
+      gameState.buyer.flatMap { buyerKey =>
+        gameState.buyer.find(_ == playerKey)
+      },
+      Failure("Player is not buyer", "Another player is already buyer", 404).asAttempt
+    )
+  }
+
+  def playerHasRole(playerState: PlayerState, role: Role): Attempt[Role] = {
+    Attempt.fromOption(playerState.role.find(_ == role),
+      Failure("Player does not have this role to give", "Attempting to award a point for incorrect role", 400).asAttempt
+    )
+  }
+
   def makePlayerNames(states: Map[PlayerKey, PlayerState]): Map[PlayerKey, String] = {
     states.map { case (playerKey, playerState) =>
         playerKey -> playerState.screenName
@@ -59,6 +74,12 @@ object Logic {
   def lookupPlayer(states: Map[PlayerKey, PlayerState], playerKey: PlayerKey): Attempt[PlayerState] = {
     Attempt.fromOption(states.get(playerKey),
       Failure("Couldn't lookup creator's state", "Failed to lookup player", 500, None).asAttempt
+    )
+  }
+
+  def lookupPlayerByName(states: Map[PlayerKey, PlayerState], screenName: String): Attempt[(PlayerKey, PlayerState)] = {
+    Attempt.fromOption(states.find(_._2.screenName == screenName),
+      Failure("Couldn't lookup player by name", s"Failed to lookup player with name '$screenName'", 500, None).asAttempt
     )
   }
 
@@ -153,5 +174,9 @@ object Logic {
 
   def dealRole(role: Role, player: PlayerState): PlayerState = {
     player.copy(role = Some(role))
+  }
+
+  def addRoleToPoints(playerState: PlayerState, point: Role): PlayerState = {
+    playerState.copy(points = playerState.points :+ point)
   }
 }
