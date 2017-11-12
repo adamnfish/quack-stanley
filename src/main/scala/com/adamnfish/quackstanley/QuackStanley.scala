@@ -92,7 +92,9 @@ object QuackStanley {
     // validate no one else is pitching
     // write player state
     // update game state
-    ???
+    Attempt.Left(
+      Failure("start pitch is not implemented", "'start pitch' functionality has not yet been created", 404)
+    )
   }
 
   /**
@@ -141,7 +143,9 @@ object QuackStanley {
     // verify role is provided if they have any points
     // discard words
     // get new words for the player
-    ???
+    Attempt.Left(
+      Failure("mulligan is not implemented", "'mulligan' functionality has not yet been created", 404)
+    )
   }
 
   /**
