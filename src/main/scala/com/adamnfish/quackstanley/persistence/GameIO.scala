@@ -23,6 +23,19 @@ object GameIO {
     config.ioClient.writeJson(gameState.asJson, gameStatePath(gameState.gameId), config)
   }
 
+  private val PlayerKeyFromPath = "data/[a-z0-9\\-]+/players/([a-z0-9\\-]+).json".r
+
+  def playerKeyFromPath(path: String): Attempt[PlayerKey] = {
+    path match {
+      case PlayerKeyFromPath(key) =>
+        Attempt.Right(PlayerKey(key))
+      case _ =>
+        Attempt.Left(
+          Failure(s"Could not extract player key from path $path", "Faild to lookup player data", 500)
+        )
+    }
+  }
+
   def getGameState(gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[GameState] = {
     for {
       json <- config.ioClient.getJson(gameStatePath(gameId), config)
@@ -43,8 +56,8 @@ object GameIO {
 
   def getRegisteredPlayers(gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[Map[PlayerKey, PlayerState]] = {
     for {
-      playerKeyIds <- config.ioClient.listFiles(playerStateDir(gameId), config)
-      playerKeys = playerKeyIds.map(PlayerKey)
+      paths <- config.ioClient.listFiles(playerStateDir(gameId), config)
+      playerKeys <- Attempt.traverse(paths)(playerKeyFromPath)
       playerStates <- Attempt.traverse(playerKeys) { playerKey =>
         getPlayerState(playerKey, gameId, config).map(playerKey -> _)
       }

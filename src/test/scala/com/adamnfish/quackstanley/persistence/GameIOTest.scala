@@ -1,10 +1,13 @@
 package com.adamnfish.quackstanley.persistence
 
+import com.adamnfish.quackstanley.AttemptValues
 import com.adamnfish.quackstanley.models.{GameId, PlayerKey}
 import org.scalatest.{FreeSpec, Matchers}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class GameIOTest extends FreeSpec with Matchers {
+
+class GameIOTest extends FreeSpec with Matchers with AttemptValues {
   "path function" - {
     val playerKey = PlayerKey("player-key")
     val gameId = GameId("test")
@@ -15,7 +18,7 @@ class GameIOTest extends FreeSpec with Matchers {
       }
 
       "includes game id" in {
-        GameIO.gameStatePath(gameId) should include ("/")
+        GameIO.gameStatePath(gameId) should include (s"/${gameId.value}")
       }
     }
 
@@ -25,12 +28,25 @@ class GameIOTest extends FreeSpec with Matchers {
       }
 
       "includes game id" in {
-        GameIO.playerStatePath(gameId, playerKey) should include ("/")
+        GameIO.playerStatePath(gameId, playerKey) should include (s"/${gameId.value}/")
       }
 
       "player key is the filename" in {
         GameIO.playerStatePath(gameId, playerKey) should endWith (s"/${playerKey.value}.json")
       }
+    }
+  }
+
+  "playerKeyFromPath" - {
+    "extracts player key from valid path" in {
+      val playerKey = GameIO.playerKeyFromPath(s"data/game-id/players/player-key.json").value()
+      playerKey shouldEqual PlayerKey("player-key")
+    }
+
+    "fails to extract player key from invalid path" in {
+      GameIO.playerKeyFromPath(s"data/game-id/players/player-key.json.json").isFailedAttempt() shouldEqual true
+
+      GameIO.playerKeyFromPath("").isFailedAttempt() shouldEqual true
     }
   }
 }
