@@ -2,7 +2,7 @@ package com.adamnfish.quackstanley
 
 import java.util.UUID
 
-import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
+import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt, Failure}
 import com.adamnfish.quackstanley.models._
 import org.joda.time.DateTime
 
@@ -102,7 +102,7 @@ object Logic {
     )
   }
 
-  def dealWords(words: List[Word], players: Map[PlayerKey, PlayerState]): Attempt[Map[PlayerKey, PlayerState]] = {
+  def dealWordsToAllPlayers(words: List[Word], players: Map[PlayerKey, PlayerState]): Attempt[Map[PlayerKey, PlayerState]] = {
     if (words.size < players.size * QuackStanley.handSize) {
       Attempt.Left(
         Failure("dealWords wasn't given enough words for the players", "Failed to get words for all players", 500)
@@ -119,6 +119,35 @@ object Logic {
         }
         dealtPlayers
       }
+    }
+  }
+
+  def fillHand(words: List[Word], playerState: PlayerState): Attempt[PlayerState] = {
+    if (words.size < (QuackStanley.handSize - playerState.hand.size)) {
+      Attempt.Left(
+        Failure("Not enough words provided to fill player hand", "Ran out of words", 500)
+      )
+    } else {
+      Attempt.Right(
+        playerState.copy(hand = playerState.hand ++ words)
+      )
+    }
+  }
+
+  def discardWords(words: (Word, Word), playerState: PlayerState): Attempt[PlayerState] = {
+    val failures = List(words._1, words._2).flatMap { word =>
+      if (playerState.hand.contains(word)) None
+      else Some(Failure("Player cannot discard word not in their hand", s"Cannot discard words that aren;t in your hand ($word)", 400, Some(word.value)))
+    }
+
+    if (failures.isEmpty) {
+      Attempt.Right(
+        playerState.copy(hand = playerState.hand.filterNot { word =>
+          word == words._1 || word == words._2
+        })
+      )
+    } else {
+      Attempt.Left(FailedAttempt(failures))
     }
   }
 

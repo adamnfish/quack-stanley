@@ -3,12 +3,12 @@ package com.adamnfish.quackstanley
 import com.adamnfish.quackstanley.Logic._
 import com.adamnfish.quackstanley.models._
 import org.joda.time.DateTime
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.{FreeSpec, Matchers, OptionValues}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class LogicTest extends FreeSpec with Matchers with AttemptValues {
+class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionValues {
   "newGame" - {
     "populates the player states map with just the creator" in {
       newGame("test-game", "test-player").players.size shouldEqual 1
@@ -202,7 +202,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues {
     }
   }
 
-  "dealWords" - {
+  "dealWordsToAllPlayers" - {
     val template = PlayerState(GameId("game-id"), "game-name", "sreen-name", Nil, Nil, None, Nil)
     val players = Map(
       PlayerKey("one") -> template.copy(screenName = "player one"),
@@ -210,14 +210,55 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues {
     )
 
     "fails if there aren't enough words provided" in {
-      dealWords(Nil, players).isFailedAttempt() shouldEqual true
+      dealWordsToAllPlayers(Nil, players).isFailedAttempt() shouldEqual true
     }
 
     "deals each player 'hand size' words" in {
       val words = List.fill(QuackStanley.handSize * 2)(Word("test"))
-      dealWords(words, players).value().forall { case (_, state) =>
+      dealWordsToAllPlayers(words, players).value().forall { case (_, state) =>
         state.hand.size == QuackStanley.handSize
       }
+    }
+  }
+
+  "discardWords" - {
+    val hand = List(Word("one"), Word("two"), Word("three"), Word("four"))
+    val playerState = PlayerState(GameId("game-id"), "game name", "screen name", hand, Nil, None, Nil)
+
+    "if both words are missing, returns multiple failures" in {
+      val failure = discardWords((Word("foo"), Word("bar")), playerState).leftValue()
+      failure.failures.size shouldEqual 2
+      failure.failures.map(_.context.value) shouldEqual List("foo", "bar")
+    }
+
+    "if the first word is missing, returns that failure" in {
+      val failure = discardWords((Word("foo"), Word("one")), playerState).leftValue()
+      failure.failures.size shouldEqual 1
+      failure.failures.map(_.context.value) shouldEqual List("foo")
+    }
+
+    "if the second word is missing, returns that failure" in {
+      val failure = discardWords((Word("one"), Word("bar")), playerState).leftValue()
+      failure.failures.size shouldEqual 1
+      failure.failures.map(_.context.value) shouldEqual List("bar")
+    }
+
+    "if both words are present, returns the updated player state" in {
+      val updatedPlayerState = discardWords((Word("one"), Word("two")), playerState).value()
+      updatedPlayerState.hand shouldEqual List(Word("three"), Word("four"))
+    }
+  }
+
+  "fillHand" - {
+    "fails if we don't provide enough words" in {
+      val result = fillHand(Nil, PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil))
+      result.isFailedAttempt() shouldEqual true
+    }
+
+    "returns filled hand if we provide enough words" in {
+      val words = List.fill(QuackStanley.handSize)(Word("one"))
+      val updatedPlayerState = fillHand(words, PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil)).value()
+      updatedPlayerState.hand shouldEqual words
     }
   }
 }

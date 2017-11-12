@@ -55,7 +55,7 @@ object QuackStanley {
       words <- nextWords(handSize * players.size, allWords, Set.empty)
       role <- nextRole(allRoles, Set.empty)
       names = makePlayerNames(players)
-      dealtPlayers <- dealWords(words, players)
+      dealtPlayers <- dealWordsToAllPlayers(words, players)
       creatorState <- lookupPlayer(dealtPlayers, data.playerKey)
       updatedGameState = startGameState(gameState, names)
       _ <- writeGameState(updatedGameState, config)
@@ -67,12 +67,6 @@ object QuackStanley {
     * We can deal them a role and wait for people to pitch to that player.
     */
   def becomeBuyer(data: BecomeBuyer, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
-    // auth
-    // validate no one else is currently a buyer
-    // deal role
-    // update game state to say this player is the current buyer
-    // write game state
-    // write player state
     for {
       gameState <- getGameState(data.gameId, config)
       _ <- authenticate(data.playerKey, gameState)
@@ -105,11 +99,18 @@ object QuackStanley {
     * Discards player's words, replaces them with new ones.
     */
   def finishPitch(data: FinishPitch, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
-    // auth
-    // check words belong to player
-    // discard cards
-    // refill player's hand
-    ???
+    for {
+      gameState <- getGameState(data.gameId, config)
+      _ <- authenticate(data.playerKey, gameState)
+      players <- getRegisteredPlayers(data.gameId, config)
+      playerState <- lookupPlayer(players, data.playerKey)
+      allWords <- Resources.words()
+      used = usedWords(players.values.toList)
+      refillWords <- nextWords(2, allWords, used)
+      discardedPlayerState <- discardWords(data.words, playerState)
+      refilledPlayerState <- fillHand(refillWords, discardedPlayerState)
+      _ <- writePlayerState(refilledPlayerState, data.playerKey, config)
+    } yield PlayerInfo(refilledPlayerState, gameState)
   }
 
   /**
