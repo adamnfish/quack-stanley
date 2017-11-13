@@ -98,6 +98,14 @@ object Logic {
     }
   }
 
+  def verifyNotStarted(gameState: GameState): Attempt[Unit] = {
+    if (gameState.started) {
+      Attempt.Left(Failure("Game has already started", "The game has already started", 400))
+    } else {
+      Attempt.Right(())
+    }
+  }
+
   def usedWords(states: List[PlayerState]): Set[Word] = {
     states.flatMap(state => state.hand ++ state.discardedWords).toSet
   }
@@ -130,8 +138,7 @@ object Logic {
       )
     } else {
       Attempt.Right {
-        words.grouped(QuackStanley.handSize)
-        val (_, dealtPlayers) = players.foldLeft[(List[Word], Map[PlayerKey, PlayerState])]((Nil, Map.empty)) {
+        val (_, dealtPlayers) = players.foldLeft[(List[Word], Map[PlayerKey, PlayerState])]((words, Map.empty)) {
           case ((remainingWords, acc), (playerKey, playerState)) =>
             (
               remainingWords.drop(QuackStanley.handSize),

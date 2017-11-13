@@ -4,9 +4,11 @@ package com.adamnfish.quackstanley.attempt
 case class FailedAttempt(failures: List[Failure]) {
   def statusCode: Int = failures.map(_.statusCode).max
   def logString: String = failures.map { failure =>
-    failure.context.fold(failure.message){ context =>
-      s"${failure.message}: $context"
-    }
+    List(
+      Some(failure.message),
+      failure.context.map(c => s"context: $c"),
+      failure.exception.map(e => "err: " + e.getStackTrace.mkString("; "))
+    ).flatten.mkString(" ")
   }.mkString(", ")
 }
 object FailedAttempt {

@@ -41,7 +41,7 @@ case class CreateGame(
 ) extends ApiOperation
 case class RegisterPlayer(
   gameId: GameId,
-  playerName: String
+  screenName: String
 ) extends ApiOperation
 case class StartGame(
   gameId: GameId,

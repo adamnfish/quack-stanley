@@ -275,7 +275,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
       val words = List.fill(QuackStanley.handSize * 2)(Word("test"))
       dealWordsToAllPlayers(words, players).value().forall { case (_, state) =>
         state.hand.size == QuackStanley.handSize
-      }
+      } shouldEqual true
     }
   }
 

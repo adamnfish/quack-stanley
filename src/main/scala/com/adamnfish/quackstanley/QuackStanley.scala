@@ -34,7 +34,7 @@ object QuackStanley {
     for {
       gameState <- getGameState(data.gameId, config)
       newPlayerKey = generatePlayerKey()
-      playerState = newPlayer(gameState.gameId, gameState.gameName,data.playerName)
+      playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
       _ <- writePlayerState(playerState, newPlayerKey, config)
     } yield Registered(playerState, newPlayerKey)
   }
@@ -49,16 +49,16 @@ object QuackStanley {
     for {
       gameState <- getGameState(data.gameId, config)
       _ <- authenticateCreator(data.playerKey, gameState)
+      _ <- verifyNotStarted(gameState)
       players <- getRegisteredPlayers(data.gameId, config)
-      allRoles <- Resources.roles()
       allWords <- Resources.words()
       words <- nextWords(handSize * players.size, allWords, Set.empty)
-      role <- nextRole(allRoles, Set.empty)
       names = makePlayerNames(players)
       dealtPlayers <- dealWordsToAllPlayers(words, players)
       creatorState <- lookupPlayer(dealtPlayers, data.playerKey)
       updatedGameState = startGameState(gameState, names)
       _ <- writeGameState(updatedGameState, config)
+      _ <- writePlayerStates(dealtPlayers, config)
     } yield PlayerInfo(creatorState, updatedGameState)
   }
 

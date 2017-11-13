@@ -37,6 +37,10 @@ object Serialization {
   // inputs
   implicit val createGameDecoder: Decoder[CreateGame] = deriveDecoder[CreateGame]
   implicit val registerPlayerDecoder: Decoder[RegisterPlayer] = deriveDecoder[RegisterPlayer]
+  implicit val startGameDecoder: Decoder[StartGame] = deriveDecoder[StartGame]
+  implicit val becomeBuyerDecoder: Decoder[BecomeBuyer] = deriveDecoder[BecomeBuyer]
+  implicit val startPitchDecoder: Decoder[StartPitch] = deriveDecoder[StartPitch]
+  implicit val finishPitchDecoder: Decoder[FinishPitch] = deriveDecoder[FinishPitch]
   implicit val awardPointDecoder: Decoder[AwardPoint] = deriveDecoder[AwardPoint]
   implicit val mulliganDecoder: Decoder[Mulligan] = deriveDecoder[Mulligan]
   implicit val pingDecoder: Decoder[Ping] = deriveDecoder[Ping]
@@ -44,6 +48,10 @@ object Serialization {
     c.downField("operation").as[String].flatMap {
       case "create-game" => c.as[CreateGame]
       case "register-player" => c.as[RegisterPlayer]
+      case "start-game" => c.as[StartGame]
+      case "become-buyer" => c.as[BecomeBuyer]
+      case "start-pitch" => c.as[StartPitch]
+      case "finish-pitch" => c.as[FinishPitch]
       case "award-point" => c.as[RegisterPlayer]
       case "mulligan" => c.as[Mulligan]
       case "ping" => c.as[Ping]

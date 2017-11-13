@@ -47,6 +47,12 @@ object GameIO {
     config.ioClient.writeJson(playerState.asJson, playerStatePath(playerState.gameId, playerKey), config)
   }
 
+  def writePlayerStates(playerState: Map[PlayerKey, PlayerState], config: Config)(implicit ec: ExecutionContext): Attempt[Unit] = {
+    Attempt.traverse(playerState.toList) { case (key, state) =>
+      writePlayerState(state, key, config)
+    }.map(_ => ())
+  }
+
   def getPlayerState(playerKey: PlayerKey, gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerState] = {
     for {
       json <- config.ioClient.getJson(playerStatePath(gameId, playerKey), config)
