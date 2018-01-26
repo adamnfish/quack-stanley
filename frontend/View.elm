@@ -1,16 +1,20 @@
 module View exposing (view)
 
 import Html exposing (Html, div, text)
-import Model exposing (Model (..))
+import Model exposing (Model, Game, Player, Lifecycle (..))
 import Msg exposing (Msg)
 
 
 view : Model -> Html Msg
 view model =
-    case model of
-        Welcome True ->
+    case model.lifecycle of
+        Welcome ->
+            if model.backendReady then
+                div []
+                    [ text "Ready" ]
+            else
+                div []
+                    [ text "Loading backend" ]
+        _ ->
             div []
-                [ text "Ready" ]
-        Welcome False ->
-            div []
-                [ text "Loading backend" ]
+                [ text "Unknown application state" ]

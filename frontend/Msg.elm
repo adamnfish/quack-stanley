@@ -1,18 +1,18 @@
 module Msg exposing (Msg, update)
 
-import Model exposing (Model (..))
+import Model exposing (Model, Game, Player, Lifecycle (..))
 
 
 type Msg
     = BackendReady
-    | CreateNewGame 
+    | CreateNewGame
 
-      
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         BackendReady ->
-            ( Welcome True, Cmd.none )
+            ( { model | backendReady = True }, Cmd.none )
         CreateNewGame ->
             ( model, Cmd.none )
