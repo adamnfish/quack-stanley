@@ -158,4 +158,11 @@ object QuackStanley {
       playerState <- getPlayerState(data.playerKey, gameState.gameId, config)
     } yield PlayerInfo(playerState, gameState)
   }
+
+  /**
+    * No-op to wake the Lambda.
+    */
+  def wake(data: Wake, config: Config)(implicit ec: ExecutionContext): Attempt[Ok] = {
+    Attempt.Right(Ok("ok"))
+  }
 }

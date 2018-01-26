@@ -44,6 +44,7 @@ object Serialization {
   implicit val awardPointDecoder: Decoder[AwardPoint] = deriveDecoder[AwardPoint]
   implicit val mulliganDecoder: Decoder[Mulligan] = deriveDecoder[Mulligan]
   implicit val pingDecoder: Decoder[Ping] = deriveDecoder[Ping]
+  implicit val wakeDecoder: Decoder[Wake] = deriveDecoder[Wake]
   implicit val apiOperationDecoder: Decoder[ApiOperation] = Decoder.instance(c =>
     c.downField("operation").as[String].flatMap {
       case "create-game" => c.as[CreateGame]
@@ -55,15 +56,18 @@ object Serialization {
       case "award-point" => c.as[RegisterPlayer]
       case "mulligan" => c.as[Mulligan]
       case "ping" => c.as[Ping]
+      case "wake" => c.as[Wake]
     }
   )
 
   // response types
   implicit val playerInfoEncoder: Encoder[PlayerInfo] = deriveEncoder[PlayerInfo]
   implicit val registeredEncoder: Encoder[Registered] = deriveEncoder[Registered]
-  implicit val apiResponsEencoder: Encoder[ApiResponse] = Encoder.instance {
+  implicit val okResponseEncoder: Encoder[Ok] = deriveEncoder[Ok]
+  implicit val apiResponseEncoder: Encoder[ApiResponse] = Encoder.instance {
     case playerInfo: PlayerInfo => playerInfoEncoder.apply(playerInfo)
     case registered: Registered => registeredEncoder.apply(registered)
+    case ok: Ok => okResponseEncoder.apply(ok)
   }
 
   implicit val playerStateEncoder: Encoder[PlayerState] = deriveEncoder[PlayerState]

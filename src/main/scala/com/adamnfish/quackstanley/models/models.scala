@@ -70,12 +70,14 @@ case class Ping(
   gameId: GameId,
   playerKey: PlayerKey
 ) extends ApiOperation
-object ApiOperation
+case class Wake(
+) extends ApiOperation
 case class Mulligan(
   gameId: GameId,
   playerKey: PlayerKey,
   role: Role
 ) extends ApiOperation
+object ApiOperation
 
 
 sealed trait ApiResponse
@@ -95,5 +97,9 @@ object PlayerInfo {
 case class Registered(
   state: PlayerState,
   playerKey: PlayerKey
+) extends ApiResponse
+// registers a user with a game
+case class Ok(
+  status: String
 ) extends ApiResponse
 object ApiResponse

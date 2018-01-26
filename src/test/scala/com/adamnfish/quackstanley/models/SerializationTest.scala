@@ -33,6 +33,13 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
           'screenName ("player-one")
         )
     }
+
+    "parses an (empty) wake request" in {
+      val data = """{
+                   |  "operation": "wake"
+                   |}""".stripMargin
+      parse(data).right.value.as[ApiOperation]
+    }
   }
 
   "Value classes are encoded as values" - {
