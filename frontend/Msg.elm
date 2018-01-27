@@ -1,10 +1,11 @@
-module Msg exposing (Msg, update)
+module Msg exposing (Msg (..), update)
 
+import Http
 import Model exposing (Model, Game, Player, Lifecycle (..))
 
 
 type Msg
-    = BackendReady
+    = BackendAwake (Result Http.Error ())
     | CreateNewGame
 
 
@@ -12,7 +13,7 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        BackendReady ->
-            ( { model | backendReady = True }, Cmd.none )
+        BackendAwake _ ->
+            ( { model | backendAwake = True }, Cmd.none )
         CreateNewGame ->
             ( model, Cmd.none )

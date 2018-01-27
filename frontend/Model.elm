@@ -28,7 +28,7 @@ type alias Player =
 
 type alias Model =
     { lifecycle : Lifecycle
-    , backendReady : Bool
+    , backendAwake : Bool
     , game : Maybe Game
     , player : Maybe Player
     }

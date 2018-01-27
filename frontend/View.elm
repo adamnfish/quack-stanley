@@ -9,7 +9,7 @@ view : Model -> Html Msg
 view model =
     case model.lifecycle of
         Welcome ->
-            if model.backendReady then
+            if model.backendAwake then
                 div []
                     [ text "Ready" ]
             else

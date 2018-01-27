@@ -5,16 +5,17 @@ import Model exposing (Model, Game, Player, Lifecycle (..))
 import Msg exposing (Msg, update)
 import View exposing (view)
 import Subs exposing (subscriptions)
+import Api exposing (wakeServer)
 
 
 init : ( Model, Cmd Msg )
 init = (
         { lifecycle = Welcome
-        , backendReady = False
+        , backendAwake = False
         , game = Nothing
         , player = Nothing
         }
-       , Cmd.none
+       , wakeServer
        )
 
 
@@ -26,4 +27,3 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
-
