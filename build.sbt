@@ -10,6 +10,7 @@ scalacOptions ++= Seq(
 )
 
 val awsSdkVersion = "1.11.185"
+val http4sVersion = "0.17.6"
 
 lazy val root = (project in file(".")).
   settings(
@@ -25,6 +26,19 @@ lazy val root = (project in file(".")).
       "org.scalatest" %% "scalatest" % "3.0.4" % Test
     )
   )
+
+lazy val devMode = (project in file("dev-server")).
+  settings(
+    name := "quack-stanley-dev-server",
+    libraryDependencies ++= Seq(
+      "org.http4s" %% "http4s-dsl" % http4sVersion,
+      "org.http4s" %% "http4s-blaze-server" % http4sVersion,
+      "org.http4s" %% "http4s-blaze-client" % http4sVersion,
+      "org.http4s" %% "http4s-circe" % http4sVersion,
+      "ch.qos.logback" % "logback-classic" % "1.2.3"
+    )
+  ).
+  dependsOn(root)
 
 enablePlugins(JavaAppPackaging)
 topLevelDirectory in Universal := None
