@@ -6,7 +6,9 @@ import Model exposing (Model, Game, Player, Lifecycle (..))
 
 type Msg
     = BackendAwake (Result Http.Error ())
+    | SelectCreateNewGame
     | CreateNewGame
+    | SelectJoinGame
 
 
 
@@ -16,4 +18,4 @@ update msg model =
         BackendAwake _ ->
             ( { model | backendAwake = True }, Cmd.none )
         CreateNewGame ->
-            ( model, Cmd.none )
+            ( { model | lifecycle = Create }, Cmd.none )
