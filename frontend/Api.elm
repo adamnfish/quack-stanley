@@ -5,7 +5,7 @@ import Json.Decode exposing (succeed)
 import Msg exposing (Msg (..))
 
 
-apiUrl = "https://.../Prod/api"
+apiUrl = "/api"
 
 wakeServerRequest : Http.Request ()
 wakeServerRequest =
