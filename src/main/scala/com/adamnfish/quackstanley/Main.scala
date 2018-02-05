@@ -18,9 +18,9 @@ class Main {
     respond[ApiResponse]({
       for {
         config <- Config.fromEnvironment()
-        tmp <- parseBody[ApiOperation](in)
-        (apiOperation, request) = tmp
-        response <- dispatch(apiOperation, context: Context, config)
+        opAndRequest <- parseBody[ApiOperation](in)
+        (apiOperation, _) = opAndRequest
+        response <- dispatch(apiOperation, context, config)
       } yield response
     }, out, context)
   }
