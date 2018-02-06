@@ -9,6 +9,8 @@ type Msg
     | SelectCreateNewGame
     | CreateNewGame
     | SelectJoinGame
+    | JoinGame
+    | WaitForStart
 
 
 
@@ -17,5 +19,13 @@ update msg model =
     case msg of
         BackendAwake _ ->
             ( { model | backendAwake = True }, Cmd.none )
-        CreateNewGame ->
+        SelectCreateNewGame ->
             ( { model | lifecycle = Create }, Cmd.none )
+        CreateNewGame ->
+            ( { model | lifecycle = Creating }, Cmd.none ) -- TODO: AJAX Cmd
+        SelectJoinGame ->
+            ( { model | lifecycle = Join }, Cmd.none )
+        JoinGame ->
+            ( { model | lifecycle = Joining }, Cmd.none ) -- TODO: AJAX Cmd
+        WaitForStart ->
+            ( { model | lifecycle = Waiting }, Cmd.none ) -- TODO: Timer and poll

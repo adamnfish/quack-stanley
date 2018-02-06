@@ -1,7 +1,8 @@
 module View exposing (view)
 
-import Html exposing (Html, div, text, button)
-import Html.Events exposing (onClick)
+import Html exposing (Html, div, form, input, button, text)
+import Html.Attributes exposing (placeholder)
+import Html.Events exposing (onClick, onSubmit)
 import Model exposing (Model, Game, Player, Lifecycle (..))
 import Msg exposing (Msg)
 
@@ -21,6 +22,26 @@ view model =
             else
                 div []
                     [ text "Loading backend" ]
+        Create ->
+            form [ onSubmit Msg.CreateNewGame ]
+                 [ input [ placeholder "Name" ]
+                         []
+                 , button []
+                          [ text "Create game" ]
+                 ]
+        Creating ->
+            div []
+                [ text "Creating game..." ]
+        Join ->
+            form [ onSubmit Msg.JoinGame ]
+                 [ input [ placeholder "Game key" ]
+                         []
+                 , button []
+                          [ text "Join game" ]
+                 ]
+        Joining ->
+            div []
+                [ text "Joining game..." ]
         _ ->
             div []
                 [ text "Unknown application state" ]
