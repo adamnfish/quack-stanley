@@ -2,10 +2,9 @@ module Main exposing (..)
 
 import Html exposing (Html, program)
 import Model exposing (Model, Game, Player, Lifecycle (..))
-import Msg exposing (Msg, update)
+import Msg exposing (Msg, update, wakeServer)
 import View exposing (view)
 import Subs exposing (subscriptions)
-import Api exposing (wakeServer)
 
 
 init : ( Model, Cmd Msg )

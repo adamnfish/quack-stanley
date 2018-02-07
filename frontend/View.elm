@@ -2,7 +2,7 @@ module View exposing (view)
 
 import Html exposing (Html, div, form, input, button, text)
 import Html.Attributes exposing (placeholder)
-import Html.Events exposing (onClick, onSubmit)
+import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Game, Player, Lifecycle (..))
 import Msg exposing (Msg)
 
@@ -14,17 +14,19 @@ view model =
             if model.backendAwake then
                 div []
                     [ text "Ready"
-                    , button [ onClick Msg.SelectCreateNewGame ]
+                    , button [ onClick (Msg.CreatingNewGame "" "") ]
                              [ text "Create game" ]
-                    , button [ onClick Msg.SelectJoinGame ]
+                    , button [ onClick Msg.JoinGame ]
                              [ text "Join game" ]
                     ]
             else
                 div []
                     [ text "Loading backend" ]
-        Create ->
-            form [ onSubmit Msg.CreateNewGame ]
-                 [ input [ placeholder "Name" ]
+        Create gameName screenName ->
+            form [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
+                 [ input [ onInput (\val -> Msg.CreatingNewGame val screenName ) , placeholder "Game name" ]
+                         []
+                 , input [ onInput (\val -> Msg.CreatingNewGame gameName val ) , placeholder "Player name" ]
                          []
                  , button []
                           [ text "Create game" ]
@@ -32,7 +34,7 @@ view model =
         Creating ->
             div []
                 [ text "Creating game..." ]
-        Join ->
+        Join gameId screenName ->
             form [ onSubmit Msg.JoinGame ]
                  [ input [ placeholder "Game key" ]
                          []
@@ -42,6 +44,9 @@ view model =
         Joining ->
             div []
                 [ text "Joining game..." ]
+        Waiting ->
+            div []
+                [ text "Joined game!" ]
         _ ->
             div []
                 [ text "Unknown application state" ]
