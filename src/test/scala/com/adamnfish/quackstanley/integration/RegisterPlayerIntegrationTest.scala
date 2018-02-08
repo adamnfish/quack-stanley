@@ -5,12 +5,14 @@ import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.{AttemptValues, Config, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest}
+import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class RegisterPlayerIntegrationTest extends FreeSpec with Matchers with OneInstancePerTest with AttemptValues {
+class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
+  with OneInstancePerTest with AttemptValues with OptionValues {
+
   val persistence = new TestPersistence
   val testConfig = Config("test", "test", persistence)
 
@@ -46,6 +48,26 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers with OneInsta
       }
 
       "does not allow duplicate screen name" ignore {}
+
+      "handles failures nicely," - {
+        "flags empty game id" in {
+          val request = RegisterPlayer(GameId(""), "screen name")
+          val failure = registerPlayer(request, testConfig).leftValue()
+          failure.failures.head.context.value shouldEqual "game ID"
+        }
+
+        "flags empty screen name" in {
+          val request = RegisterPlayer(gameId, "")
+          val failure = registerPlayer(request, testConfig).leftValue()
+          failure.failures.head.context.value shouldEqual "screen name"
+        }
+
+        "gives both errors if both are missing" in {
+          val request = RegisterPlayer(GameId(""), "")
+          val failure = registerPlayer(request, testConfig).leftValue()
+          failure.failures should have length 2
+        }
+      }
     }
 
     "if the game doe not exist," - {

@@ -34,6 +34,7 @@ object QuackStanley {
     */
   def registerPlayer(data: RegisterPlayer, config: Config)(implicit ec: ExecutionContext): Attempt[Registered] = {
     for {
+      _ <- validate(data.gameId.value -> "game ID", data.screenName -> "screen name")(nonEmpty)
       gameState <- getGameState(data.gameId, config)
       newPlayerKey = generatePlayerKey()
       playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
