@@ -91,6 +91,12 @@ class CreatGameIntegrationTest extends FreeSpec with Matchers
         val failure = createGame(request, testConfig).leftValue()
         failure.failures.head.context.value shouldEqual "game name"
       }
+
+      "gives both errors if both are missing" in {
+        val request = CreateGame("", "")
+        val failure = createGame(request, testConfig).leftValue()
+        failure.failures should have length 2
+      }
     }
   }
 }

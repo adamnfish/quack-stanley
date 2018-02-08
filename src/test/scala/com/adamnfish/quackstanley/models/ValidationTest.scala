@@ -23,12 +23,21 @@ class ValidationTest extends FreeSpec with Matchers with AttemptValues with Opti
   }
 
   "validate" - {
-    "returns success if the input passes validation" in {
-      validate("input", "context", nonEmpty).isSuccessfulAttempt() shouldBe true
+    "for a single validation" - {
+      "returns success if the input passes validation" in {
+        validate("input" -> "context")(nonEmpty).isSuccessfulAttempt() shouldBe true
+      }
+
+      "returns failure if the input does not pass validation" in {
+        validate("" -> "context")(nonEmpty).isFailedAttempt() shouldBe true
+      }
     }
 
-    "returns failure if the input does not pass validation" in {
-      validate("", "context", nonEmpty).isFailedAttempt() shouldBe true
+    "can check multiple properties at once" - {
+      "returns success if both inputs pass" in {
+        val result = validate("input1" -> "context1", "input2" -> "context2")(nonEmpty)
+        result.isSuccessfulAttempt() shouldBe true
+      }
     }
   }
 }

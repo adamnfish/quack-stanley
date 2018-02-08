@@ -14,8 +14,10 @@ object Validation {
     } else Nil
   }
 
-  def validate[A](a: A, context: String, validators: Validator[A]*): Attempt[Unit] = {
-    val failures = validators.flatMap(_(a, context))
+  def validate[A](as: (A, String)*)( validators: Validator[A]*): Attempt[Unit] = {
+    val failures = as.flatMap { case (a, context) =>
+      validators.flatMap(_(a, context))
+    }
     if (failures.isEmpty) Attempt.Right(())
     else Attempt.Left(FailedAttempt(failures))
   }

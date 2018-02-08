@@ -20,8 +20,7 @@ object QuackStanley {
     val playerKey = gameState.creator
     val playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
     for {
-      _ <- validate(data.gameName, "game name", nonEmpty)
-      _ <- validate(data.screenName, "screen name", nonEmpty)
+      _ <- validate(data.gameName -> "game name", data.screenName -> "screen name")(nonEmpty)
       _ <- writeGameState(gameState, config)
       _ <- writePlayerState(playerState, playerKey, config)
     } yield Registered(playerState, gameState.creator)
