@@ -3,6 +3,7 @@ package com.adamnfish.quackstanley
 import com.adamnfish.quackstanley.Logic._
 import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
 import com.adamnfish.quackstanley.models._
+import com.adamnfish.quackstanley.models.Validation._
 import com.adamnfish.quackstanley.persistence.GameIO._
 
 import scala.concurrent.ExecutionContext
@@ -19,6 +20,8 @@ object QuackStanley {
     val playerKey = gameState.creator
     val playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
     for {
+      _ <- validate(data.gameName, "game name", nonEmpty)
+      _ <- validate(data.screenName, "screen name", nonEmpty)
       _ <- writeGameState(gameState, config)
       _ <- writePlayerState(playerState, playerKey, config)
     } yield Registered(playerState, gameState.creator)

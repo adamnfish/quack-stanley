@@ -4,12 +4,14 @@ import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models.CreateGame
 import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.{AttemptValues, Config, TestPersistence}
-import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest}
+import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class CreatGameIntegrationTest extends FreeSpec with Matchers with OneInstancePerTest with AttemptValues {
+class CreatGameIntegrationTest extends FreeSpec with Matchers
+  with OneInstancePerTest with AttemptValues with OptionValues {
+
   val persistence = new TestPersistence
   val testConfig = Config("test", "test", persistence)
 
@@ -75,6 +77,20 @@ class CreatGameIntegrationTest extends FreeSpec with Matchers with OneInstancePe
       val registered = createGame(request, testConfig).value()
       val savedPlayerState = GameIO.getPlayerState(registered.playerKey, registered.state.gameId, testConfig).value()
       savedPlayerState shouldEqual registered.state
+    }
+
+    "handles failures nicely," - {
+      "flags empty screen name" in {
+        val request = CreateGame("", "game name")
+        val failure = createGame(request, testConfig).leftValue()
+        failure.failures.head.context.value shouldEqual "screen name"
+      }
+
+      "flags empty game name" in {
+        val request = CreateGame("screen name", "")
+        val failure = createGame(request, testConfig).leftValue()
+        failure.failures.head.context.value shouldEqual "game name"
+      }
     }
   }
 }
