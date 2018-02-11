@@ -14,9 +14,9 @@ view model =
             if model.backendAwake then
                 div []
                     [ text "Ready"
-                    , button [ onClick (Msg.CreatingNewGame "" "") ]
+                    , button [ onClick ( Msg.CreatingNewGame "" "" ) ]
                              [ text "Create game" ]
-                    , button [ onClick Msg.JoinGame ]
+                    , button [ onClick ( Msg.JoiningGame "" "" ) ]
                              [ text "Join game" ]
                     ]
             else
@@ -35,8 +35,10 @@ view model =
             div []
                 [ text "Creating game..." ]
         Join gameId screenName ->
-            form [ onSubmit Msg.JoinGame ]
-                 [ input [ placeholder "Game key" ]
+            form [ onSubmit ( Msg.JoinGame gameId screenName ) ]
+                 [ input [ onInput (\val -> Msg.JoiningGame val screenName ) , placeholder "Game key" ]
+                         []
+                 , input [ onInput (\val -> Msg.JoiningGame gameId val ) , placeholder "Player name" ]
                          []
                  , button []
                           [ text "Join game" ]

@@ -1,7 +1,7 @@
 module Msg exposing (Msg (..), update, wakeServer)
 
 import Http
-import Api exposing (wakeServerRequest, createGameRequest)
+import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest)
 import Model exposing (Model, Game, Player, Lifecycle (..))
 
 
@@ -9,8 +9,8 @@ type Msg
     = BackendAwake (Result Http.Error ())
     | CreatingNewGame String String
     | CreateNewGame String String
-    | SelectJoinGame
-    | JoinGame
+    | JoiningGame String String
+    | JoinGame String String
     | JoinedGame (Result Http.Error ())
     | WaitForStart
 
@@ -22,12 +22,12 @@ update msg model =
             ( { model | backendAwake = True }, Cmd.none )
         CreatingNewGame gameName screenName ->
             ( { model | lifecycle = Create gameName screenName }, Cmd.none )
-        CreateNewGame gameName playerName ->
-            ( { model | lifecycle = Creating }, createGame gameName playerName )
-        SelectJoinGame ->
-            ( { model | lifecycle = Join "" "" }, Cmd.none )
-        JoinGame ->
-            ( { model | lifecycle = Joining }, Cmd.none ) -- TODO: AJAX Cmd
+        CreateNewGame gameName screenName ->
+            ( { model | lifecycle = Creating }, createGame gameName screenName )
+        JoiningGame gameId screenName ->
+            ( { model | lifecycle = Join gameId screenName }, Cmd.none )
+        JoinGame gameId screenName->
+            ( { model | lifecycle = Joining }, joinGame gameId screenName )
         JoinedGame _ ->
             ( { model | lifecycle = Waiting }, Cmd.none ) -- TODO: Timer and poll
         WaitForStart ->
@@ -43,3 +43,7 @@ wakeServer =
 createGame : String -> String -> Cmd Msg
 createGame gameName screenName =
     Http.send JoinedGame (createGameRequest gameName screenName)
+
+joinGame : String -> String -> Cmd Msg
+joinGame gameId screenName =
+    Http.send JoinedGame (joinGameRequest gameId screenName)
