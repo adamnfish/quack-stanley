@@ -1,5 +1,7 @@
 package com.adamnfish.quackstanley.integration
 
+import java.util.UUID
+
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
@@ -19,7 +21,8 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
   "registerPlayer" - {
     "if the game exists" - {
       val creator = PlayerKey("creator")
-      val gameId = GameId("test-game")
+      val uuid = UUID.randomUUID.toString
+      val gameId = GameId(uuid)
       val gameState = GameState(gameId, "game-name", DateTime.now(), false, creator, None, Map(creator -> "Creator"))
       GameIO.writeGameState(gameState, testConfig)
 
@@ -56,6 +59,12 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
           failure.failures.head.context.value shouldEqual "game ID"
         }
 
+        "checks GameID is the correct format" in {
+          val request = RegisterPlayer(GameId("not a UUID"), "screen name")
+          val failure = registerPlayer(request, testConfig).leftValue()
+          failure.failures.head.context.value shouldEqual "game ID"
+        }
+
         "flags empty screen name" in {
           val request = RegisterPlayer(gameId, "")
           val failure = registerPlayer(request, testConfig).leftValue()
@@ -72,7 +81,7 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
 
     "if the game doe not exist," - {
       "fails" in {
-        val request = RegisterPlayer(GameId("does not exist"), "player name")
+        val request = RegisterPlayer(GameId(UUID.randomUUID.toString), "player name")
         registerPlayer(request, testConfig).isFailedAttempt() shouldEqual true
       }
     }

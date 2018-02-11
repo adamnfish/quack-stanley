@@ -1,5 +1,7 @@
 package com.adamnfish.quackstanley.models
 
+import java.util.UUID
+
 import com.adamnfish.quackstanley.AttemptValues
 import com.adamnfish.quackstanley.models.Validation._
 import org.scalatest.{FreeSpec, Matchers, OptionValues}
@@ -19,6 +21,30 @@ class ValidationTest extends FreeSpec with Matchers with AttemptValues with Opti
 
     "uses the provided context in case of a failure" in {
       nonEmpty("", "context").head.context.value shouldEqual "context"
+    }
+  }
+
+  "isUUID" - {
+    val uuid = UUID.randomUUID().toString
+
+    "succeeds with a valid UUID" in {
+      isUUID(uuid, "test") shouldBe empty
+    }
+
+    "fails with an empty string" in {
+      isUUID("", "empty test") should have length 1
+    }
+
+    "fails with provided context for empty string" in {
+      isUUID("", "empty test").head.context.value shouldEqual "empty test"
+    }
+
+    "fails with a non-UUID" in {
+      isUUID("not a UUID", "format test") should have length 1
+    }
+
+    "fails with provided context for non-UUID" in {
+      isUUID("not a UUID", "format test").head.context.value shouldEqual "format test"
     }
   }
 

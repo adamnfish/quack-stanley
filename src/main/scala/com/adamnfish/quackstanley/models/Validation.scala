@@ -14,17 +14,17 @@ object Validation {
     } else Nil
   }
 
-  private val UUIDPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}".r
+  private val uuidPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}".r
   val isUUID: Validator[String] = { (str, context) =>
     val wasEmpty = nonEmpty(str, context).headOption
-    val wasUUID = str match {
-      case UUIDPattern(_) =>
+    val wasUUID =
+      if (uuidPattern.pattern.matcher(str).matches) {
         None
-      case _ =>
+      } else {
         Some(
-          Failure("Validation failure: not UUID", s"$context was not in the correct format", 400, Some(context))
+          Failure(s"Validation failure: $str not UUID", s"$context was not in the correct format", 400, Some(context))
         )
-    }
+      }
     wasEmpty.orElse(wasUUID).toList
   }
 
