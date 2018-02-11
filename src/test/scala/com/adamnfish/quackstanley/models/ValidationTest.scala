@@ -51,57 +51,67 @@ class ValidationTest extends FreeSpec with Matchers with AttemptValues with Opti
   "validate" - {
     "for a single validation" - {
       "returns success if the input passes validation" in {
-        validate("input" -> "context")(nonEmpty).isSuccessfulAttempt() shouldBe true
+        validate("input", "context", nonEmpty).isSuccessfulAttempt() shouldBe true
       }
 
       "returns failure if the input does not pass validation" in {
-        validate("" -> "context")(nonEmpty).isFailedAttempt() shouldBe true
+        validate("", "context", nonEmpty).isFailedAttempt() shouldBe true
       }
     }
 
-    "can check multiple properties at once" - {
-      "returns success if both inputs pass" in {
-        val result = validate("input1" -> "context1", "input2" -> "context2")(nonEmpty)
+    "can be combined with |@|" - {
+      "returns success if both validators pass" in {
+        val result = validate("input1", "context1", nonEmpty) |@| validate("input2", "context2", nonEmpty)
         result.isSuccessfulAttempt() shouldBe true
       }
-    }
-  }
 
-  "validate2" - {
-    "returns success if both the inputs pass validation" in {
-      val result = validate2("input1", "context1", nonEmpty)("input2", "context2", nonEmpty)
-      result.isSuccessfulAttempt() shouldBe true
-    }
+      "if both validators fail" - {
+        val result = validate("", "context1", nonEmpty) |@| validate("", "context2", nonEmpty)
 
-    "returns failure if the first input fails validation" in {
-      val result = validate2("", "context1", nonEmpty)("input2", "context2", nonEmpty)
-      result.leftValue().failures should have length 1
-    }
+        "returns failure" in {
+          result.isFailedAttempt() shouldBe true
+        }
 
-    "returns first context in failure if the first input fails validation" in {
-      val failure = validate2("", "context1", nonEmpty)("input2", "context2", nonEmpty).leftValue()
-      failure.failures.head.context.value shouldEqual "context1"
-    }
+        "contains all failures" in {
+          result.leftValue().failures should have size 2
+        }
 
-    "returns single failure if the second input fails validation" in {
-      val result = validate2("input1", "context1", nonEmpty)("", "context2", nonEmpty)
-      result.leftValue().failures should have length 1
-    }
+        "contains both contexts" in {
+          result.leftValue().failures.map(_.context) shouldEqual List(Some("context1"), Some("context2"))
+        }
+      }
 
-    "returns second context in failure if the second input fails validation" in {
-      val failure = validate2("input1", "context1", nonEmpty)("", "context2", nonEmpty).leftValue()
-      failure.failures.head.context.value shouldEqual "context2"
-    }
+      "if the first validator fails" - {
+        val result = validate("", "context1", nonEmpty) |@| validate("not empty", "context2", nonEmpty)
 
-    "returns failures if both inputs fails validation" in {
-      val result = validate2("", "context1", nonEmpty)("", "context2", nonEmpty)
-      result.leftValue().failures should have length 2
-    }
+        "returns failure" in {
+          result.isFailedAttempt() shouldBe true
+        }
 
-    "returns both contexts in failure if the both inputs fails validation" in {
-      val failure = validate2("", "context1", nonEmpty)("", "context2", nonEmpty).leftValue()
-      val contexts = failure.failures.map(_.context)
-      contexts shouldEqual List(Some("context1"), Some("context2"))
+        "contains all failures" in {
+          result.leftValue().failures should have size 1
+        }
+
+        "contains both contexts" in {
+          result.leftValue().failures.map(_.context) shouldEqual List(Some("context1"))
+        }
+      }
+
+      "if the second validator fails" - {
+        val result = validate("not empty", "context1", nonEmpty) |@| validate("", "context2", nonEmpty)
+
+        "returns failure" in {
+          result.isFailedAttempt() shouldBe true
+        }
+
+        "contains all failures" in {
+          result.leftValue().failures should have size 1
+        }
+
+        "contains both contexts" in {
+          result.leftValue().failures.map(_.context) shouldEqual List(Some("context2"))
+        }
+      }
     }
   }
 }

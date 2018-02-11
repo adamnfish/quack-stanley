@@ -18,11 +18,20 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
   val persistence = new TestPersistence
   val testConfig = Config("test", "test", persistence)
 
+  val creatorUUID = UUID.randomUUID().toString
+  val gameIdUUID = UUID.randomUUID().toString
+  val gameDoesNotExistIdUUID = UUID.randomUUID().toString
+  assert(
+    Set(
+      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID
+    ).size == 3,
+    "Ensuring random UUID test data is distinct"
+  )
+
   "registerPlayer" - {
     "if the game exists" - {
-      val creator = PlayerKey("creator")
-      val uuid = UUID.randomUUID.toString
-      val gameId = GameId(uuid)
+      val creator = PlayerKey(creatorUUID)
+      val gameId = GameId(gameIdUUID)
       val gameState = GameState(gameId, "game-name", DateTime.now(), false, creator, None, Map(creator -> "Creator"))
       GameIO.writeGameState(gameState, testConfig)
 
@@ -52,7 +61,7 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
 
       "does not allow duplicate screen name" ignore {}
 
-      "handles failures nicely," - {
+      "validates user input," - {
         "flags empty game id" in {
           val request = RegisterPlayer(GameId(""), "screen name")
           val failure = registerPlayer(request, testConfig).leftValue()
@@ -81,7 +90,7 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
 
     "if the game doe not exist," - {
       "fails" in {
-        val request = RegisterPlayer(GameId(UUID.randomUUID.toString), "player name")
+        val request = RegisterPlayer(GameId(gameDoesNotExistIdUUID), "player name")
         registerPlayer(request, testConfig).isFailedAttempt() shouldEqual true
       }
     }

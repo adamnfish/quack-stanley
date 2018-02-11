@@ -30,6 +30,35 @@ case class Attempt[+A] private (underlying: Future[Either[FailedAttempt, A]]) {
   }
 
   /**
+    * Provides applicative style "validated" behaviour that collects failures.
+    *
+    * Note: This will discard the successful value, it should only be used for failures.
+    */
+  def |@|[B](a2: Attempt[B])(implicit ec: ExecutionContext): Attempt[Unit] = {
+    val collected = underlying map {
+      case Left(fa1) =>
+        a2.fold(
+          { fa2 =>
+            Left(FailedAttempt(fa1.failures ++ fa2.failures))
+          },
+          { _ =>
+            Left(fa1)
+          }
+        )
+      case Right(_) =>
+        a2.fold(
+          { fa2 =>
+            Left(fa2)
+          },
+          { _ =>
+            Right(())
+          }
+        )
+    }
+    Attempt(collected.flatten)
+  }
+
+  /**
     * If there is an error in the Future itself (e.g. a timeout) we convert it to a
     * Left so we have a consistent error representation. Unfortunately, this means
     * the error isn't being handled properly so we're left with just the information

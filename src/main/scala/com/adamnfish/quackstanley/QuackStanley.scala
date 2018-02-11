@@ -20,7 +20,7 @@ object QuackStanley {
     val playerKey = gameState.creator
     val playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
     for {
-      _ <- validate(data.gameName -> "game name", data.screenName -> "screen name")(nonEmpty)
+      _ <- validate(data)
       _ <- writeGameState(gameState, config)
       _ <- writePlayerState(playerState, playerKey, config)
     } yield Registered(playerState, gameState.creator)
@@ -34,7 +34,7 @@ object QuackStanley {
     */
   def registerPlayer(data: RegisterPlayer, config: Config)(implicit ec: ExecutionContext): Attempt[Registered] = {
     for {
-      _ <- validate2(data.gameId.value, "game ID", isUUID)(data.screenName, "screen name", nonEmpty)
+      _ <- validate(data)
       gameState <- getGameState(data.gameId, config)
       newPlayerKey = generatePlayerKey()
       playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
@@ -50,6 +50,7 @@ object QuackStanley {
     */
   def startGame(data: StartGame, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
+      _ <- validate(data)
       gameState <- getGameState(data.gameId, config)
       _ <- authenticateCreator(data.playerKey, gameState)
       _ <- verifyNotStarted(gameState)
@@ -71,6 +72,7 @@ object QuackStanley {
     */
   def becomeBuyer(data: BecomeBuyer, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
+      _ <- validate(data)
       gameState <- getGameState(data.gameId, config)
       _ <- authenticate(data.playerKey, gameState)
       _ <- verifyNoBuyer(gameState)
@@ -105,6 +107,7 @@ object QuackStanley {
     */
   def finishPitch(data: FinishPitch, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
+      _ <- validate(data)
       gameState <- getGameState(data.gameId, config)
       _ <- authenticate(data.playerKey, gameState)
       players <- getRegisteredPlayers(data.gameId, config)
@@ -123,6 +126,7 @@ object QuackStanley {
     */
   def awardPoint(data: AwardPoint, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
+      _ <- validate(data)
       gameState <- getGameState(data.gameId, config)
       _ <- authenticateBuyer(data.playerKey, gameState)
       players <- getRegisteredPlayers(data.gameId, config)
@@ -156,6 +160,7 @@ object QuackStanley {
     */
   def ping(data: Ping, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
+      _ <- validate(data)
       gameState <- getGameState(data.gameId, config)
       _ <- authenticate(data.playerKey, gameState)
       playerState <- getPlayerState(data.playerKey, gameState.gameId, config)

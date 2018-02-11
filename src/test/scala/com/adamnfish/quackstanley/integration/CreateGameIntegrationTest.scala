@@ -9,7 +9,7 @@ import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class CreatGameIntegrationTest extends FreeSpec with Matchers
+class CreateGameIntegrationTest extends FreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues {
 
   val persistence = new TestPersistence
@@ -79,7 +79,7 @@ class CreatGameIntegrationTest extends FreeSpec with Matchers
       savedPlayerState shouldEqual registered.state
     }
 
-    "handles failures nicely," - {
+    "validates user input," - {
       "flags empty screen name" in {
         val request = CreateGame("", "game name")
         val failure = createGame(request, testConfig).leftValue()
