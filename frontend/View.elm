@@ -1,9 +1,9 @@
 module View exposing (view)
 
-import Html exposing (Html, div, form, input, button, text)
+import Html exposing (Html, div, form, input, button, text, h2, ul, li)
 import Html.Attributes exposing (placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
-import Model exposing (Model, Game, Player, Lifecycle (..))
+import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
 
 
@@ -49,6 +49,13 @@ view model =
         Waiting ->
             div []
                 [ text "Joined game!" ]
+        Error errs ->
+            div []
+                [ h2 []
+                     [ text "Application error!" ]
+                , ul []
+                     ( List.map (\msg -> li [] [text msg]) errs )
+                ]
         _ ->
             div []
                 [ text "Unknown application state" ]

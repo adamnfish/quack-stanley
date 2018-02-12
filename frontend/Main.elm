@@ -1,21 +1,21 @@
 module Main exposing (..)
 
 import Html exposing (Html, program)
-import Model exposing (Model, Game, Player, Lifecycle (..))
+import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg, update, wakeServer)
 import View exposing (view)
 import Subs exposing (subscriptions)
 
 
 init : ( Model, Cmd Msg )
-init = (
-        { lifecycle = Welcome
-        , backendAwake = False
-        , game = Nothing
-        , player = Nothing
-        }
-       , wakeServer
-       )
+init =
+    ( { lifecycle = Welcome
+      , backendAwake = False
+      , state = Nothing
+      , playerKey = Nothing
+      }
+    , wakeServer
+    )
 
 
 main : Program Never Model Msg
