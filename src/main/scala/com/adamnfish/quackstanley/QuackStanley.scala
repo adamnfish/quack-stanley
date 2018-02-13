@@ -36,6 +36,7 @@ object QuackStanley {
     for {
       _ <- validate(data)
       gameState <- getGameState(data.gameId, config)
+      // TODO: verify game has not started before writing data
       newPlayerKey = generatePlayerKey()
       playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
       _ <- writePlayerState(playerState, newPlayerKey, config)
