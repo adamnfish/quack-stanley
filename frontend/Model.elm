@@ -8,11 +8,12 @@ type Lifecycle
     | Join String String    -- join existing game (gameId, screenName)
     | Joining               -- waiting for API to confirm game entry
     | Waiting               -- waiting for game to start (will have game and screen name)
+    | Starting              -- triggered game start, waiting for API to complete
     | Spectating            -- game has started, player is spectating (and can choose words)
     | Pitching              -- player is pitching two cards from hand
     | ChooseRole            -- player is given two roles to choose from
     | Buyer                 -- player is the buyer, will have a role
-    | Error ( List String ) -- player is the buyer, will have a role
+    | Error ( List String ) -- error that isn't yet handled
 
 type alias PlayerState =
     { gameId : String
@@ -29,6 +30,8 @@ type alias Model =
     , backendAwake : Bool
     , state : Maybe PlayerState
     , playerKey : Maybe String
+    , isCreator : Bool
+    , otherPlayers : List String
     }
 
 -- API responses

@@ -13,6 +13,8 @@ init =
       , backendAwake = False
       , state = Nothing
       , playerKey = Nothing
+      , isCreator = False
+      , otherPlayers = []
       }
     , wakeServer
     )

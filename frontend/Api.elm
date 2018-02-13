@@ -1,4 +1,4 @@
-module Api exposing (wakeServerRequest, createGameRequest, joinGameRequest)
+module Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest)
 
 import Http exposing (stringBody)
 import Model exposing (PlayerState, PlayerInfo, Registered)
@@ -13,7 +13,7 @@ apiUrl = "/api"
 
 wakeServerRequest : Http.Request ()
 wakeServerRequest =
-    Http.post apiUrl (stringBody "application/json" """{ "operation": "wake" }""") (succeed ())
+    Http.post apiUrl ( stringBody "application/json" """{ "operation": "wake" }""" ) ( succeed () )
 
 createGameRequest : String -> String -> Http.Request Registered
 createGameRequest gameName screenName =
@@ -28,6 +28,13 @@ joinGameRequest gameId screenName =
         body = """{ "operation": "register-player", "screenName": \"""" ++ screenName ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
         Http.post apiUrl ( stringBody "application/json" body ) ( registeredDecoder )
+
+startGameRequest : String -> String -> Http.Request PlayerInfo
+startGameRequest gameId playerKey =
+    let
+        body = """{ "operation": "start-game", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
+    in
+        Http.post apiUrl ( stringBody "application/json" body ) ( playerInfoDecoder )
 
 
 -- API serialisation

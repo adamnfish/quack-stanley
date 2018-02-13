@@ -48,13 +48,34 @@ view model =
                 [ text "Joining game..." ]
         Waiting ->
             div []
-                [ text "Joined game!" ]
+                [ text "Joined game!"
+                , div []
+                      [
+                        if model.isCreator then
+                            button [ onClick Msg.StartingGame ]
+                                   [ text "start game" ]
+                        else
+                            text "waiting for game to start"
+                      ]
+                ]
+        Starting ->
+            div []
+                [ text "Starting game..." ]
+        Spectating ->
+            let
+                hand = Maybe.withDefault [] ( Maybe.map .hand model.state )
+            in
+                div []
+                    [ text "Game has started"
+                    , ul []
+                         ( List.map ( \word -> li [] [ text word ] ) hand )
+                    ]
         Error errs ->
             div []
                 [ h2 []
                      [ text "Application error!" ]
                 , ul []
-                     ( List.map (\msg -> li [] [text msg]) errs )
+                     ( List.map ( \msg -> li [] [ text msg ] ) errs )
                 ]
         _ ->
             div []
