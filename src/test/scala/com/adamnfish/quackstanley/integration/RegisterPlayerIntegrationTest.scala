@@ -86,6 +86,13 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
           failure.failures should have length 2
         }
       }
+
+      "fails if the game has already started" in {
+        val startedState = gameState.copy(started = true)
+        GameIO.writeGameState(startedState, testConfig).value()
+        val request = RegisterPlayer(gameId, "player two")
+        registerPlayer(request, testConfig).isFailedAttempt() shouldEqual true
+      }
     }
 
     "if the game doe not exist," - {
