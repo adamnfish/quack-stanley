@@ -15,6 +15,8 @@ type Msg
     | WaitForStart
     | StartingGame
     | GameStarted (Result Http.Error PlayerInfo)
+    | SelectWord String ( List String )
+    | DeselectWord String ( List String )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -66,12 +68,35 @@ update msg model =
         GameStarted ( Err err ) ->
             ( { model | lifecycle = Error [ "Error starting game" ] }, Cmd.none )
         GameStarted ( Ok playerInfo ) ->
-            ( { model | lifecycle = Spectating
+            ( { model | lifecycle = Spectating []
                       , state = Just playerInfo.state
                       , otherPlayers = playerInfo.otherPlayers
                       }
             , Cmd.none
             )
+
+        SelectWord newWord selected ->
+            let
+                newSelected =
+                    case selected of
+                        [ ] ->
+                            [ newWord ]
+                        [ word ] ->
+                            [ word, newWord ]
+                        _ ->
+                            selected
+            in
+                ( { model | lifecycle = Spectating newSelected }
+                , Cmd.none
+                )
+        DeselectWord word selected ->
+            let
+                newSelected = List.filter ( \w -> w /= word ) selected
+            in
+                ( { model | lifecycle = Spectating newSelected }
+                , Cmd.none
+                )
+
 
 
 -- API calls

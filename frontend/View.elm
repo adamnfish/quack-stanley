@@ -24,9 +24,9 @@ view model =
                     [ text "Loading backend" ]
         Create gameName screenName ->
             form [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
-                 [ input [ onInput (\val -> Msg.CreatingNewGame val screenName ) , placeholder "Game name" ]
+                 [ input [ onInput ( \val -> Msg.CreatingNewGame val screenName ) , placeholder "Game name" ]
                          []
-                 , input [ onInput (\val -> Msg.CreatingNewGame gameName val ) , placeholder "Player name" ]
+                 , input [ onInput ( \val -> Msg.CreatingNewGame gameName val ) , placeholder "Player name" ]
                          []
                  , button []
                           [ text "Create game" ]
@@ -36,9 +36,9 @@ view model =
                 [ text "Creating game..." ]
         Join gameId screenName ->
             form [ onSubmit ( Msg.JoinGame gameId screenName ) ]
-                 [ input [ onInput (\val -> Msg.JoiningGame val screenName ) , placeholder "Game key" ]
+                 [ input [ onInput ( \val -> Msg.JoiningGame val screenName ) , placeholder "Game key" ]
                          []
-                 , input [ onInput (\val -> Msg.JoiningGame gameId val ) , placeholder "Player name" ]
+                 , input [ onInput ( \val -> Msg.JoiningGame gameId val ) , placeholder "Player name" ]
                          []
                  , button []
                           [ text "Join game" ]
@@ -61,14 +61,29 @@ view model =
         Starting ->
             div []
                 [ text "Starting game..." ]
-        Spectating ->
+        Spectating selected ->
             let
                 hand = Maybe.withDefault [] ( Maybe.map .hand model.state )
+                gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
             in
                 div []
-                    [ text "Game has started"
+                    [ h2 []
+                         [ text gameName ]
+                    , div []
+                          [ text "Players:"
+                          , ul []
+                               ( List.map ( \playerName -> li [] [ text playerName ] ) model.otherPlayers )
+                          ]
                     , ul []
-                         ( List.map ( \word -> li [] [ text word ] ) hand )
+                         ( List.map ( \word -> button [ onClick ( Msg.DeselectWord word selected ) ]
+                                                      [ text ( word ++ " x" ) ]
+                                    ) selected )
+                    , ul []
+                         ( List.map ( \word -> button [ onClick ( Msg.SelectWord word selected ) ]
+                                                      [ text word ]
+                                    )
+                           hand
+                         )
                     ]
         Error errs ->
             div []

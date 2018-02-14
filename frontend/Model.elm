@@ -3,17 +3,21 @@ module Model exposing (Model, PlayerState, PlayerInfo, Registered, Lifecycle(..)
 
 type Lifecycle
     = Welcome               -- initial screen (backend awake)
-    | Create String String  -- create new game (gameName, screenName)
+    | Create                -- create new game (gameName, screenName)
+        String String
     | Creating              -- waiting for API to confirm creation
-    | Join String String    -- join existing game (gameId, screenName)
+    | Join                  -- join existing game (gameId, screenName)
+        String String
     | Joining               -- waiting for API to confirm game entry
     | Waiting               -- waiting for game to start (will have game and screen name)
     | Starting              -- triggered game start, waiting for API to complete
     | Spectating            -- game has started, player is spectating (and can choose words)
+       ( List String )
     | Pitching              -- player is pitching two cards from hand
     | ChooseRole            -- player is given two roles to choose from
     | Buyer                 -- player is the buyer, will have a role
-    | Error ( List String ) -- error that isn't yet handled
+    | Error                 -- error that isn't yet handled
+        ( List String )
 
 type alias PlayerState =
     { gameId : String
