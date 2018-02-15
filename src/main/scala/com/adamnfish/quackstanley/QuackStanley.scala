@@ -31,6 +31,9 @@ object QuackStanley {
     *
     * Note that this function does not update the game state to prevent race conditions, this will be
     * done once by the creator when the game is started.
+    *
+    * TODO: allow unique prefix of game ID to specify game (min 4 chars).
+    * TODO: Optionally find a way to map dictionary(/game) words to key prefixes for easy sharing.
     */
   def registerPlayer(data: RegisterPlayer, config: Config)(implicit ec: ExecutionContext): Attempt[Registered] = {
     for {
