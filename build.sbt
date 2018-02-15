@@ -27,9 +27,9 @@ lazy val root = (project in file(".")).
     )
   )
 
-lazy val devMode = (project in file("dev-server")).
+lazy val devServer = (project in file("dev-server")).
   settings(
-    name := "quack-stanley-dev-server",
+    name := "dev-server",
     libraryDependencies ++= Seq(
       "org.http4s" %% "http4s-dsl" % http4sVersion,
       "org.http4s" %% "http4s-blaze-server" % http4sVersion,
