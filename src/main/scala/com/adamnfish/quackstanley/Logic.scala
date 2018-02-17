@@ -91,10 +91,12 @@ object Logic {
   }
 
   def verifyNoBuyer(gameState: GameState): Attempt[Unit] = {
-    if (gameState.buyer.isDefined) {
-      Attempt.Left(Failure("Buyer already exists", "This game already has a buyer", 400))
-    } else {
-      Attempt.Right(())
+    gameState.buyer match {
+      case None =>
+        Attempt.Right(())
+      case Some(buyerKey) =>
+        val playerName = gameState.players.getOrElse(buyerKey, "another player")
+        Attempt.Left(Failure(s"Buyer already exists: $playerName", s"$playerName is already the buyer", 400))
     }
   }
 

@@ -176,6 +176,15 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
       val game = newGame("game name", "creator").copy(buyer = Some(PlayerKey("player")))
       verifyNoBuyer(game).isFailedAttempt() shouldEqual true
     }
+
+    "failure includes current buyer's name" in {
+      val game = newGame("game name", "creator")
+      val gameWithBuyer = game.copy(
+        buyer = Some(PlayerKey("player")),
+        players = game.players + (PlayerKey("player") -> "player name")
+      )
+      verifyNoBuyer(gameWithBuyer).leftValue().failures.head.friendlyMessage should include("player name")
+    }
   }
 
   "usedWords" in {
