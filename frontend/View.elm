@@ -1,7 +1,7 @@
 module View exposing (view)
 
 import Html exposing (Html, div, form, input, button, text, h2, ul, li)
-import Html.Attributes exposing (placeholder)
+import Html.Attributes exposing (placeholder, disabled)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
@@ -22,6 +22,7 @@ view model =
             else
                 div []
                     [ text "Loading backend" ]
+
         Create gameName screenName ->
             form [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
                  [ input [ onInput ( \val -> Msg.CreatingNewGame val screenName ) , placeholder "Game name" ]
@@ -31,9 +32,11 @@ view model =
                  , button []
                           [ text "Create game" ]
                  ]
+
         Creating ->
             div []
                 [ text "Creating game..." ]
+
         Join gameId screenName ->
             form [ onSubmit ( Msg.JoinGame gameId screenName ) ]
                  [ input [ onInput ( \val -> Msg.JoiningGame val screenName ) , placeholder "Game key" ]
@@ -43,9 +46,11 @@ view model =
                  , button []
                           [ text "Join game" ]
                  ]
+
         Joining ->
             div []
                 [ text "Joining game..." ]
+
         Waiting ->
             div []
                 [ text "Joined game!"
@@ -58,9 +63,11 @@ view model =
                             text "waiting for game to start"
                       ]
                 ]
+
         Starting ->
             div []
                 [ text "Starting game..." ]
+
         Spectating selected ->
             let
                 hand = Maybe.withDefault [] ( Maybe.map .hand model.state )
@@ -79,12 +86,15 @@ view model =
                                                       [ text ( word ++ " x" ) ]
                                     ) selected )
                     , ul []
-                         ( List.map ( \word -> button [ onClick ( Msg.SelectWord word selected ) ]
+                         ( List.map ( \word -> button [ onClick ( Msg.SelectWord word selected )
+                                                      , disabled ( List.member word selected )
+                                                      ]
                                                       [ text word ]
                                     )
                            hand
                          )
                     ]
+
         Error errs ->
             div []
                 [ h2 []
@@ -92,6 +102,7 @@ view model =
                 , ul []
                      ( List.map ( \msg -> li [] [ text msg ] ) errs )
                 ]
+
         _ ->
             div []
                 [ text "Unknown application state" ]
