@@ -1,4 +1,4 @@
-module Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest)
+module Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest)
 
 import Http exposing (stringBody)
 import Model exposing (PlayerState, PlayerInfo, Registered)
@@ -33,6 +33,13 @@ startGameRequest : String -> String -> Http.Request PlayerInfo
 startGameRequest gameId playerKey =
     let
         body = """{ "operation": "start-game", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
+    in
+        Http.post apiUrl ( stringBody "application/json" body ) ( playerInfoDecoder )
+
+becomeBuyerRequest : String -> String -> Http.Request PlayerInfo
+becomeBuyerRequest gameId playerKey =
+    let
+        body = """{ "operation": "become-buyer", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
         Http.post apiUrl ( stringBody "application/json" body ) ( playerInfoDecoder )
 

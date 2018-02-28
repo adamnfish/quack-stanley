@@ -15,7 +15,8 @@ type Lifecycle
        ( List String )
     | Pitching              -- player is pitching two cards from hand
     | ChooseRole            -- player is given two roles to choose from
-    | Buyer                 -- player is the buyer, will have a role
+    | BecomingBuyer         -- player would like to be the buyer, asking API
+    | Buying String         -- player is the buyer, will have a role
     | Error                 -- error that isn't yet handled
         ( List String )
 

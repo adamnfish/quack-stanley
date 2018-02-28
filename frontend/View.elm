@@ -93,7 +93,23 @@ view model =
                                     )
                            hand
                          )
+                    , div []
+                          [ button [ onClick ( Msg.RequestBuyer ) ] [ text "Buyer" ]]
                     ]
+
+        BecomingBuyer ->
+            div []
+                [ h2 []
+                     [ text "Loading role" ]
+                ]
+
+        Buying role ->
+            div []
+                [ h2 []
+                     [ text role ]
+                , ul []
+                     ( List.map ( \playerName -> li [] [ text playerName ] ) model.otherPlayers )
+                ]
 
         Error errs ->
             div []

@@ -1,7 +1,7 @@
 module Msg exposing (Msg (..), update, wakeServer)
 
 import Http
-import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest)
+import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest)
 import Model exposing (Model, Registered, PlayerInfo, Lifecycle (..))
 
 
@@ -17,6 +17,8 @@ type Msg
     | GameStarted (Result Http.Error PlayerInfo)
     | SelectWord String ( List String )
     | DeselectWord String ( List String )
+    | RequestBuyer
+    | BecomeBuyer (Result Http.Error PlayerInfo)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -97,7 +99,24 @@ update msg model =
                 , Cmd.none
                 )
 
+        RequestBuyer ->
+            case (Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey) of
+                Just (gameId, playerKey) ->
+                    ( { model | lifecycle = BecomingBuyer }
+                    , becomeBuyer gameId playerKey
+                    )
+                Nothing ->
+                    ( { model | lifecycle = Error [ "No player key or game ID" ] }, Cmd.none )
 
+
+        BecomeBuyer ( Err err ) ->
+            ( { model | lifecycle = Error [ "Could not become buyer" ] }
+            , Cmd.none
+            )
+        BecomeBuyer ( Ok playerInfo ) ->
+            ( { model | lifecycle = Buying ( Maybe.withDefault "Couldn't get a role" playerInfo.state.role ) }
+            , Cmd.none
+            )
 
 -- API calls
 
@@ -116,3 +135,7 @@ joinGame gameId screenName =
 startGame : String -> String -> Cmd Msg
 startGame gameId playerKey =
     Http.send GameStarted ( startGameRequest gameId playerKey )
+
+becomeBuyer : String -> String -> Cmd Msg
+becomeBuyer gameId playerKey =
+    Http.send BecomeBuyer ( becomeBuyerRequest gameId playerKey )
