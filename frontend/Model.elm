@@ -37,6 +37,7 @@ type alias Model =
     , playerKey : Maybe String
     , isCreator : Bool
     , otherPlayers : List String
+    , errs : List String
     }
 
 -- API responses

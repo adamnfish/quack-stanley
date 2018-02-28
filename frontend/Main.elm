@@ -15,6 +15,7 @@ init =
       , playerKey = Nothing
       , isCreator = False
       , otherPlayers = []
+      , errs = []
       }
     , wakeServer
     )

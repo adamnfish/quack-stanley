@@ -110,9 +110,14 @@ update msg model =
 
 
         BecomeBuyer ( Err err ) ->
-            ( { model | lifecycle = Error [ "Could not become buyer" ] }
-            , Cmd.none
-            )
+            let
+                hand = Maybe.withDefault [] ( Maybe.map ( \state -> state.hand ) model.state )
+            in
+                ( { model | lifecycle = Spectating hand
+                          , errs =  [ "Could not become buyer" ]
+                  }
+                , Cmd.none
+                )
         BecomeBuyer ( Ok playerInfo ) ->
             ( { model | lifecycle = Buying ( Maybe.withDefault "Couldn't get a role" playerInfo.state.role ) }
             , Cmd.none
