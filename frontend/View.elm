@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Html exposing (Html, div, form, input, button, text, h2, ul, li)
+import Html exposing (Html, div, form, input, button, text, h2, p, ul, li)
 import Html.Attributes exposing (placeholder, disabled)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
@@ -107,6 +107,21 @@ view model =
             div []
                 [ h2 []
                      [ text role ]
+                , ul []
+                     ( List.map
+                           ( \playerName ->
+                                 li []
+                                    [ button [ onClick ( Msg.AwardPoint role playerName ) ] [ text playerName ] ]
+                           )
+                           model.otherPlayers )
+                ]
+
+        AwardingPoint role playerName ->
+            div []
+                [ h2 []
+                     [ text role ]
+                , p []
+                    [ text ( "Awarding point to " ++ playerName ) ]
                 , ul []
                      ( List.map ( \playerName -> li [] [ text playerName ] ) model.otherPlayers )
                 ]

@@ -1,24 +1,38 @@
 module Msg exposing (Msg (..), update, wakeServer)
 
 import Http
-import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest)
+import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest)
 import Model exposing (Model, Registered, PlayerInfo, Lifecycle (..))
 
 
 type Msg
-    = BackendAwake (Result Http.Error ())
-    | CreatingNewGame String String
-    | CreateNewGame String String
-    | JoiningGame String String
-    | JoinGame String String
-    | JoinedGame (Result Http.Error Registered)
+    = BackendAwake
+        ( Result Http.Error () )
+    | CreatingNewGame
+        String String
+    | CreateNewGame
+        String String
+    | JoiningGame
+        String String
+    | JoinGame
+        String String
+    | JoinedGame
+        ( Result Http.Error Registered )
     | WaitForStart
     | StartingGame
-    | GameStarted (Result Http.Error PlayerInfo)
-    | SelectWord String ( List String )
-    | DeselectWord String ( List String )
+    | GameStarted
+        ( Result Http.Error PlayerInfo )
+    | SelectWord
+        String ( List String )
+    | DeselectWord
+        String ( List String )
     | RequestBuyer
-    | BecomeBuyer (Result Http.Error PlayerInfo)
+    | BecomeBuyer
+        ( Result Http.Error PlayerInfo )
+    | AwardPoint
+        String String
+    | AwardedPoint
+        ( Result Http.Error PlayerInfo )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -123,6 +137,28 @@ update msg model =
             , Cmd.none
             )
 
+        AwardPoint role playerName ->
+            case (Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey) of
+                Just (gameId, playerKey) ->
+                    ( { model | lifecycle = AwardingPoint role playerName }
+                    , awardPoint gameId playerKey role playerName
+                    )
+                Nothing ->
+                    ( { model | lifecycle= Error [ "No game ID or Player Key" ] }
+                    , Cmd.none
+                    )
+                    
+        AwardedPoint ( Err err ) ->
+            ( { model | lifecycle = Error [ "Couldn't award point" ] }
+            , Cmd.none
+            )
+        AwardedPoint ( Ok playerInfo ) ->
+            ( { model | lifecycle = Spectating []
+                      , state = Just playerInfo.state
+              }
+            , Cmd.none
+            )
+
 -- API calls
 
 wakeServer : Cmd Msg
@@ -144,3 +180,7 @@ startGame gameId playerKey =
 becomeBuyer : String -> String -> Cmd Msg
 becomeBuyer gameId playerKey =
     Http.send BecomeBuyer ( becomeBuyerRequest gameId playerKey )
+
+awardPoint : String -> String -> String -> String -> Cmd Msg
+awardPoint gameId playerKey role playerName =
+    Http.send AwardedPoint ( awardPointRequest gameId playerKey role playerName )
