@@ -53,7 +53,7 @@ object Serialization {
       case "become-buyer" => c.as[BecomeBuyer]
       case "start-pitch" => c.as[StartPitch]
       case "finish-pitch" => c.as[FinishPitch]
-      case "award-point" => c.as[RegisterPlayer]
+      case "award-point" => c.as[AwardPoint]
       case "mulligan" => c.as[Mulligan]
       case "ping" => c.as[Ping]
       case "wake" => c.as[Wake]

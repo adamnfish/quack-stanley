@@ -40,6 +40,24 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
                    |}""".stripMargin
       parse(data).right.value.as[ApiOperation]
     }
+
+    "parses an awardPointRequest" in {
+      val data =
+        """{
+          |  "operation": "award-point",
+          |  "gameId": "abcdefgh-1234-5678-9abc-abcdefghijkl",
+          |  "playerKey": "12345678-abcd-efgh-ijkl-123456789abc",
+          |  "role": "role",
+          |  "awardToPlayerWithName": "player"
+          |}""".stripMargin
+      parse(data).right.value.as[ApiOperation]
+        .right.value should have(
+          'gameId ("abcdefgh-1234-5678-9abc-abcdefghijkl"),
+          'playerKey ("12345678-abcd-efgh-ijkl-123456789abc"),
+          'role ("role"),
+          'awardToPlayerWithName ("player")
+        )
+    }
   }
 
   "Value classes are encoded as values" - {
