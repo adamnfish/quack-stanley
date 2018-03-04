@@ -78,7 +78,7 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
           val playerInfo = awardPoint(request, testConfig).value()
           val persistedState = GameIO.getGameState(gameId, testConfig).value()
-          persistedState.buyer.isDefined shouldEqual true
+          persistedState.buyer.isEmpty shouldEqual true
         }
 
         "fails if the player does not have the role to award" in {

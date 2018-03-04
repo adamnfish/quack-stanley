@@ -135,13 +135,15 @@ object QuackStanley {
       _ <- authenticateBuyer(data.playerKey, gameState)
       players <- getRegisteredPlayers(data.gameId, config)
       playerState <- lookupPlayer(players, data.playerKey)
-      updatedPlayerState = playerState.copy(role = None)
       _ <- playerHasRole(playerState, data.role)
+      updatedPlayerState = playerState.copy(role = None)
+      updatedGameState = gameState.copy(buyer = None)
       winningPlayerDetails <- lookupPlayerByName(players, data.awardToPlayerWithName)
       (winningPlayerKey, winningPlayer) = winningPlayerDetails
       updatedWinningPlayer = addRoleToPoints(winningPlayer, data.role)
       _ <- writePlayerState(updatedPlayerState, data.playerKey, config)
       _ <- writePlayerState(updatedWinningPlayer, winningPlayerKey, config)
+      _ <- writeGameState(updatedGameState, config)
     } yield PlayerInfo(updatedPlayerState, gameState)
   }
 
