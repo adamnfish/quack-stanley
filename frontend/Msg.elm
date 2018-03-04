@@ -1,8 +1,9 @@
 module Msg exposing (Msg (..), update, wakeServer)
 
 import Http
-import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest)
+import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest)
 import Model exposing (Model, Registered, PlayerInfo, Lifecycle (..))
+import Time
 
 
 type Msg
@@ -33,6 +34,10 @@ type Msg
         String String
     | AwardedPoint
         ( Result Http.Error PlayerInfo )
+    | PingResult
+        ( Result Http.Error PlayerInfo )
+    | PingEvent
+        Time.Time
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -70,7 +75,7 @@ update msg model =
             )
 
         WaitForStart ->
-            ( { model | lifecycle = Waiting }, Cmd.none ) -- TODO: Timer and poll
+            ( { model | lifecycle = Waiting }, Cmd.none )
 
         StartingGame ->
             case (Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey) of
@@ -144,7 +149,7 @@ update msg model =
                     , awardPoint gameId playerKey role playerName
                     )
                 Nothing ->
-                    ( { model | lifecycle= Error [ "No game ID or Player Key" ] }
+                    ( { model | lifecycle = Error [ "No game ID or Player Key" ] }
                     , Cmd.none
                     )
                     
@@ -158,6 +163,45 @@ update msg model =
               }
             , Cmd.none
             )
+
+        PingEvent _ ->
+            case ( Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey ) of
+                Just ( gameId, playerKey ) ->
+                    ( model, ping gameId playerKey )
+                Nothing ->
+                    ( model, Cmd.none )
+
+        PingResult ( Err err ) ->
+            case model.lifecycle of
+                Waiting ->
+                    ( model, Cmd.none )
+                _ ->
+                    ( { model | lifecycle = Error [ "Lost connection to game" ] }
+                    , Cmd.none
+                    )
+        PingResult ( Ok playerInfo ) ->
+            case model.lifecycle of
+                Waiting ->
+                    if playerInfo.started then
+                        ( { model | lifecycle = Spectating []
+                                  , state = Just playerInfo.state
+                                  , otherPlayers = playerInfo.otherPlayers
+                          }
+                        , Cmd.none
+                        )
+                    else
+                        ( { model | state = Just playerInfo.state
+                                  , otherPlayers = playerInfo.otherPlayers
+                          }
+                        , Cmd.none
+                        )
+                _ ->
+                    ( { model | state = Just playerInfo.state
+                              , otherPlayers = playerInfo.otherPlayers
+                      }
+                    , Cmd.none
+                    )
+
 
 -- API calls
 
@@ -184,3 +228,7 @@ becomeBuyer gameId playerKey =
 awardPoint : String -> String -> String -> String -> Cmd Msg
 awardPoint gameId playerKey role playerName =
     Http.send AwardedPoint ( awardPointRequest gameId playerKey role playerName )
+
+ping : String -> String -> Cmd Msg
+ping gameId playerKey =
+    Http.send PingResult ( pingRequest gameId playerKey )

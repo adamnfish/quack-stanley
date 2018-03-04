@@ -1,4 +1,4 @@
-module Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest)
+module Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest)
 
 import Http exposing (stringBody)
 import Model exposing (PlayerState, PlayerInfo, Registered)
@@ -52,6 +52,13 @@ awardPointRequest gameId playerKey role playerName =
                     """", "role": \"""" ++ role ++
                         """", "awardToPlayerWithName": \"""" ++ playerName ++
                             """" }"""
+    in
+        Http.post apiUrl ( stringBody "application/json" body ) ( playerInfoDecoder )
+
+pingRequest : String -> String -> Http.Request PlayerInfo
+pingRequest gameId playerKey =
+    let
+        body = """{ "operation": "ping", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
         Http.post apiUrl ( stringBody "application/json" body ) ( playerInfoDecoder )
 

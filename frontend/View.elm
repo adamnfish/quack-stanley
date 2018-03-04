@@ -55,6 +55,8 @@ view model =
             div []
                 [ text "Joined game!"
                 , div []
+                      [ text ( Maybe.withDefault "Unknown game ID" ( Maybe.map ( \s -> s.gameId ) model.state ) ) ]
+                , div []
                       [
                         if model.isCreator then
                             button [ onClick Msg.StartingGame ]
