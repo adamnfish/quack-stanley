@@ -172,9 +172,12 @@ object Logic {
 
     if (failures.isEmpty) {
       Attempt.Right(
-        playerState.copy(hand = playerState.hand.filterNot { word =>
-          word == words._1 || word == words._2
-        })
+        playerState.copy(
+          hand = playerState.hand.filterNot { word =>
+            word == words._1 || word == words._2
+          },
+          discardedWords = playerState.discardedWords :+ words._1 :+ words._2
+        )
       )
     } else {
       Attempt.Left(FailedAttempt(failures))

@@ -69,6 +69,12 @@ class FinishPitchIntegrationTest extends FreeSpec with Matchers
           persistedPlayerState.hand shouldEqual playerInfo.state.hand
         }
 
+        "persists discarded words to player's state" in {
+          val playerInfo = finishPitch(request, testConfig).value()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
+          persistedPlayerState.discardedWords shouldEqual List(Word("one"), Word("two"))
+        }
+
         "validates user input," - {
           "flags empty game id" in {
             val request = FinishPitch(GameId(""), playerKey, (Word(""), Word("")))

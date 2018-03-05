@@ -314,6 +314,17 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
       val updatedPlayerState = discardWords((Word("one"), Word("two")), playerState).value()
       updatedPlayerState.hand shouldEqual List(Word("three"), Word("four"))
     }
+
+    "puts the discarded words into the returned player state" in {
+      val updatedPlayerState = discardWords((Word("one"), Word("two")), playerState).value()
+      updatedPlayerState.discardedWords shouldEqual List(Word("one"), Word("two"))
+    }
+
+    "adds the discarded words to the existing player state" in {
+      val discardedPlayerState = playerState.copy(discardedWords = List(Word("foo"), Word("bar")))
+      val updatedPlayerState = discardWords((Word("one"), Word("two")), discardedPlayerState).value()
+      updatedPlayerState.discardedWords shouldEqual List(Word("foo"), Word("bar"), Word("one"), Word("two"))
+    }
   }
 
   "fillHand" - {
