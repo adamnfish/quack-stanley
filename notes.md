@@ -1,5 +1,31 @@
 TODO:
 
+* better join mechanic
+  + prefix support in API
+  + find unique prefix in API ( -> model)
+  + prefixed game key display
+* varying poll interval (depending on lifecycle)
+* cannot become buyer if someone else is?
+* refactor views
+* display fixes
+  + show own name
+  + show game name
+  + unclickable self
+  + discarded words
+  + display own points
+* styles (materialize)
+* refactor frontend!
+* change model
+* frontend tests
+* domain
+* proper SPA lambda
+* build with assets
+* dev server with assets
+* help pages
++ join game, password? (if required)
+
+
+
 * elm SPA frontend
   - create / join
     + create takes password
