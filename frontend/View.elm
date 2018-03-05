@@ -96,6 +96,17 @@ view model =
                            hand
                          )
                     , div []
+                          [ button ( case selected of
+                                         word1 :: word2 :: [] ->
+                                             [ onClick ( Msg.FinishedPitch word1 word2 )
+                                             , disabled False
+                                             ]
+                                         _ ->
+                                             [ disabled True ]
+                                   )
+                                   [ text "Finish pitch" ]
+                          ]
+                    , div []
                           [ button [ onClick ( Msg.RequestBuyer ) ] [ text "Buyer" ]]
                     ]
 

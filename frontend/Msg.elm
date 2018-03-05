@@ -1,7 +1,7 @@
 module Msg exposing (Msg (..), update, wakeServer)
 
 import Http
-import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest)
+import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
 import Model exposing (Model, Registered, PlayerInfo, Lifecycle (..))
 import Time
 
@@ -38,6 +38,10 @@ type Msg
         ( Result Http.Error PlayerInfo )
     | PingEvent
         Time.Time
+    | FinishedPitch
+        String String
+    | FinishedPitchResult
+        ( Result Http.Error PlayerInfo )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -202,6 +206,23 @@ update msg model =
                     , Cmd.none
                     )
 
+        FinishedPitch word1 word2 ->
+            case ( Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey ) of
+                Just ( gameId, playerKey ) ->
+                    ( model, finishPitch gameId playerKey ( word1, word2 ) )
+                Nothing ->
+                    ( model, Cmd.none )
+        FinishedPitchResult ( Err err ) ->
+            ( { model | lifecycle = Error [ "Lost connection to game" ] }
+            , Cmd.none
+            )
+        FinishedPitchResult ( Ok playerInfo ) ->
+            ( { model | lifecycle = Spectating []
+                      , state = Just playerInfo.state
+              }
+            , Cmd.none
+            )
+
 
 -- API calls
 
@@ -232,3 +253,7 @@ awardPoint gameId playerKey role playerName =
 ping : String -> String -> Cmd Msg
 ping gameId playerKey =
     Http.send PingResult ( pingRequest gameId playerKey )
+
+finishPitch : String -> String -> ( String, String ) -> Cmd Msg
+finishPitch gameId playerKey words =
+    Http.send FinishedPitchResult ( finishPitchRequest gameId playerKey words )
