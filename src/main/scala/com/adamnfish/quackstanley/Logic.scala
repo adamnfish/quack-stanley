@@ -191,4 +191,25 @@ object Logic {
   def addRoleToPoints(playerState: PlayerState, point: Role): PlayerState = {
     playerState.copy(points = playerState.points :+ point)
   }
+
+  def makeUniquePrefix(gameId: GameId, config: Config,
+                       fn: (GameId, Int, Config) => Attempt[Boolean]
+                      )
+                      (implicit ec: ExecutionContext): Attempt[String] = {
+    val min = 4
+    val max = 10
+    def loop(prefixLength: Int): Attempt[String] = {
+      fn(gameId, prefixLength, config).flatMap {
+        case true =>
+          Attempt.Right(gameId.value.take(prefixLength))
+        case false if prefixLength < max =>
+          loop(prefixLength + 1)
+        case _ =>
+          Attempt.Left(
+            Failure("Couldn't create unique prefix of GameID", "Couldn't create game password", 500)
+          )
+      }
+    }
+    loop(min)
+  }
 }

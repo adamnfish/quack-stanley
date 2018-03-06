@@ -1,6 +1,7 @@
 package com.adamnfish.quackstanley
 
 import com.adamnfish.quackstanley.Logic._
+import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt, Failure}
 import com.adamnfish.quackstanley.models._
 import org.joda.time.DateTime
 import org.scalatest.{FreeSpec, Matchers, OptionValues}
@@ -346,6 +347,33 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
 
     "adds the provided role to the already-received points" in {
       addRoleToPoints(playerState, Role("test-role")).points shouldEqual (points :+ Role("test-role"))
+    }
+  }
+
+  "makeUniquePrefix" - {
+    val gameId = GameId("123456789abcdef0")
+    val testPersistence = new TestPersistence
+    val testConfig = Config("test", "test", testPersistence)
+
+    "returns default prefix if it is clear" in {
+      def fn(gid: GameId, n: Int, c: Config): Attempt[Boolean] = Attempt.Right(true)
+      makeUniquePrefix(gameId, testConfig, fn).value() shouldEqual "1234"
+    }
+
+    "returns longer prefix if first one was not clear" in {
+      def fn(gid: GameId, n: Int, c: Config): Attempt[Boolean] = Attempt.Right(n > 4)
+      makeUniquePrefix(gameId, testConfig, fn).value() shouldEqual "12345"
+    }
+
+    "fails if thea unique prefix cannot be found" in {
+      def fn(gid: GameId, n: Int, c: Config): Attempt[Boolean] = Attempt.Right(false)
+      makeUniquePrefix(gameId, testConfig, fn).isFailedAttempt() shouldEqual true
+    }
+
+    "fails if the provided fn fails" in {
+      val expected = FailedAttempt(Failure("test", "test", 500))
+      def fn(gid: GameId, n: Int, c: Config): Attempt[Boolean] = Attempt.Left(expected)
+      makeUniquePrefix(gameId, testConfig, fn).leftValue() shouldEqual expected
     }
   }
 }

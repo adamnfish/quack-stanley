@@ -69,4 +69,10 @@ object GameIO {
       }
     } yield playerStates.toMap
   }
+
+  def checkPrefixUnique(gameId: GameId, prefixLength: Int, config: Config)(implicit ec: ExecutionContext): Attempt[Boolean] = {
+    for {
+      matches <- config.ioClient.listFiles(gameId.value.take(prefixLength), config)
+    } yield matches.isEmpty
+  }
 }
