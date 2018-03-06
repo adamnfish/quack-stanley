@@ -15,15 +15,16 @@ object QuackStanley {
   /**
     * Creates a new game and automatically registers this player as the creator.
     */
-  def createGame(data: CreateGame, config: Config)(implicit ec: ExecutionContext): Attempt[Registered] = {
+  def createGame(data: CreateGame, config: Config)(implicit ec: ExecutionContext): Attempt[NewGame] = {
     val gameState = newGame(data.gameName, data.screenName)
     val playerKey = gameState.creator
     val playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
     for {
       _ <- validate(data)
+      code <- makeUniquePrefix(gameState.gameId,config, checkPrefixUnique)
       _ <- writeGameState(gameState, config)
       _ <- writePlayerState(playerState, playerKey, config)
-    } yield Registered(playerState, gameState.creator)
+    } yield NewGame(playerState, gameState.creator, code)
   }
 
   /**

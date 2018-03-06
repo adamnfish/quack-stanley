@@ -62,10 +62,12 @@ object Serialization {
 
   // response types
   implicit val playerInfoEncoder: Encoder[PlayerInfo] = deriveEncoder[PlayerInfo]
+  implicit val newGameEncoder: Encoder[NewGame] = deriveEncoder[NewGame]
   implicit val registeredEncoder: Encoder[Registered] = deriveEncoder[Registered]
   implicit val okResponseEncoder: Encoder[Ok] = deriveEncoder[Ok]
   implicit val apiResponseEncoder: Encoder[ApiResponse] = Encoder.instance {
     case playerInfo: PlayerInfo => playerInfoEncoder.apply(playerInfo)
+    case newGame: NewGame => newGameEncoder.apply(newGame)
     case registered: Registered => registeredEncoder.apply(registered)
     case ok: Ok => okResponseEncoder.apply(ok)
   }

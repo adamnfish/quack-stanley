@@ -93,6 +93,12 @@ object PlayerInfo {
     PlayerInfo(playerState, gameState.started, gameState.players.values.toList)
   }
 }
+// creates new game and registers creator
+case class NewGame(
+  state: PlayerState,
+  playerKey: PlayerKey,
+  gameCode: String
+) extends ApiResponse
 // registers a user with a game
 case class Registered(
   state: PlayerState,

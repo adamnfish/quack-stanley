@@ -18,8 +18,8 @@ class CreateGameIntegrationTest extends FreeSpec with Matchers
   "createGame" - {
     "uses provided names" in {
       val request = CreateGame("screen name", "game name")
-      val registered = createGame(request, testConfig).value()
-      registered.state should have(
+      val newGame = createGame(request, testConfig).value()
+      newGame.state should have(
         'gameName ("game name"),
         'screenName ("screen name"),
       )
@@ -27,8 +27,8 @@ class CreateGameIntegrationTest extends FreeSpec with Matchers
 
     "does not deal any words or roles to the creator" in {
       val request = CreateGame("screen name", "game name")
-      val registered = createGame(request, testConfig).value()
-      registered.state should have(
+      val newGame = createGame(request, testConfig).value()
+      newGame.state should have(
         'role (None),
         'hand (Nil),
         'discardedWords (Nil),
@@ -39,44 +39,52 @@ class CreateGameIntegrationTest extends FreeSpec with Matchers
     "provides unique game IDs" in {
       val request1 = CreateGame("screen name", "game name")
       val request2 = CreateGame("screen name 2", "game name 2")
-      val registered1 = createGame(request1, testConfig).value()
-      val registered2 = createGame(request2, testConfig).value()
-      registered1.state.gameId should not equal registered2.state.gameId
+      val newGame1 = createGame(request1, testConfig).value()
+      val newGame2 = createGame(request2, testConfig).value()
+      newGame1.state.gameId should not equal newGame2.state.gameId
     }
 
     "provides unique player keys" in {
       val request1 = CreateGame("screen name", "game name")
       val request2 = CreateGame("screen name 2", "game name 2")
-      val registered1 = createGame(request1, testConfig).value()
-      val registered2 = createGame(request2, testConfig).value()
-      registered1.playerKey should not equal registered2.playerKey
+      val newGame1 = createGame(request1, testConfig).value()
+      val newGame2 = createGame(request2, testConfig).value()
+      newGame1.playerKey should not equal newGame2.playerKey
     }
 
     "sets this player as the creator on the saved game state" in {
       val request = CreateGame("screen name", "game name")
-      val registered = createGame(request, testConfig).value()
-      val savedGameState = GameIO.getGameState(registered.state.gameId, testConfig).value()
-      savedGameState.creator shouldEqual registered.playerKey
+      val newGame = createGame(request, testConfig).value()
+      val savedGameState = GameIO.getGameState(newGame.state.gameId, testConfig).value()
+      savedGameState.creator shouldEqual newGame.playerKey
     }
+
+    "successfully generates a unique prefix code for the game" in {
+      val request = CreateGame("screen name", "game name")
+      val newGame = createGame(request, testConfig).value()
+      newGame.state.gameId.value should startWith (newGame.gameCode)
+    }
+
+    "hard to test random UUIDs that clash for longer prefix codes" ignore {}
 
     "correctly persists game state" in {
       val request = CreateGame("screen name", "game name")
-      val registered = createGame(request, testConfig).value()
-      val savedGameState = GameIO.getGameState(registered.state.gameId, testConfig).value()
-      savedGameState.creator shouldEqual registered.playerKey
-      savedGameState.gameId shouldEqual registered.state.gameId
+      val newGame = createGame(request, testConfig).value()
+      val savedGameState = GameIO.getGameState(newGame.state.gameId, testConfig).value()
+      savedGameState.creator shouldEqual newGame.playerKey
+      savedGameState.gameId shouldEqual newGame.state.gameId
       savedGameState should have (
         'gameName ("game name"),
         'started (false)
       )
-      savedGameState.players should contain(registered.playerKey -> "screen name")
+      savedGameState.players should contain(newGame.playerKey -> "screen name")
     }
 
     "correctly persists player state" in {
       val request = CreateGame("screen name", "game name")
-      val registered = createGame(request, testConfig).value()
-      val savedPlayerState = GameIO.getPlayerState(registered.playerKey, registered.state.gameId, testConfig).value()
-      savedPlayerState shouldEqual registered.state
+      val newGame = createGame(request, testConfig).value()
+      val savedPlayerState = GameIO.getPlayerState(newGame.playerKey, newGame.state.gameId, testConfig).value()
+      savedPlayerState shouldEqual newGame.state
     }
 
     "validates user input," - {
