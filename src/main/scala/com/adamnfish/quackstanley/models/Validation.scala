@@ -30,6 +30,32 @@ object Validation {
     wasEmpty.orElse(wasUUID).toList
   }
 
+  val isUUIDPrefix: Validator[String] = { (str, context) =>
+    val wasEmpty = nonEmpty(str, context)
+    val ValidChar = "([0-9a-f\\-])".r
+    val valid = str.zipWithIndex.forall {
+      case (ValidChar(c), i) =>
+        if (i == 8 || i == 13 || i == 18 || i == 23) {
+          c == '-'
+        } else
+          true
+      case _ =>
+        false
+    }
+    val wasUUIDPrefix =
+      if (valid) Nil
+      else List(Failure(s"$str is not a UUID prefix", "Invalid game code", 400, Some(context)))
+    wasEmpty ++ wasUUIDPrefix
+  }
+
+  def minLength(min: Int): Validator[String] = { (str, context) =>
+    if (str.length < min)
+      List(
+        Failure("Failed min length", s"$context is not long enough", 400, Some(context))
+      )
+    else Nil
+  }
+
   private[models] def validate[A](a: A, context: String, validator: Validator[A]): Attempt[Unit] = {
     val failures = validator(a, context)
     if (failures.isEmpty) Attempt.Right(())
@@ -42,7 +68,8 @@ object Validation {
   }
 
   def validate(registerPlayer: RegisterPlayer)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(registerPlayer.gameId.value, "game ID", isUUID) |@|
+    validate(registerPlayer.gameCode, "game code", isUUIDPrefix) |@|
+      validate(registerPlayer.gameCode, "game code", minLength(4)) |@|
       validate(registerPlayer.screenName, "screen name", nonEmpty)
   }
 

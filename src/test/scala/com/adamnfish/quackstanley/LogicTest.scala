@@ -3,6 +3,7 @@ package com.adamnfish.quackstanley
 import com.adamnfish.quackstanley.Logic._
 import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt, Failure}
 import com.adamnfish.quackstanley.models._
+import com.adamnfish.quackstanley.persistence.GameIO
 import org.joda.time.DateTime
 import org.scalatest.{FreeSpec, Matchers, OptionValues}
 
@@ -374,6 +375,42 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
       val expected = FailedAttempt(Failure("test", "test", 500))
       def fn(gid: GameId, n: Int, c: Config): Attempt[Boolean] = Attempt.Left(expected)
       makeUniquePrefix(gameId, testConfig, fn).leftValue() shouldEqual expected
+    }
+  }
+
+  "gameIdFromPrefixResults" - {
+    val gameCode = "abcdef"
+    val gameId = GameId("abcdef1234")
+
+    "with valid results" - {
+      val results = List(
+        GameIO.playerStatePath(gameId, PlayerKey("player-key")),
+        GameIO.gameStatePath(gameId)
+      )
+
+      "returns ID of matching game" in {
+        gameIdFromPrefixResults(gameCode, results).value().value shouldEqual "abcdef1234"
+      }
+
+      "returns ID of game if prefix code is the entire ID" in {
+        gameIdFromPrefixResults(gameId.value, results).value().value shouldEqual "abcdef1234"
+      }
+    }
+
+    "fails if no matches are found" in {
+      val noMatches = List("abc", "def")
+      gameIdFromPrefixResults(gameCode, noMatches).isFailedAttempt() shouldEqual true
+    }
+
+    "fails if more than one game matches" in {
+      val badMatch = GameId(gameCode ++ "abc")
+      val multiMatches = List(
+        GameIO.playerStatePath(gameId, PlayerKey("player-key")),
+        GameIO.gameStatePath(gameId),
+        GameIO.playerStatePath(badMatch, PlayerKey("player-key")),
+        GameIO.gameStatePath(badMatch)
+      )
+      gameIdFromPrefixResults(gameCode, multiMatches).isFailedAttempt() shouldEqual true
     }
   }
 }

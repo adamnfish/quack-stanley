@@ -48,6 +48,72 @@ class ValidationTest extends FreeSpec with Matchers with AttemptValues with Opti
     }
   }
 
+  "isUUIDPrefix" - {
+    val uuid = UUID.randomUUID().toString
+
+    "succeeds with valid short prefix" in {
+      isUUIDPrefix(uuid.take(4), "test") shouldBe empty
+    }
+
+    "succeeds with valid longer prefix" in {
+      isUUIDPrefix(uuid.take(8), "test") shouldBe empty
+    }
+
+    "succeeds with entire ID" in {
+      isUUIDPrefix(uuid, "test") shouldBe empty
+    }
+
+    "with empty input" - {
+      val input = ""
+
+      "returns failure" in {
+        isUUIDPrefix(input, "empty test") should have length 1
+      }
+
+      "fails with provided context" in {
+        isUUID(input, "empty test").head.context.value shouldEqual "empty test"
+      }
+    }
+
+    "with bad chars" - {
+      val input = "wxyz"
+
+      "returns failure" in {
+        isUUIDPrefix(input, "format test") should have length 1
+      }
+
+      "fails with provided context" in {
+        isUUID(input, "format test").head.context.value shouldEqual "format test"
+      }
+    }
+
+    "fails with misplaced hyphen" in {
+      isUUID("-abc", "format test") should have length 1
+    }
+
+    "fails with missing hyphen" in {
+      isUUID("123456780", "format test") should have length 1
+    }
+  }
+
+  "minLength" - {
+    "fails for short input" in {
+      minLength(4)("a", "test") should have length 1
+    }
+
+    "fails for empty input" in {
+      minLength(4)("", "test") should have length 1
+    }
+
+    "succeeds at minimum length" in {
+      minLength(4)("1234", "test") shouldBe empty
+    }
+
+    "succeeds for long enough input" in {
+      minLength(4)("12345678", "test") shouldBe empty
+    }
+  }
+
   "validate" - {
     "for a single validation" - {
       "returns success if the input passes validation" in {
@@ -112,6 +178,12 @@ class ValidationTest extends FreeSpec with Matchers with AttemptValues with Opti
           result.leftValue().failures.map(_.context) shouldEqual List(Some("context2"))
         }
       }
+    }
+  }
+
+  "validateRegisterPlayer" - {
+    "fails if input length is < 4" in {
+      validate(RegisterPlayer("123", "screen name")).isFailedAttempt() shouldBe true
     }
   }
 }

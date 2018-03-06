@@ -40,7 +40,7 @@ case class CreateGame(
   gameName: String
 ) extends ApiOperation
 case class RegisterPlayer(
-  gameId: GameId,
+  gameCode: String,
   screenName: String
 ) extends ApiOperation
 case class StartGame(

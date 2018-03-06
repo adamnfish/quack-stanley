@@ -1,6 +1,6 @@
 package com.adamnfish.quackstanley.persistence
 
-import com.adamnfish.quackstanley.Config
+import com.adamnfish.quackstanley.{Config, Logic}
 import com.adamnfish.quackstanley.attempt.{Attempt, Failure, LambdaIntegration}
 import com.adamnfish.quackstanley.models._
 import io.circe.syntax._
@@ -10,20 +10,25 @@ import scala.concurrent.ExecutionContext
 
 
 object GameIO {
+  private val root = "data"
+
+  def gameCodePath(gameCode: String): String =
+    s"$root/$gameCode"
+
   def gameStatePath(gameId: GameId): String =
-    s"data/${gameId.value}/game.json"
+    s"$root/${gameId.value}/game.json"
 
   def playerStatePath(gameId: GameId, playerKey: PlayerKey): String =
-    s"${playerStateDir(gameId)}${playerKey.value}.json"
+    s"${playerStateDir(gameId)}/${playerKey.value}.json"
 
   def playerStateDir(gameId: GameId): String =
-    s"data/${gameId.value}/players/"
+    s"$root/${gameId.value}/players"
 
   def writeGameState(gameState: GameState, config: Config): Attempt[Unit] = {
     config.ioClient.writeJson(gameState.asJson, gameStatePath(gameState.gameId), config)
   }
 
-  private val PlayerKeyFromPath = "data/[a-z0-9\\-]+/players/([a-z0-9\\-]+).json".r
+  private val PlayerKeyFromPath = (root ++ "/[a-z0-9\\-]+/players/([a-z0-9\\-]+).json").r
 
   def playerKeyFromPath(path: String): Attempt[PlayerKey] = {
     path match {
@@ -41,6 +46,13 @@ object GameIO {
       json <- config.ioClient.getJson(gameStatePath(gameId), config)
       gameState <- Serialization.extractJson[GameState](json)
     } yield gameState
+  }
+
+  def lookupGameIdFromCode(gameCode: String, config: Config)(implicit ec: ExecutionContext): Attempt[GameId] = {
+    for {
+      paths <- config.ioClient.listFiles(gameCodePath(gameCode), config)
+      gameId <- Logic.gameIdFromPrefixResults(gameCode, paths)
+    } yield gameId
   }
 
   def writePlayerState(playerState: PlayerState, playerKey: PlayerKey, config: Config): Attempt[Unit] = {
@@ -71,8 +83,9 @@ object GameIO {
   }
 
   def checkPrefixUnique(gameId: GameId, prefixLength: Int, config: Config)(implicit ec: ExecutionContext): Attempt[Boolean] = {
+    val prefix = s"$root/${gameId.value.take(prefixLength)}"
     for {
-      matches <- config.ioClient.listFiles(gameId.value.take(prefixLength), config)
+      matches <- config.ioClient.listFiles(prefix, config)
     } yield matches.isEmpty
   }
 }

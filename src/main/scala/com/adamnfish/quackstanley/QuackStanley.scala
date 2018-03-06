@@ -21,7 +21,7 @@ object QuackStanley {
     val playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
     for {
       _ <- validate(data)
-      code <- makeUniquePrefix(gameState.gameId,config, checkPrefixUnique)
+      code <- makeUniquePrefix(gameState.gameId, config, checkPrefixUnique)
       _ <- writeGameState(gameState, config)
       _ <- writePlayerState(playerState, playerKey, config)
     } yield NewGame(playerState, gameState.creator, code)
@@ -39,7 +39,8 @@ object QuackStanley {
   def registerPlayer(data: RegisterPlayer, config: Config)(implicit ec: ExecutionContext): Attempt[Registered] = {
     for {
       _ <- validate(data)
-      gameState <- getGameState(data.gameId, config)
+      gameId <- lookupGameIdFromCode(data.gameCode, config)
+      gameState <- getGameState(gameId, config)
       _ <- verifyNotStarted(gameState)
       newPlayerKey = generatePlayerKey()
       playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)

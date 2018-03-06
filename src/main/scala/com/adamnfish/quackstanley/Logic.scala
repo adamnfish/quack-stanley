@@ -4,6 +4,7 @@ import java.util.UUID
 
 import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt, Failure}
 import com.adamnfish.quackstanley.models._
+import com.adamnfish.quackstanley.persistence.GameIO
 import org.joda.time.DateTime
 
 import scala.concurrent.ExecutionContext
@@ -211,5 +212,22 @@ object Logic {
       }
     }
     loop(min)
+  }
+
+  def gameIdFromPrefixResults(gameCode: String, results: List[String]): Attempt[GameId] = {
+    val PrefixedMatch = (".*/(" ++ gameCode ++ "[a-z0-9\\-]*)/game.json$").r
+    val matches = results.flatMap {
+      case PrefixedMatch(gameId) => Some(GameId(gameId))
+      case _ => None
+    }
+    matches match {
+      case Nil => Attempt.Left(
+        Failure("Couldn't find game from gameCode", "No matching games found", 404, Some(gameCode))
+      )
+      case result :: Nil => Attempt.Right(result)
+      case _ => Attempt.Left(
+        Failure("Multiple games matched gameCode", "Couldn't add you to a game, invalid code", 404, Some(gameCode))
+      )
+    }
   }
 }
