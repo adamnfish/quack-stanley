@@ -1,4 +1,4 @@
-module Model exposing (Model, PlayerState, PlayerInfo, Registered, Lifecycle(..))
+module Model exposing (Model, PlayerState, PlayerInfo, Registered, NewGame, Lifecycle(..))
 
 
 type Lifecycle
@@ -6,6 +6,8 @@ type Lifecycle
     | Create                -- create new game (gameName, screenName)
         String String
     | Creating              -- waiting for API to confirm creation
+    | CreatorWaiting        -- waiting for game to start (will have game and screen name)
+        String
     | Join                  -- join existing game (gameId, screenName)
         String String
     | Joining               -- waiting for API to confirm game entry
@@ -49,6 +51,12 @@ type alias PlayerInfo =
     { state : PlayerState
     , started : Bool
     , otherPlayers : List String
+    }
+
+type alias NewGame =
+    { state : PlayerState
+    , playerKey : String
+    , gameCode : String
     }
 
 type alias Registered =

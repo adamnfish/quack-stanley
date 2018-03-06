@@ -2,7 +2,7 @@ module Msg exposing (Msg (..), update, wakeServer)
 
 import Http
 import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
-import Model exposing (Model, Registered, PlayerInfo, Lifecycle (..))
+import Model exposing (Model, Registered, NewGame, PlayerInfo, Lifecycle (..))
 import Time
 
 
@@ -17,6 +17,8 @@ type Msg
         String String
     | JoinGame
         String String
+    | CreatedGame
+        ( Result Http.Error NewGame )
     | JoinedGame
         ( Result Http.Error Registered )
     | WaitForStart
@@ -68,6 +70,15 @@ update msg model =
             , joinGame gameId screenName
             )
 
+        CreatedGame ( Err err ) ->
+            ( { model | lifecycle = Error [ "Error creating game" ] }, Cmd.none )
+        CreatedGame ( Ok newGame ) ->
+            ( { model | lifecycle = CreatorWaiting newGame.gameCode
+                      , playerKey = Just newGame.playerKey
+                      , state = Just newGame.state
+                      }
+            , Cmd.none
+            )
         JoinedGame ( Err err ) ->
             ( { model | lifecycle = Error [ "Error joining game" ] }, Cmd.none )
         JoinedGame ( Ok registered ) ->
@@ -232,7 +243,7 @@ wakeServer =
 
 createGame : String -> String -> Cmd Msg
 createGame gameName screenName =
-    Http.send JoinedGame ( createGameRequest gameName screenName )
+    Http.send CreatedGame ( createGameRequest gameName screenName )
 
 joinGame : String -> String -> Cmd Msg
 joinGame gameId screenName =

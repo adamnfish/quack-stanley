@@ -51,19 +51,22 @@ view model =
             div []
                 [ text "Joining game..." ]
 
+        CreatorWaiting gameCode ->
+            div []
+                [ text "Joined game!"
+                , div []
+                      [ text gameCode ]
+                , div []
+                      [
+                       button [ onClick Msg.StartingGame ]
+                              [ text "start game" ]
+                      ]
+                ]
         Waiting ->
             div []
                 [ text "Joined game!"
                 , div []
-                      [ text ( Maybe.withDefault "Unknown game ID" ( Maybe.map ( \s -> s.gameId ) model.state ) ) ]
-                , div []
-                      [
-                        if model.isCreator then
-                            button [ onClick Msg.StartingGame ]
-                                   [ text "start game" ]
-                        else
-                            text "waiting for game to start"
-                      ]
+                      [ text "waiting for game to start" ]
                 ]
 
         Starting ->

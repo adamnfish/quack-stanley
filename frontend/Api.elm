@@ -1,7 +1,7 @@
 module Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
 
 import Http exposing (stringBody)
-import Model exposing (PlayerState, PlayerInfo, Registered)
+import Model exposing (PlayerState, PlayerInfo, Registered, NewGame)
 import Json.Decode exposing (Decoder, succeed, string, bool, list, nullable)
 import Json.Decode.Pipeline exposing (decode, required, optional)
 
@@ -15,12 +15,12 @@ wakeServerRequest : Http.Request ()
 wakeServerRequest =
     Http.post apiUrl ( stringBody "application/json" """{ "operation": "wake" }""" ) ( succeed () )
 
-createGameRequest : String -> String -> Http.Request Registered
+createGameRequest : String -> String -> Http.Request NewGame
 createGameRequest gameName screenName =
     let
         body = """{ "operation": "create-game", "screenName": \"""" ++ screenName ++ """", "gameName": \"""" ++ gameName ++ """" }"""
     in
-        Http.post apiUrl ( stringBody "application/json" body ) registeredDecoder
+        Http.post apiUrl ( stringBody "application/json" body ) newGameDecoder
 
 joinGameRequest : String -> String -> Http.Request Registered
 joinGameRequest gameId screenName =
@@ -83,6 +83,13 @@ playerStateDecoder =
         |> required "discardedWords" ( list string )
         |> required "role" ( nullable string )
         |> required "points" ( list string )
+
+newGameDecoder : Decoder NewGame
+newGameDecoder =
+    decode NewGame
+        |> required "state" playerStateDecoder
+        |> required "playerKey" string
+        |> required "gameCode" string
 
 registeredDecoder : Decoder Registered
 registeredDecoder =
