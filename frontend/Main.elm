@@ -4,6 +4,7 @@ import Html exposing (Html, program)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg, update, wakeServer)
 import View exposing (view)
+import Views.Main exposing (pageTemplate)
 import Subs exposing (subscriptions)
 
 
@@ -25,7 +26,7 @@ main : Program Never Model Msg
 main =
     program
         { init = init
-        , view = view
+        , view = \model -> pageTemplate view model
         , update = update
         , subscriptions = subscriptions
         }

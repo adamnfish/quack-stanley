@@ -46,6 +46,11 @@ type Msg
         ( Result Http.Error PlayerInfo )
 
 
+keys : Model -> Maybe ( String, String )
+keys model =
+    Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -93,8 +98,8 @@ update msg model =
             ( { model | lifecycle = Waiting }, Cmd.none )
 
         StartingGame ->
-            case (Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey) of
-                Just (gameId, playerKey) ->
+            case keys model of
+                Just ( gameId, playerKey ) ->
                     ( { model | lifecycle = Starting }
                     , startGame gameId playerKey
                     )
@@ -134,7 +139,7 @@ update msg model =
                 )
 
         RequestBuyer ->
-            case (Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey) of
+            case keys model of
                 Just (gameId, playerKey) ->
                     ( { model | lifecycle = BecomingBuyer }
                     , becomeBuyer gameId playerKey
@@ -158,7 +163,7 @@ update msg model =
             )
 
         AwardPoint role playerName ->
-            case (Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey) of
+            case keys model of
                 Just (gameId, playerKey) ->
                     ( { model | lifecycle = AwardingPoint role playerName }
                     , awardPoint gameId playerKey role playerName
@@ -180,7 +185,7 @@ update msg model =
             )
 
         PingEvent _ ->
-            case ( Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey ) of
+            case keys model of
                 Just ( gameId, playerKey ) ->
                     ( model, ping gameId playerKey )
                 Nothing ->
@@ -218,7 +223,7 @@ update msg model =
                     )
 
         FinishedPitch word1 word2 ->
-            case ( Maybe.map2 (\state -> \playerKey -> (state.gameId, playerKey)) model.state model.playerKey ) of
+            case keys model of
                 Just ( gameId, playerKey ) ->
                     ( model, finishPitch gameId playerKey ( word1, word2 ) )
                 Nothing ->

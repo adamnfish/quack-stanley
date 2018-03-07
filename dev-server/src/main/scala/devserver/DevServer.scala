@@ -1,9 +1,18 @@
 package devserver
 
+import java.io.FileNotFoundException
+
 import com.typesafe.scalalogging.LazyLogging
+import cats.implicits._
 import devserver.ApiService.devQuackStanley
 import fs2.{Strategy, Task}
+import fs2.util.Functor
+import fs2.interop.cats._
 import io.circe.Json
+import org.http4s._
+import org.http4s.dsl._
+import org.http4s.StaticFile
+import org.http4s.StaticFile.getClass
 import org.http4s.circe._
 import org.http4s.client.blaze._
 import org.http4s.dsl.impl.EntityResponseGenerator
@@ -11,6 +20,9 @@ import org.http4s.dsl.{Root, _}
 import org.http4s.server.blaze._
 import org.http4s.util.StreamApp
 import org.http4s.{HttpService, Status}
+
+import scala.io.Source
+import scala.util.Try
 
 
 object DevServer extends StreamApp with LazyLogging {
@@ -32,6 +44,16 @@ object DevServer extends StreamApp with LazyLogging {
       }
   }
 
+  val static = HttpService {
+    case request @ GET -> _ =>
+      logger.info(s"request: ${request.pathInfo}")
+      val path = "/static" + request.pathInfo
+      StaticFile.fromResource(path, Some(request))
+        .map(Task.now) // This one is require to make the types match up
+        .getOrElse(NotFound()) // In case the file doesn't exist
+        .flatten
+  }
+
   val lambdaApi = HttpService {
     case request @ POST -> Root =>
       for {
@@ -47,6 +69,7 @@ object DevServer extends StreamApp with LazyLogging {
     BlazeBuilder
       .bindHttp(9001, "localhost")
       .mountService(lambdaApi, "/api")
+      .mountService(static, "/static")
       .mountService(elmFrontend, "/")
       .serve
   }
