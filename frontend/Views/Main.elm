@@ -37,10 +37,7 @@ pageTemplate view model =
             ]
         , main_
             []
-            [ div
-                [ class "container" ]
-                [ view model ]
-            ]
+            [ view model ]
         , footer
             [ class "page-footer cyan darken-4" ]
             [ div

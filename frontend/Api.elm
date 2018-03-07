@@ -25,7 +25,7 @@ createGameRequest gameName screenName =
 joinGameRequest : String -> String -> Http.Request Registered
 joinGameRequest gameId screenName =
     let
-        body = """{ "operation": "register-player", "screenName": \"""" ++ screenName ++ """", "gameId": \"""" ++ gameId ++ """" }"""
+        body = """{ "operation": "register-player", "screenName": \"""" ++ screenName ++ """", "gameCode": \"""" ++ gameId ++ """" }"""
     in
         Http.post apiUrl ( stringBody "application/json" body ) registeredDecoder
 
