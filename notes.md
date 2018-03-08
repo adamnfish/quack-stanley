@@ -4,17 +4,21 @@ TODO:
   + prefix support in API
   + find unique prefix in API ( -> model)
   + prefixed game key display
+
 * varying poll interval (depending on lifecycle)
 * cannot become buyer if someone else is?
-* refactor views
+- refactor views
 * display fixes
+  + mobile zoom
   + show own name
   + show game name
   + unclickable self
   + discarded words
   + display own points
-* styles (materialize)
-* refactor frontend!
+* flow fixes
+  + back from create/join
+  + back from bad game code (failed join)
+- styles (materialize)
 * change model
 * frontend tests
 * domain
