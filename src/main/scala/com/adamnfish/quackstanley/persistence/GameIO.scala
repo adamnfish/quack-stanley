@@ -49,9 +49,10 @@ object GameIO {
   }
 
   def lookupGameIdFromCode(gameCode: String, config: Config)(implicit ec: ExecutionContext): Attempt[GameId] = {
+    val normalisedGameCode = gameCode.toLowerCase
     for {
-      paths <- config.ioClient.listFiles(gameCodePath(gameCode), config)
-      gameId <- Logic.gameIdFromPrefixResults(gameCode, paths)
+      paths <- config.ioClient.listFiles(gameCodePath(normalisedGameCode), config)
+      gameId <- Logic.gameIdFromPrefixResults(normalisedGameCode, paths)
     } yield gameId
   }
 

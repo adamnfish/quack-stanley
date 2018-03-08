@@ -58,6 +58,11 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
         registerPlayer(request, testConfig).isSuccessfulAttempt() shouldBe true
       }
 
+      "prefix game code is case-insensitive" in {
+        val request = RegisterPlayer(gameCode.take(4).toUpperCase(), "player one")
+        registerPlayer(request, testConfig).isSuccessfulAttempt() shouldBe true
+      }
+
       "correctly persists player state" in {
         val request = RegisterPlayer(gameCode, "player one")
         val registered = registerPlayer(request, testConfig).value()

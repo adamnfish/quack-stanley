@@ -52,22 +52,22 @@ class ValidationTest extends FreeSpec with Matchers with AttemptValues with Opti
     val uuid = UUID.randomUUID().toString
 
     "succeeds with valid short prefix" in {
-      isUUIDPrefix(uuid.take(4), "test") shouldBe empty
+      gameCode(uuid.take(4), "test") shouldBe empty
     }
 
     "succeeds with valid longer prefix" in {
-      isUUIDPrefix(uuid.take(8), "test") shouldBe empty
+      gameCode(uuid.take(8), "test") shouldBe empty
     }
 
     "succeeds with entire ID" in {
-      isUUIDPrefix(uuid, "test") shouldBe empty
+      gameCode(uuid, "test") shouldBe empty
     }
 
     "with empty input" - {
       val input = ""
 
       "returns failure" in {
-        isUUIDPrefix(input, "empty test") should have length 1
+        gameCode(input, "empty test") should have length 1
       }
 
       "fails with provided context" in {
@@ -79,7 +79,7 @@ class ValidationTest extends FreeSpec with Matchers with AttemptValues with Opti
       val input = "wxyz"
 
       "returns failure" in {
-        isUUIDPrefix(input, "format test") should have length 1
+        gameCode(input, "format test") should have length 1
       }
 
       "fails with provided context" in {
@@ -184,6 +184,10 @@ class ValidationTest extends FreeSpec with Matchers with AttemptValues with Opti
   "validateRegisterPlayer" - {
     "fails if input length is < 4" in {
       validate(RegisterPlayer("123", "screen name")).isFailedAttempt() shouldBe true
+    }
+
+    "is not case sensitive" in {
+      validate(RegisterPlayer("ABCD", "screen name")).isSuccessfulAttempt() shouldBe true
     }
   }
 }

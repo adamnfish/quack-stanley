@@ -30,15 +30,17 @@ object Validation {
     wasEmpty.orElse(wasUUID).toList
   }
 
-  val isUUIDPrefix: Validator[String] = { (str, context) =>
+  /**
+    * Game codes are a case-insensitive UUID prefix
+    */
+  val gameCode: Validator[String] = { (str, context) =>
     val wasEmpty = nonEmpty(str, context)
-    val ValidChar = "([0-9a-f\\-])".r
+    val ValidChar = "([0-9a-fA-F\\-])".r
     val valid = str.zipWithIndex.forall {
       case (ValidChar(c), i) =>
         if (i == 8 || i == 13 || i == 18 || i == 23) {
           c == '-'
-        } else
-          true
+        } else true
       case _ =>
         false
     }
@@ -68,7 +70,7 @@ object Validation {
   }
 
   def validate(registerPlayer: RegisterPlayer)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(registerPlayer.gameCode, "game code", isUUIDPrefix) |@|
+    validate(registerPlayer.gameCode, "game code", gameCode) |@|
       validate(registerPlayer.gameCode, "game code", minLength(4)) |@|
       validate(registerPlayer.screenName, "screen name", nonEmpty)
   }
