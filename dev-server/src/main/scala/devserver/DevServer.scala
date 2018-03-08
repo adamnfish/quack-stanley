@@ -67,7 +67,7 @@ object DevServer extends StreamApp with LazyLogging {
 
   override def stream(args: List[String]) = {
     BlazeBuilder
-      .bindHttp(9001, "localhost")
+      .bindHttp(9001, "0.0.0.0")
       .mountService(lambdaApi, "/api")
       .mountService(static, "/static")
       .mountService(elmFrontend, "/")
