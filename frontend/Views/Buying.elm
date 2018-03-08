@@ -11,13 +11,16 @@ import Views.Utils exposing (qsButton, qsStaticButton)
 buying : String -> Model -> Html Msg
 buying role model =
     div [ class "container" ]
-        [ h2 []
-             [ text role ]
-        , ul []
-             ( List.map ( \playerName ->
-                 li
-                    []
-                    [ qsButton playerName ( Msg.AwardPoint role playerName ) ]
-               ) model.otherPlayers
-             )
+        [ h2
+            []
+            [ text role ]
+        , ul
+            []
+            ( List.map ( otherPlayer role ) model.otherPlayers )
         ]
+
+otherPlayer : String ->  String -> Html Msg
+otherPlayer role playerName =
+    li
+        []
+        [ qsButton playerName ( Msg.AwardPoint role playerName ) ]

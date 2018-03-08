@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, placeholder, disabled)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton)
+import Views.Utils exposing (qsButton, qsStaticButton, lis)
 
 
 spectating : List String -> Model -> Html Msg
@@ -24,7 +24,7 @@ spectating selected model =
             [ text "Players:"
             , ul
                 []
-                ( List.map ( \playerName -> li [] [ text playerName ] ) model.otherPlayers )
+                ( lis model.otherPlayers )
             ]
         , ul
             []

@@ -1,4 +1,4 @@
-module Views.Utils exposing (qsButton, qsStaticButton)
+module Views.Utils exposing (qsButton, qsStaticButton, lis)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -18,3 +18,13 @@ qsStaticButton buttonText =
     button
         [ class "waves-effect waves-light btn" ]
         [ text buttonText ]
+
+lis : List String -> List ( Html Msg )
+lis labels =
+    let
+        anLi label =
+            li
+                []
+                [ text label ]
+    in
+        List.map anLi labels

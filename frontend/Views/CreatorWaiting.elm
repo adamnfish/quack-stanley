@@ -18,5 +18,5 @@ creatorWaiting gameCode model =
             [ text gameCode ]
         , div
             []
-            [ qsButton "start game" ( Msg.StartingGame ) ]
+            [ qsButton "start game" Msg.StartingGame ]
         ]

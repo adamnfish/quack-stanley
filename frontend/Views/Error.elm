@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton)
+import Views.Utils exposing (qsButton, qsStaticButton, lis)
 
 
 error : List String -> Model -> Html Msg
@@ -17,5 +17,5 @@ error errs model =
             [ text "Error!" ]
         , ul
             []
-            ( List.map ( \msg -> li [] [ text msg ] ) errs )
+            ( lis errs )
         ]
