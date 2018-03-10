@@ -19,8 +19,7 @@ awake : Html Msg
 awake =
     div
         [ class "container" ]
-        [ text "Ready"
-        , qsButton "Create game" ( Msg.CreatingNewGame "" "" )
+        [ qsButton "Create game" ( Msg.CreatingNewGame "" "" )
         , qsButton "Join game" ( Msg.JoiningGame "" "" )
         ]
 

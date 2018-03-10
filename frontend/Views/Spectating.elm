@@ -47,7 +47,7 @@ spectating selected model =
                 case selected of
                     word1 :: word2 :: [] ->
                         [ class "waves-effect waves-light btn"
-                        , onClick ( Msg.FinishedPitch word1 word2 )
+                        , onClick ( Msg.StartPitch word1 word2 )
                         , disabled False
                         ]
                     _ ->
@@ -55,7 +55,7 @@ spectating selected model =
                         , disabled True
                         ]
               )
-            [ text "Finish pitch" ]
+            [ text "Start pitch" ]
             ]
         , div
             []

@@ -1,4 +1,4 @@
-module Model exposing (Model, PlayerState, PlayerInfo, Registered, NewGame, Lifecycle(..))
+module Model exposing (Model, PlayerState, PlayerInfo, Registered, NewGame, Lifecycle(..), PitchStatus (..))
 
 
 type Lifecycle
@@ -14,12 +14,13 @@ type Lifecycle
     | Waiting               -- waiting for game to start (will have game and screen name)
     | Starting              -- triggered game start, waiting for API to complete
     | Spectating            -- game has started, player is spectating (and can choose words)
-       ( List String )
+        ( List String )
     | Pitching              -- player is pitching two cards from hand
+        String String PitchStatus
     | ChooseRole            -- player is given two roles to choose from
     | BecomingBuyer         -- player would like to be the buyer, asking API
     | Buying                -- player is the buyer, will have a role
-         String
+        String
     | AwardingPoint         -- telling API to award role to named player
         String String
     | Error                 -- error that isn't yet handled
@@ -44,6 +45,11 @@ type alias Model =
     , otherPlayers : List String
     , errs : List String
     }
+
+type PitchStatus
+    = NoCards
+    | OneCard
+    | TwoCards
 
 -- API responses
 

@@ -13,6 +13,7 @@ import Views.Create exposing (create)
 import Views.CreatorWaiting exposing (creatorWaiting)
 import Views.Join exposing (join)
 import Views.Spectating exposing (spectating)
+import Views.Pitching exposing (pitching)
 import Views.Buying exposing (buying)
 import Views.AwardingPoint exposing (awardingPoint)
 
@@ -42,6 +43,9 @@ view model =
 
         Spectating selected ->
             spectating selected model
+
+        Pitching word1 word2 pitchStatus ->
+            pitching word1 word2 pitchStatus model
 
         BecomingBuyer ->
             message "Loading role" model

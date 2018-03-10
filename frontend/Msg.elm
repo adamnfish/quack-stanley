@@ -2,7 +2,7 @@ module Msg exposing (Msg (..), update, wakeServer)
 
 import Http
 import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
-import Model exposing (Model, Registered, NewGame, PlayerInfo, Lifecycle (..))
+import Model exposing (Model, Registered, NewGame, PlayerInfo, Lifecycle (..), PitchStatus (..))
 import Time
 
 
@@ -40,6 +40,10 @@ type Msg
         ( Result Http.Error PlayerInfo )
     | PingEvent
         Time.Time
+    | StartPitch
+        String String
+    | RevealCard
+        String String PitchStatus
     | FinishedPitch
         String String
     | FinishedPitchResult
@@ -222,6 +226,20 @@ update msg model =
                     , Cmd.none
                     )
 
+        StartPitch word1 word2 ->
+            ( { model | lifecycle = Pitching word1 word2 NoCards }
+            , Cmd.none
+            )
+        RevealCard word1 word2 pitchStatus ->
+            let
+                nextPitchStatus = case pitchStatus of
+                    NoCards  -> OneCard
+                    OneCard  -> TwoCards
+                    TwoCards -> TwoCards
+            in
+                ( { model | lifecycle = Pitching word1 word2 nextPitchStatus }
+                , Cmd.none
+                )
         FinishedPitch word1 word2 ->
             case keys model of
                 Just ( gameId, playerKey ) ->
