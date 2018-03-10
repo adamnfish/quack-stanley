@@ -1,5 +1,155 @@
-teacher
-cleaner
-president
-programmer
-manager
+Actor
+Alien Abductee
+Alien
+Amputee
+Astronaut
+Amputee
+Astronaut
+Artist
+Babysitter
+Bartender
+Biker
+Beach Bum
+Billionaire
+Beggar
+Blind Date
+Big Foot
+Bouncer
+Bridesmaid
+Camp Counselor
+Bull Fighter
+Camper
+Bungee Jumper
+Caveman
+Castaway
+Cheerleader
+Chef
+Class Clown
+Coach
+Clown
+Coal Miner
+Clown
+Cowboy
+Comedian
+Cupid
+Couch Potato
+Dad
+Dictator
+Dare Devil
+Drill Sergeant
+Diva
+Dumpster Diver
+Doctor
+Executioner
+Dog
+Fire Fighter
+Dog
+Fire Fighter
+Fashion Model
+Fortune Teller
+Fisherman
+Fortune Teller
+Geek
+Frat Boy
+Gladiator
+Gambler
+Grandma
+Gangster
+High School Dropout
+Ghost
+Hippie
+Girl Scout
+Hitch Hiker
+Grave Robber
+Hobo
+Haunted House Actor
+Immigrant
+High School Student
+Insomniac
+Hostage
+Kindergartener
+Hunter
+Life Guard
+Janitor
+Life Guard
+Last Person On Earth
+Lovers
+Lawyer
+Lumberjack
+Little Red Ridinghood
+Masseuse
+Lottery Winner
+Missionary
+Mad Scientist
+Mob Boss
+Magician
+Nanny
+Monk
+Navy Seal
+Mortician
+Newlywed
+Ninja
+Paper Boy
+Nurse
+Pharaoh
+Olympic Athlete
+Pirate
+Paparazzi
+Pizza Deliverer
+Party Animal
+Police Officer
+Party Host
+Police Officer
+Pop Singer
+Politician
+Prisoner of War
+Pregnant Woman
+Prison Guard
+Priest
+Pro Wrestler
+Princess
+Quarterback
+Prom Date
+Rioter
+Protester
+Robot
+Queen
+Rock star
+Rapper
+Roommate
+Referee
+School Bus Driver
+Rock Climber
+Soldier
+Runaway
+Space Colonist
+Santa
+Sports Fan
+Secret Admirer
+Sports Mascot
+Senior Citizen
+Spy
+Snowman
+Substitute Teacher
+Sorority Girl
+Tailgater
+Stewardess
+Tarzan
+Super Hero
+Taxi Driver
+Surfer
+Teenager
+Teacher
+Tourist
+The President
+Vampire
+Therapist
+Villain
+Toddler
+Waitress
+Treasure Hunter
+Witch
+Tree Hugger
+Wizard
+Trucker
+Zombie
