@@ -9,6 +9,8 @@ import Time
 type Msg
     = BackendAwake
         ( Result Http.Error () )
+    | NavigateHome
+    | NavigateSpectate
     | CreatingNewGame
         String String
     | CreateNewGame
@@ -58,6 +60,11 @@ keys model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NavigateHome ->
+            ( { model | lifecycle = Welcome }, Cmd.none )
+        NavigateSpectate ->
+            ( { model | lifecycle = Spectating [] }, Cmd.none )
+
         BackendAwake _ ->
             ( { model | backendAwake = True }, Cmd.none )
 

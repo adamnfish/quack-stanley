@@ -1,4 +1,4 @@
-module Views.Utils exposing (qsButton, qsStaticButton, lis)
+module Views.Utils exposing (qsButton, qsStaticButton, lis, icon)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -28,3 +28,9 @@ lis labels =
                 [ text label ]
     in
         List.map anLi labels
+
+icon : String -> String -> Html Msg
+icon code align =
+    i
+        [ class ( "material-icons " ++ align ) ]
+        [ text code ]

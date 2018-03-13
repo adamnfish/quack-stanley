@@ -5,25 +5,39 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton)
+import Views.Utils exposing (qsButton, qsStaticButton, icon)
 
 
 create : String -> String -> Model -> Html Msg
 create gameName screenName model =
     div
         [ class "container" ]
-        [ form
-            [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
-            [ input
-                [ onInput ( \val -> Msg.CreatingNewGame val screenName )
-                , placeholder "Game name"
+        [ div
+            [ class "row" ]
+            [ button
+                [ class "waves-effect waves-light btn-flat" ]
+                [ div
+                    [ onClick Msg.NavigateHome ]
+                    [ icon "navigate_before" "left"
+                    , text "back"
+                    ]
                 ]
-                []
-            , input
-                [ onInput ( \val -> Msg.CreatingNewGame gameName val )
-                , placeholder "Player name"
+            ]
+        , div
+            [ class "row" ]
+            [ form
+                [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
+                [ input
+                    [ onInput ( \val -> Msg.CreatingNewGame val screenName )
+                    , placeholder "Game name"
+                    ]
+                    []
+                , input
+                    [ onInput ( \val -> Msg.CreatingNewGame gameName val )
+                    , placeholder "Player name"
+                    ]
+                    []
+                , qsStaticButton "Create game"
                 ]
-                []
-            , qsStaticButton "Create game"
             ]
         ]

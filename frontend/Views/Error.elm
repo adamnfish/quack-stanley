@@ -5,17 +5,47 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton, lis)
+import Views.Utils exposing (qsButton, qsStaticButton, lis, icon)
 
 
 error : List String -> Model -> Html Msg
 error errs model =
     div
         [ class "container" ]
-        [ h1
-            []
-            [ text "Error!" ]
-        , ul
-            []
-            ( lis errs )
+        [ div
+            [ class "row" ]
+            [ button
+                [ class "waves-effect waves-light btn-flat" ]
+                [ div
+                    [ onClick Msg.NavigateHome ]
+                    [ icon "navigate_before" "left"
+                    , text "home"
+                    ]
+                ]
+            , resumeGameIfItExists model
+            ]
+        , div
+            [ class "row" ]
+            [ h1
+                []
+                [ text "Error!" ]
+            , ul
+                []
+                ( lis errs )
+            ]
         ]
+
+resumeGameIfItExists : Model -> Html Msg
+resumeGameIfItExists model =
+    case model.state of
+        Just state ->
+            button
+               [ class "waves-effect waves-light btn-flat" ]
+               [ div
+                   [ onClick Msg.NavigateSpectate ]
+                   [ icon "navigate_next" "right"
+                   , text "back to game"
+                   ]
+               ]
+        Nothing ->
+            text ""
