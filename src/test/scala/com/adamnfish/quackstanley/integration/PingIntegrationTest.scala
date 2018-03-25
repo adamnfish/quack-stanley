@@ -52,6 +52,12 @@ class PingIntegrationTest extends FreeSpec with Matchers
           playerInfo.state.screenName shouldEqual screenName
         }
 
+        "excludes correct player from 'otherPlayers'" in {
+          val request = Ping(gameId, playerKey)
+          val playerInfo = ping(request, testConfig).value()
+          playerInfo.otherPlayers should not contain screenName
+        }
+
         "validates user input," - {
           "flags empty game id" in {
             val request = Ping(GameId(""), playerKey)

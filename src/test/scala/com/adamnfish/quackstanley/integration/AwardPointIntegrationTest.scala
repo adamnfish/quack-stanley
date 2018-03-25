@@ -81,6 +81,12 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
           persistedState.buyer.isEmpty shouldEqual true
         }
 
+        "excludes current player from otherPlayers" in {
+          val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
+          val playerInfo = awardPoint(request, testConfig).value()
+          playerInfo.otherPlayers should not contain screenName
+        }
+
         "fails if the player does not have the role to award" in {
           val request = AwardPoint(gameId, playerKey, Role("different-role"), winnerScreenName)
           awardPoint(request, testConfig).isFailedAttempt() shouldEqual true

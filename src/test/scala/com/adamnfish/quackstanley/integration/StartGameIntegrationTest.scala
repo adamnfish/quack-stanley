@@ -66,7 +66,13 @@ class StartGameIntegrationTest extends FreeSpec with Matchers
         "returns other players in playerInfo" in {
           val request = StartGame(gameId, creatorKey)
           val playerInfo = startGame(request, testConfig).value()
-          playerInfo.otherPlayers.toSet shouldEqual Set(creatorScreenName, playerScreenName)
+          playerInfo.otherPlayers.toSet shouldEqual Set(playerScreenName)
+        }
+
+        "does not include current player in playerInfo's 'otherPlayers'" in {
+          val request = StartGame(gameId, creatorKey)
+          val playerInfo = startGame(request, testConfig).value()
+          playerInfo.otherPlayers.toSet should not contain creatorScreenName
         }
 
         "sets started to true" in {

@@ -45,25 +45,35 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
   }
 
   "playerInfo" - {
-    val gameState = newGame("game name", "creator")
+    val gameState = newGame("game name", "Creator")
     val playerState1 = newPlayer(gameState.gameId, gameState.gameName, "Player 1")
+    val playerKey1 = generatePlayerKey()
     val playerState2 = newPlayer(gameState.gameId, gameState.gameName, "Player 2")
+    val playerKey2 = generatePlayerKey()
     val allPlayers = gameState.players +
-      (generatePlayerKey() -> playerState1.screenName) +
-      (generatePlayerKey() -> playerState2.screenName)
+      (playerKey1 -> playerState1.screenName) +
+      (playerKey2 -> playerState2.screenName)
     val gameStateWithPlayers = gameState.copy(players = allPlayers)
 
     "sets started from the game state" in {
-      playerInfo(playerState1, gameStateWithPlayers).started shouldEqual false
+      playerInfo(playerKey1, playerState1, gameStateWithPlayers).started shouldEqual false
     }
 
     "sets started from a started game's state" in {
       val started = gameStateWithPlayers.copy(started = true)
-      playerInfo(playerState1, started).started shouldEqual true
+      playerInfo(playerKey1, playerState1, started).started shouldEqual true
     }
 
     "sets player state" in {
-      playerInfo(playerState1, gameStateWithPlayers).state shouldEqual playerState1
+      playerInfo(playerKey1, playerState1, gameStateWithPlayers).state shouldEqual playerState1
+    }
+
+    "excludes this player from 'otherPlayers'" in {
+      playerInfo(playerKey1, playerState1, gameStateWithPlayers).otherPlayers should not contain("Player 1")
+    }
+
+    "includes other players" in {
+      playerInfo(playerKey1, playerState1, gameStateWithPlayers).otherPlayers should contain only("Player 2", "Creator")
     }
   }
 

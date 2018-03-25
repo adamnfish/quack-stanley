@@ -75,6 +75,11 @@ class FinishPitchIntegrationTest extends FreeSpec with Matchers
           persistedPlayerState.discardedWords shouldEqual List(Word("one"), Word("two"))
         }
 
+        "returned playerInfo's otherPlayers excludes current player" in {
+          val playerInfo = finishPitch(request, testConfig).value()
+          playerInfo.otherPlayers should not contain screenName
+        }
+
         "validates user input," - {
           "flags empty game id" in {
             val request = FinishPitch(GameId(""), playerKey, (Word(""), Word("")))

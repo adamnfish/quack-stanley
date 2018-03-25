@@ -35,8 +35,11 @@ object Logic {
     PlayerState(gameId, gameName, screenName, Nil, Nil, None, Nil)
   }
 
-  def playerInfo(playerState: PlayerState, gameState: GameState): PlayerInfo = {
-    PlayerInfo(playerState, gameState.started, gameState.players.values.toList)
+  def playerInfo(playerKey: PlayerKey, playerState: PlayerState, gameState: GameState): PlayerInfo = {
+    val otherPlayers = gameState.players.filterNot { case (key, _) =>
+        playerKey == key
+    }
+    PlayerInfo(playerState, gameState.started, otherPlayers.values.toList)
   }
 
   def authenticate(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[String] = {
