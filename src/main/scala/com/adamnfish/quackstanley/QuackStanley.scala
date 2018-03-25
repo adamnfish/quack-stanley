@@ -69,7 +69,7 @@ object QuackStanley {
       updatedGameState = startGameState(gameState, names)
       _ <- writeGameState(updatedGameState, config)
       _ <- writePlayerStates(dealtPlayers, config)
-    } yield PlayerInfo(creatorState, updatedGameState)
+    } yield playerInfo(creatorState, updatedGameState)
   }
 
   /**
@@ -90,7 +90,7 @@ object QuackStanley {
       gameWithBuyer = gameState.copy(buyer = Some(data.playerKey))
       _ <- writeGameState(gameWithBuyer, config)
       _ <- writePlayerState(playerWithRole, data.playerKey, config)
-    } yield PlayerInfo(playerWithRole, gameWithBuyer)
+    } yield playerInfo(playerWithRole, gameWithBuyer)
   }
 
   /**
@@ -124,7 +124,7 @@ object QuackStanley {
       discardedPlayerState <- discardWords(data.words, playerState)
       refilledPlayerState <- fillHand(refillWords, discardedPlayerState)
       _ <- writePlayerState(refilledPlayerState, data.playerKey, config)
-    } yield PlayerInfo(refilledPlayerState, gameState)
+    } yield playerInfo(refilledPlayerState, gameState)
   }
 
   /**
@@ -146,7 +146,7 @@ object QuackStanley {
       _ <- writePlayerState(updatedPlayerState, data.playerKey, config)
       _ <- writePlayerState(updatedWinningPlayer, winningPlayerKey, config)
       _ <- writeGameState(updatedGameState, config)
-    } yield PlayerInfo(updatedPlayerState, gameState)
+    } yield playerInfo(updatedPlayerState, gameState)
   }
 
   /**
@@ -172,7 +172,7 @@ object QuackStanley {
       gameState <- getGameState(data.gameId, config)
       _ <- authenticate(data.playerKey, gameState)
       playerState <- getPlayerState(data.playerKey, gameState.gameId, config)
-    } yield PlayerInfo(playerState, gameState)
+    } yield playerInfo(playerState, gameState)
   }
 
   /**

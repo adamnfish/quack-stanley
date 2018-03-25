@@ -44,6 +44,29 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
   }
 
+  "playerInfo" - {
+    val gameState = newGame("game name", "creator")
+    val playerState1 = newPlayer(gameState.gameId, gameState.gameName, "Player 1")
+    val playerState2 = newPlayer(gameState.gameId, gameState.gameName, "Player 2")
+    val allPlayers = gameState.players +
+      (generatePlayerKey() -> playerState1.screenName) +
+      (generatePlayerKey() -> playerState2.screenName)
+    val gameStateWithPlayers = gameState.copy(players = allPlayers)
+
+    "sets started from the game state" in {
+      playerInfo(playerState1, gameStateWithPlayers).started shouldEqual false
+    }
+
+    "sets started from a started game's state" in {
+      val started = gameStateWithPlayers.copy(started = true)
+      playerInfo(playerState1, started).started shouldEqual true
+    }
+
+    "sets player state" in {
+      playerInfo(playerState1, gameStateWithPlayers).state shouldEqual playerState1
+    }
+  }
+
   "authenticate" - {
     val playerKey = PlayerKey("player")
 

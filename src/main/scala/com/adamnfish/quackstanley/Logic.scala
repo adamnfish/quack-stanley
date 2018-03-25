@@ -35,6 +35,10 @@ object Logic {
     PlayerState(gameId, gameName, screenName, Nil, Nil, None, Nil)
   }
 
+  def playerInfo(playerState: PlayerState, gameState: GameState): PlayerInfo = {
+    PlayerInfo(playerState, gameState.started, gameState.players.values.toList)
+  }
+
   def authenticate(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[String] = {
     Attempt.fromOption(gameState.players.get(playerKey),
       Failure("Player key not found in game state", "Invalid player", 404).asAttempt

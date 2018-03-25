@@ -88,11 +88,6 @@ case class PlayerInfo(
   otherPlayers: List[String]
   // buyer: Option[(String, Word)]
 ) extends ApiResponse
-object PlayerInfo {
-  def apply(playerState: PlayerState, gameState: GameState): PlayerInfo = {
-    PlayerInfo(playerState, gameState.started, gameState.players.values.toList)
-  }
-}
 // creates new game and registers creator
 case class NewGame(
   state: PlayerState,
