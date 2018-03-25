@@ -1,34 +1,37 @@
 TODO:
 
-* better join mechanic
-  + prefix support in API
-  + find unique prefix in API ( -> model)
-  + prefixed game key display
-
-* varying poll interval (depending on lifecycle)
-* cannot become buyer if someone else is?
-- refactor views
+* design UI as a game
 * display fixes
-  + mobile zoom
   + show own name
   + show game name
   + unclickable self
   + discarded words
   + display own points
-* flow fixes
-  + back from create/join
-  + back from bad game code (failed join)
-- styles (materialize)
 * change model
 * frontend tests
 * domain
 * proper SPA lambda
 * build with assets
-* dev server with assets
 * help pages
 + join game, password? (if required)
 
-
+DONE
+* otherPlayers in API should only return *other players*
+* display fixes
+  + mobile zoom
+* flow fixes
+  + back from create/join
+  + back from bad game code (failed join)
+* flow fixes
+- styles (materialize)
+* cannot become buyer if someone else is?
+* dev server with assets
+* varying poll interval (depending on lifecycle)
+* better join mechanic
+  + prefix support in API
+  + find unique prefix in API ( -> model)
+  + prefixed game key display
+- refactor views
 
 * elm SPA frontend
   - create / join
