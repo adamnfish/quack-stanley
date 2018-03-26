@@ -12,6 +12,7 @@ pitching : String -> String -> PitchStatus -> Model -> Html Msg
 pitching word1 word2 pitchStatus model =
     let
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
+        screenName = Maybe.withDefault "" ( Maybe.map .screenName model.state )
         wordMarkup : String -> Bool -> Html Msg
         wordMarkup word include =
             div
@@ -23,6 +24,9 @@ pitching word1 word2 pitchStatus model =
         [ h2
             []
             [ text gameName ]
+        , h3
+            []
+            [ text screenName ]
         , div
             [ class "pitch--container" ]
             [ wordMarkup word1 ( pitchStatus /= NoCards )

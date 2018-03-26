@@ -12,6 +12,7 @@ spectating : List String -> Model -> Html Msg
 spectating selected model =
     let
         hand = Maybe.withDefault [] ( Maybe.map .hand model.state )
+        screenName = Maybe.withDefault "" ( Maybe.map .screenName model.state )
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
     in
     div
@@ -19,6 +20,9 @@ spectating selected model =
         [ h2
             []
             [ text gameName ]
+        , h3
+            []
+            [ text screenName ]
         , div
             []
             [ text "Players:"
