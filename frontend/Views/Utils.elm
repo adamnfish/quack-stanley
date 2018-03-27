@@ -1,4 +1,4 @@
-module Views.Utils exposing (qsButton, qsStaticButton, lis, icon)
+module Views.Utils exposing (qsButton, qsStaticButton, lis, icon, plural)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -34,3 +34,7 @@ icon code align =
     i
         [ class ( "material-icons " ++ align ) ]
         [ text code ]
+
+plural : String -> Int -> String
+plural str count =
+    if count == 1 then str else ( str ++ "s" )
