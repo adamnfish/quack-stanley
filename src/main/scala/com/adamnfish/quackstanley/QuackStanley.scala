@@ -139,9 +139,9 @@ object QuackStanley {
       playerState <- lookupPlayer(players, data.playerKey)
       _ <- playerHasRole(playerState, data.role)
       updatedPlayerState = playerState.copy(role = None)
-      updatedGameState = gameState.copy(buyer = None)
       winningPlayerDetails <- lookupPlayerByName(players, data.awardToPlayerWithName)
       (winningPlayerKey, winningPlayer) = winningPlayerDetails
+      updatedGameState <- updateGameWithAwardedPoint(gameState, winningPlayerKey, data.role)
       updatedWinningPlayer = addRoleToPoints(winningPlayer, data.role)
       _ <- writePlayerState(updatedPlayerState, data.playerKey, config)
       _ <- writePlayerState(updatedWinningPlayer, winningPlayerKey, config)

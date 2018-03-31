@@ -24,7 +24,7 @@ case class PlayerState(
 // holds as much info as a player needs about their foes
 case class PlayerSummary(
   screenName: String,
-  points: List[Word]
+  points: List[Role]
 )
 
 // private global gamestate

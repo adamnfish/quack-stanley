@@ -116,6 +116,19 @@ object Logic {
     }
   }
 
+  def updateGameWithAwardedPoint(gameState: GameState, winner: PlayerKey, role: Role)(implicit ec: ExecutionContext): Attempt[GameState] = {
+    for {
+      winnerSummary <- Attempt.fromOption(gameState.players.get(winner),
+        FailedAttempt(Failure("Could not find winner in game state's players", "Could not find player", 404))
+      )
+      updatedWinnerSummary = winnerSummary.copy(points = winnerSummary.points :+ role)
+      modifiedPlayers = gameState.players.updated(winner, updatedWinnerSummary)
+    } yield gameState.copy(
+      buyer = None,
+      players = modifiedPlayers
+    )
+  }
+
   def usedWords(states: List[PlayerState]): Set[Word] = {
     states.flatMap(state => state.hand ++ state.discardedWords).toSet
   }

@@ -222,6 +222,41 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
   }
 
+  "verifyNotStarted" - {
+    "succeeds if the game has started" in {
+      val gameState = newGame("test game", "creator").copy(started = true)
+      verifyNotStarted(gameState).isFailedAttempt() shouldEqual true
+    }
+
+    "fails if the game has not started" in {
+      val gameState = newGame("test game", "creator").copy(started = false)
+      verifyNotStarted(gameState).isSuccessfulAttempt() shouldEqual true
+    }
+  }
+
+  "updateGameWithAwardedPoint" - {
+    val game = newGame("game name", "creator")
+    val playerKey = PlayerKey("player")
+    val gameWithBuyer = game.copy(
+      buyer = Some(PlayerKey("buyer")),
+      players = game.players + (playerKey -> PlayerSummary("player name", Nil))
+    )
+    val role = Role("role")
+
+    "adds point to nominated player's summary" in {
+      val updatedGame = updateGameWithAwardedPoint(gameWithBuyer, playerKey, role)
+      updatedGame.value().players.get(playerKey).value.points should contain(role)
+    }
+
+    "removes current buyer" in {
+      updateGameWithAwardedPoint(gameWithBuyer, playerKey, role).value().buyer shouldBe None
+    }
+
+    "fails if the player cannot be found in the game state's players" in {
+      updateGameWithAwardedPoint(gameWithBuyer, PlayerKey("not playing"), role).isFailedAttempt() shouldEqual true
+    }
+  }
+
   "usedWords" in {
     val template = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil)
     val states = List(

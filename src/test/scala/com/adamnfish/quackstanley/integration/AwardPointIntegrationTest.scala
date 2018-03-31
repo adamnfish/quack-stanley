@@ -67,6 +67,13 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
           persistedWinnerState.points should contain(Role("role"))
         }
 
+        "persists point in winner's player summary in game's state" in {
+          val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
+          val playerInfo = awardPoint(request, testConfig).value()
+          val persistedGameState = GameIO.getGameState(gameId, testConfig).value()
+          persistedGameState.players.get(winningPlayerKey).value.points should contain(Role("role"))
+        }
+
         "persists removal of role from player's state" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
           val playerInfo = awardPoint(request, testConfig).value()
