@@ -13,6 +13,7 @@ GENERAL
 * design UI as a game
 + additional navigation (e.g. leave game / rejoin from welcome)
 + restart game from saved state (e.g. local storage) on welcome screen?
++ stop being buyer without awarding point?
 * display fixes
   + discarded words
 * change model
