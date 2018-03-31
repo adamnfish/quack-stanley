@@ -1,7 +1,7 @@
 package com.adamnfish.quackstanley.integration
 
 import com.adamnfish.quackstanley.QuackStanley._
-import com.adamnfish.quackstanley.models.CreateGame
+import com.adamnfish.quackstanley.models.{CreateGame, PlayerSummary}
 import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.{AttemptValues, Config, TestPersistence}
 import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
@@ -21,7 +21,7 @@ class CreateGameIntegrationTest extends FreeSpec with Matchers
       val newGame = createGame(request, testConfig).value()
       newGame.state should have(
         'gameName ("game name"),
-        'screenName ("screen name"),
+        'screenName ("screen name")
       )
     }
 
@@ -59,6 +59,13 @@ class CreateGameIntegrationTest extends FreeSpec with Matchers
       savedGameState.creator shouldEqual newGame.playerKey
     }
 
+    "puts creator into players with no points" in {
+      val request = CreateGame("screen name", "game name")
+      val newGame = createGame(request, testConfig).value()
+      val savedGameState = GameIO.getGameState(newGame.state.gameId, testConfig).value()
+      savedGameState.players shouldEqual Map(newGame.playerKey -> PlayerSummary("screen name", Nil))
+    }
+
     "successfully generates a unique prefix code for the game" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
@@ -77,7 +84,7 @@ class CreateGameIntegrationTest extends FreeSpec with Matchers
         'gameName ("game name"),
         'started (false)
       )
-      savedGameState.players should contain(newGame.playerKey -> "screen name")
+      savedGameState.players shouldEqual Map(newGame.playerKey -> PlayerSummary("screen name", Nil))
     }
 
     "correctly persists player state" in {

@@ -41,7 +41,7 @@ class PingIntegrationTest extends FreeSpec with Matchers
         val playerKey = PlayerKey(playerKeyUUID)
         val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, None, Nil)
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
-          Map(creator -> "Creator", playerKey -> screenName)
+          Map(creator -> PlayerSummary("Creator", Nil), playerKey -> PlayerSummary(screenName, Nil))
         )
         GameIO.writeGameState(gameState, testConfig)
         GameIO.writePlayerState(playerState, playerKey, testConfig)
@@ -55,7 +55,7 @@ class PingIntegrationTest extends FreeSpec with Matchers
         "excludes correct player from 'otherPlayers'" in {
           val request = Ping(gameId, playerKey)
           val playerInfo = ping(request, testConfig).value()
-          playerInfo.otherPlayers should not contain screenName
+          playerInfo.opponents should not contain screenName
         }
 
         "validates user input," - {
@@ -93,7 +93,7 @@ class PingIntegrationTest extends FreeSpec with Matchers
 
       "and this player is not registered, fails to auth player" in {
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
-          Map(creator -> "Creator")
+          Map(creator -> PlayerSummary("Creator", Nil))
         )
         GameIO.writeGameState(gameState, testConfig)
         val request = Ping(gameId, PlayerKey(playerDoesNotExistUUID))

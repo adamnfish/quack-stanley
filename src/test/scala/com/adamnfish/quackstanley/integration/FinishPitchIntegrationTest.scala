@@ -42,7 +42,7 @@ class FinishPitchIntegrationTest extends FreeSpec with Matchers
         val hand = Word("one") :: Word("two") :: List.fill(QuackStanley.handSize - 2)(Word("padding"))
         val playerState = PlayerState(gameId, gameName, screenName, hand, Nil, None, Nil)
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
-          Map(creator -> "Creator", playerKey -> screenName)
+          Map(creator -> PlayerSummary("Creator", Nil), playerKey -> PlayerSummary(screenName, Nil))
         )
         val request = FinishPitch(gameId, playerKey, (Word("one"), Word("two")))
         GameIO.writeGameState(gameState, testConfig)
@@ -77,7 +77,7 @@ class FinishPitchIntegrationTest extends FreeSpec with Matchers
 
         "returned playerInfo's otherPlayers excludes current player" in {
           val playerInfo = finishPitch(request, testConfig).value()
-          playerInfo.otherPlayers should not contain screenName
+          playerInfo.opponents should not contain screenName
         }
 
         "validates user input," - {
@@ -127,7 +127,7 @@ class FinishPitchIntegrationTest extends FreeSpec with Matchers
 
       "and this player is not registered, fails to auth player" in {
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
-          Map(creator -> "Creator")
+          Map(creator -> PlayerSummary("Creator", Nil))
         )
         val playerKey = PlayerKey(playerKeyUUID)
         val request = FinishPitch(gameId, playerKey, (Word("one"), Word("two")))

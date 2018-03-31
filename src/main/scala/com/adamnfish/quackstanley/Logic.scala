@@ -26,7 +26,7 @@ object Logic {
     GameState(
       gameId, gameName, DateTime.now(), started = false, playerKey, None,
       Map(
-        playerKey -> playerName
+        playerKey -> PlayerSummary(playerName, Nil)
       )
     )
   }
@@ -42,7 +42,7 @@ object Logic {
     PlayerInfo(playerState, gameState.started, otherPlayers.values.toList)
   }
 
-  def authenticate(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[String] = {
+  def authenticate(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[PlayerSummary] = {
     Attempt.fromOption(gameState.players.get(playerKey),
       Failure("Player key not found in game state", "Invalid player", 404).asAttempt
     )
@@ -73,9 +73,9 @@ object Logic {
     )
   }
 
-  def makePlayerNames(states: Map[PlayerKey, PlayerState]): Map[PlayerKey, String] = {
+  def playerSummaries(states: Map[PlayerKey, PlayerState]): Map[PlayerKey, PlayerSummary] = {
     states.map { case (playerKey, playerState) =>
-        playerKey -> playerState.screenName
+        playerKey -> PlayerSummary(playerState.screenName, Nil)
     }
   }
 
@@ -91,7 +91,7 @@ object Logic {
     )
   }
 
-  def startGameState(gameState: GameState, playerNames: Map[PlayerKey, String]): GameState = {
+  def startGameState(gameState: GameState, playerNames: Map[PlayerKey, PlayerSummary]): GameState = {
     gameState.copy(
       started = true,
       players = playerNames

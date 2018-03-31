@@ -41,7 +41,7 @@ class StartGameIntegrationTest extends FreeSpec with Matchers
       val playerKey = PlayerKey(playerKeyUUID)
       val playerState = PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil)
       val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
-        Map(creatorKey -> creatorScreenName, playerKey -> playerScreenName)
+        Map(creatorKey -> PlayerSummary(creatorScreenName, Nil), playerKey -> PlayerSummary(playerScreenName, Nil))
       )
       GameIO.writeGameState(gameState, testConfig).value()
       GameIO.writePlayerState(creatorState, creatorKey, testConfig).value()
@@ -57,22 +57,36 @@ class StartGameIntegrationTest extends FreeSpec with Matchers
           val request = StartGame(gameId, creatorKey)
           startGame(request, testConfig)
           val savedState = GameIO.getGameState(gameId, testConfig).value()
-          savedState.players shouldEqual Map(
+          savedState.players.keys.toSet shouldEqual Set(creatorKey, playerKey)
+        }
+
+        "includes player screen names" in {
+          val request = StartGame(gameId, creatorKey)
+          startGame(request, testConfig)
+          val savedState = GameIO.getGameState(gameId, testConfig).value()
+          savedState.players.mapValues(_.screenName).toSet shouldEqual Set(
             creatorKey -> creatorScreenName,
             playerKey -> playerScreenName
           )
         }
 
+        "players start with zero points" in {
+          val request = StartGame(gameId, creatorKey)
+          startGame(request, testConfig)
+          val savedState = GameIO.getGameState(gameId, testConfig).value()
+          all(savedState.players.values.map(_.points)) shouldEqual Nil
+        }
+
         "returns other players in playerInfo" in {
           val request = StartGame(gameId, creatorKey)
           val playerInfo = startGame(request, testConfig).value()
-          playerInfo.otherPlayers.toSet shouldEqual Set(playerScreenName)
+          playerInfo.opponents.toSet shouldEqual Set(PlayerSummary(playerScreenName, Nil))
         }
 
         "does not include current player in playerInfo's 'otherPlayers'" in {
           val request = StartGame(gameId, creatorKey)
           val playerInfo = startGame(request, testConfig).value()
-          playerInfo.otherPlayers.toSet should not contain creatorScreenName
+          playerInfo.opponents.toSet should not contain creatorScreenName
         }
 
         "sets started to true" in {

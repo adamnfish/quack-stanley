@@ -33,7 +33,9 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
       val creator = PlayerKey(creatorUUID)
       val gameId = GameId(gameIdUUID)
       val gameCode = gameId.value
-      val gameState = GameState(gameId, "game-name", DateTime.now(), false, creator, None, Map(creator -> "Creator"))
+      val gameState = GameState(gameId, "game-name", DateTime.now(), false, creator, None,
+        Map(creator -> PlayerSummary("Creator", Nil))
+      )
       GameIO.writeGameState(gameState, testConfig)
 
       "uses provided screen name" in {

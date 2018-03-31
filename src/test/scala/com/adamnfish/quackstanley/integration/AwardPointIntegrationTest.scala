@@ -45,9 +45,9 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
         val winningPlayerState = PlayerState(gameId, gameName, winnerScreenName, Nil, Nil, None, Nil)
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(playerKey),
           Map(
-            creator -> "Creator",
-            playerKey -> screenName,
-            winningPlayerKey -> "winner"
+            creator -> PlayerSummary("Creator", Nil),
+            playerKey -> PlayerSummary(screenName, Nil),
+            winningPlayerKey -> PlayerSummary("winner", Nil)
           )
         )
         GameIO.writeGameState(gameState, testConfig)
@@ -84,7 +84,7 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
         "excludes current player from otherPlayers" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
           val playerInfo = awardPoint(request, testConfig).value()
-          playerInfo.otherPlayers should not contain screenName
+          playerInfo.opponents should not contain screenName
         }
 
         "fails if the player does not have the role to award" in {
@@ -138,7 +138,7 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
 
       "and this player is not registered, fails to auth player" in {
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
-          Map(creator -> "Creator")
+          Map(creator -> PlayerSummary("Creator", Nil))
         )
         GameIO.writeGameState(gameState, testConfig)
         val request = AwardPoint(gameId, PlayerKey(playerDoesNotExistUUID), Role("role"), "winner")

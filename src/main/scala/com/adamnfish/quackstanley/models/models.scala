@@ -21,6 +21,12 @@ case class PlayerState(
   // pitching: Boolean  <- required?
 )
 
+// holds as much info as a player needs about their foes
+case class PlayerSummary(
+  screenName: String,
+  points: List[Word]
+)
+
 // private global gamestate
 case class GameState(
   gameId: GameId,
@@ -29,7 +35,7 @@ case class GameState(
   started: Boolean, // once game has started players cannot be added
   creator: PlayerKey,
   buyer: Option[PlayerKey],
-  players: Map[PlayerKey, String]
+  players: Map[PlayerKey, PlayerSummary]
   // pitching: Option[PlayerKey]  <- required?
 )
 
@@ -85,7 +91,7 @@ sealed trait ApiResponse
 case class PlayerInfo(
   state: PlayerState,
   started: Boolean,
-  otherPlayers: List[String]
+  opponents: List[PlayerSummary]
   // buyer: Option[(String, Word)]
 ) extends ApiResponse
 // creates new game and registers creator

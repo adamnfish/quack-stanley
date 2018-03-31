@@ -17,8 +17,8 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
 
     "puts creator into the player states map" in {
-      val (_, screenName) = newGame("test-game", "test-player").players.head
-      screenName shouldEqual "test-player"
+      val (_, playerSummary) = newGame("test-game", "test-player").players.head
+      playerSummary.screenName shouldEqual "test-player"
     }
 
     "sets initial state with started = false" in {
@@ -51,8 +51,8 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     val playerState2 = newPlayer(gameState.gameId, gameState.gameName, "Player 2")
     val playerKey2 = generatePlayerKey()
     val allPlayers = gameState.players +
-      (playerKey1 -> playerState1.screenName) +
-      (playerKey2 -> playerState2.screenName)
+      (playerKey1 -> PlayerSummary(playerState1.screenName, Nil)) +
+      (playerKey2 -> PlayerSummary(playerState2.screenName, Nil))
     val gameStateWithPlayers = gameState.copy(players = allPlayers)
 
     "sets started from the game state" in {
@@ -69,11 +69,11 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
 
     "excludes this player from 'otherPlayers'" in {
-      playerInfo(playerKey1, playerState1, gameStateWithPlayers).otherPlayers should not contain("Player 1")
+      playerInfo(playerKey1, playerState1, gameStateWithPlayers).opponents.map(_.screenName) should not contain("Player 1")
     }
 
     "includes other players" in {
-      playerInfo(playerKey1, playerState1, gameStateWithPlayers).otherPlayers should contain only("Player 2", "Creator")
+      playerInfo(playerKey1, playerState1, gameStateWithPlayers).opponents.map(_.screenName) should contain only("Player 2", "Creator")
     }
   }
 
@@ -83,20 +83,20 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     "when user exists in player map" - {
       val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"), None,
         Map(
-          PlayerKey("player") -> "player-name",
-          PlayerKey("foo") -> "another-player"
+          PlayerKey("player") -> PlayerSummary("player-name", Nil),
+          PlayerKey("foo") -> PlayerSummary("another-player", Nil)
         )
       )
 
-      "returns the user's screenName" in {
-        authenticate(playerKey, gameState).value() shouldEqual "player-name"
+      "returns the user's summary" in {
+        authenticate(playerKey, gameState).value().screenName shouldEqual "player-name"
       }
     }
 
     "when user does not exist in player map" - {
       val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"), None,
         Map(
-          PlayerKey("foo") -> "another-player"
+          PlayerKey("foo") -> PlayerSummary("another-player", Nil)
         )
       )
 
@@ -109,8 +109,8 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
   "authenticateCreator" - {
     val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"), None,
       Map(
-        PlayerKey("player") -> "player-name",
-        PlayerKey("foo") -> "another-player"
+        PlayerKey("player") -> PlayerSummary("player-name", Nil),
+        PlayerKey("foo") -> PlayerSummary("another-player", Nil)
       )
     )
 
@@ -131,8 +131,8 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"),
       buyer = Some(PlayerKey("foo")),
       Map(
-        PlayerKey("player") -> "player-name",
-        PlayerKey("foo") -> "another-player"
+        PlayerKey("player") -> PlayerSummary("player-name", Nil),
+        PlayerKey("foo") -> PlayerSummary("another-player", Nil)
       )
     )
 
@@ -185,18 +185,18 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
   }
 
-  "playerNames" - {
-    "returns list of screen names" in {
+  "playerSummaries" - {
+    "returns player summaries from player states" in {
       val template = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil)
       val states = Map(
         PlayerKey("one") -> template.copy(screenName = "player one"),
         PlayerKey("two") -> template.copy(screenName = "player two"),
         PlayerKey("three") -> template.copy(screenName = "player three")
       )
-      makePlayerNames(states) shouldEqual Map(
-        PlayerKey("one") -> "player one",
-        PlayerKey("two") -> "player two",
-        PlayerKey("three") -> "player three"
+      playerSummaries(states) shouldEqual Map(
+        PlayerKey("one") -> PlayerSummary("player one", Nil),
+        PlayerKey("two") -> PlayerSummary("player two", Nil),
+        PlayerKey("three") -> PlayerSummary("player three", Nil)
       )
     }
   }
@@ -216,7 +216,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
       val game = newGame("game name", "creator")
       val gameWithBuyer = game.copy(
         buyer = Some(PlayerKey("player")),
-        players = game.players + (PlayerKey("player") -> "player name")
+        players = game.players + (PlayerKey("player") -> PlayerSummary("player name", Nil))
       )
       verifyNoBuyer(gameWithBuyer).leftValue().failures.head.friendlyMessage should include("player name")
     }
