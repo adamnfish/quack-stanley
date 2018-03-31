@@ -12,6 +12,10 @@ main {
     flex: 1 0 auto;
 }
 
+nav, footer {
+    transition: background .3s ease-in;
+}
+
 .a--footer {
     font-weight: bold;
     text-decoration: underline;
