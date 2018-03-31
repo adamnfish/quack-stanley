@@ -146,7 +146,7 @@ object QuackStanley {
       _ <- writePlayerState(updatedPlayerState, data.playerKey, config)
       _ <- writePlayerState(updatedWinningPlayer, winningPlayerKey, config)
       _ <- writeGameState(updatedGameState, config)
-    } yield playerInfo(data.playerKey, updatedPlayerState, gameState)
+    } yield playerInfo(data.playerKey, updatedPlayerState, updatedGameState)
   }
 
   /**

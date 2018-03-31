@@ -36,7 +36,7 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
       val gameId = GameId(gameIdUUID)
       val gameName = "game-name"
 
-      "and this player is registered" - {
+      "and this player and winner are both registered" - {
         val screenName = "player name"
         val playerKey = PlayerKey(playerKeyUUID)
         val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, Some(Role("role")), Nil)
@@ -47,7 +47,7 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
           Map(
             creator -> PlayerSummary("Creator", Nil),
             playerKey -> PlayerSummary(screenName, Nil),
-            winningPlayerKey -> PlayerSummary("winner", Nil)
+            winningPlayerKey -> PlayerSummary(winnerScreenName, Nil)
           )
         )
         GameIO.writeGameState(gameState, testConfig)
@@ -58,6 +58,13 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
           val playerInfo = awardPoint(request, testConfig).value()
           playerInfo.state.role.isEmpty shouldEqual true
+        }
+
+        "returns state includes new point in winners summary" in {
+          val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
+          val playerInfo = awardPoint(request, testConfig).value()
+          val winnerSummary = playerInfo.opponents.find(_.screenName == winnerScreenName).value
+          winnerSummary.points should contain(Role("role"))
         }
 
         "persists point in winner's state" in {
