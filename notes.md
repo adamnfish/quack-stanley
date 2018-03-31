@@ -11,12 +11,10 @@ UI
 
 GENERAL
 * design UI as a game
++ additional navigation (e.g. leave game / rejoin from welcome)
++ restart game from saved state (e.g. local storage) on welcome screen?
 * display fixes
-  + show own name
-  + show game name
-  - unclickable self
   + discarded words
-  - display own points
 * change model
 * frontend tests
 * domain
@@ -30,9 +28,14 @@ UI
 - icon on join game button
 
 GENERAL
-* otherPlayers in API should only return *other players*
+- otherPlayers in API should only return *other players*
 * display fixes
-  + mobile zoom
+  - mobile zoom
+  - show own name
+  - show game name
+  - unclickable self
+  - display own points
+  - display other players' points
 * flow fixes
   + back from create/join
   + back from bad game code (failed join)
