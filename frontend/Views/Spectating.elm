@@ -3,7 +3,7 @@ module Views.Spectating exposing (spectating)
 import Html exposing (..)
 import Html.Attributes exposing (class, placeholder, disabled, attribute)
 import Html.Events exposing (onClick, onSubmit, onInput)
-import Model exposing (Model, Lifecycle (..))
+import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
 import Views.Utils exposing (qsButton, qsStaticButton, lis, plural)
 
@@ -71,16 +71,23 @@ spectating selected model =
                     [ class "collection-item" ]
                     [ text "You"
                     , span
-                        [ class "data badge"
-                        , attribute "data-badge-caption" ( plural "point" ( List.length points ) ) ]
+                        [ class "badge"
+                        , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
+                        ]
                         [ text ( toString ( List.length points ) ) ]
                     ]
-                ] ++ List.map collectionLi model.otherPlayers
+                ] ++ List.map collectionLi model.opponents
             )
         ]
 
-collectionLi : String -> Html Msg
-collectionLi str =
+collectionLi : PlayerSummary -> Html Msg
+collectionLi playerSummary =
     li
         [ class "collection-item" ]
-        [ text str ]
+        [ span
+            [ class "badge"
+            , attribute "data-badge-caption" ( plural "point" ( List.length playerSummary.points ) )
+            ]
+            [ text ( toString ( List.length playerSummary.points ) ) ]
+        , text playerSummary.screenName
+        ]

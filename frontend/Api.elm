@@ -1,7 +1,7 @@
 module Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
 
 import Http exposing (stringBody)
-import Model exposing (PlayerState, PlayerInfo, Registered, NewGame)
+import Model exposing (PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame)
 import Json.Decode exposing (Decoder, succeed, string, bool, list, nullable)
 import Json.Decode.Pipeline exposing (decode, required, optional)
 
@@ -84,6 +84,12 @@ playerStateDecoder =
         |> required "role" ( nullable string )
         |> required "points" ( list string )
 
+playerSummaryDecoder : Decoder PlayerSummary
+playerSummaryDecoder =
+    decode PlayerSummary
+        |> required "screenName" string
+        |> required "points" ( list string )
+
 newGameDecoder : Decoder NewGame
 newGameDecoder =
     decode NewGame
@@ -102,4 +108,4 @@ playerInfoDecoder =
     decode PlayerInfo
         |> required "state" playerStateDecoder
         |> required "started" bool
-        |> required "otherPlayers" ( list string )
+        |> required "opponents" ( list playerSummaryDecoder )

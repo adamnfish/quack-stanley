@@ -3,7 +3,7 @@ module Views.Buying exposing (buying)
 import Html exposing (..)
 import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
-import Model exposing (Model, Lifecycle (..))
+import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
 import Views.Utils exposing (qsButton, qsStaticButton)
 
@@ -16,11 +16,11 @@ buying role model =
             [ text role ]
         , ul
             []
-            ( List.map ( otherPlayer role ) model.otherPlayers )
+            ( List.map ( otherPlayer role ) model.opponents )
         ]
 
-otherPlayer : String ->  String -> Html Msg
-otherPlayer role playerName =
+otherPlayer : String ->  PlayerSummary -> Html Msg
+otherPlayer role playerSummary =
     li
         []
-        [ qsButton playerName ( Msg.AwardPoint role playerName ) ]
+        [ qsButton playerSummary.screenName ( Msg.AwardPoint role playerSummary.screenName ) ]

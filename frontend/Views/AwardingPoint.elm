@@ -3,7 +3,7 @@ module Views.AwardingPoint exposing (awardingPoint)
 import Html exposing (..)
 import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
-import Model exposing (Model, Lifecycle (..))
+import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
 import Views.Utils exposing (qsButton, qsStaticButton, lis)
 
@@ -21,11 +21,11 @@ awardingPoint role playerName model =
             ]
         , ul
             []
-            ( lis model.otherPlayers )
+            ( List.map otherPlayer model.opponents )
         ]
 
-otherPlayer : String -> Html Msg
-otherPlayer playerName =
+otherPlayer : PlayerSummary -> Html Msg
+otherPlayer playerSummary =
     li
         []
-        [ text playerName ]
+        [ text playerSummary.screenName ]

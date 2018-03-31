@@ -15,7 +15,7 @@ init =
       , state = Nothing
       , playerKey = Nothing
       , isCreator = False
-      , otherPlayers = []
+      , opponents = []
       , errs = []
       }
     , wakeServer

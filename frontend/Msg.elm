@@ -122,7 +122,7 @@ update msg model =
         GameStarted ( Ok playerInfo ) ->
             ( { model | lifecycle = Spectating []
                       , state = Just playerInfo.state
-                      , otherPlayers = playerInfo.otherPlayers
+                      , opponents = playerInfo.opponents
                       }
             , Cmd.none
             )
@@ -216,19 +216,19 @@ update msg model =
                     if playerInfo.started then
                         ( { model | lifecycle = Spectating []
                                   , state = Just playerInfo.state
-                                  , otherPlayers = playerInfo.otherPlayers
+                                  , opponents = playerInfo.opponents
                           }
                         , Cmd.none
                         )
                     else
                         ( { model | state = Just playerInfo.state
-                                  , otherPlayers = playerInfo.otherPlayers
+                                  , opponents = playerInfo.opponents
                           }
                         , Cmd.none
                         )
                 _ ->
                     ( { model | state = Just playerInfo.state
-                              , otherPlayers = playerInfo.otherPlayers
+                              , opponents = playerInfo.opponents
                       }
                     , Cmd.none
                     )

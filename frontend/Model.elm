@@ -1,4 +1,4 @@
-module Model exposing (Model, PlayerState, PlayerInfo, Registered, NewGame, Lifecycle(..), PitchStatus (..))
+module Model exposing (Model, PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame, Lifecycle(..), PitchStatus (..))
 
 
 type Lifecycle
@@ -42,7 +42,7 @@ type alias Model =
     , state : Maybe PlayerState
     , playerKey : Maybe String
     , isCreator : Bool
-    , otherPlayers : List String
+    , opponents : List PlayerSummary
     , errs : List String
     }
 
@@ -56,7 +56,12 @@ type PitchStatus
 type alias PlayerInfo =
     { state : PlayerState
     , started : Bool
-    , otherPlayers : List String
+    , opponents : List PlayerSummary
+    }
+
+type alias PlayerSummary =
+    { screenName : String
+    , points : List String
     }
 
 type alias NewGame =
