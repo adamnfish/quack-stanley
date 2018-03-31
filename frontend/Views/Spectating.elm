@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, placeholder, disabled, attribute)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton, lis, plural)
+import Views.Utils exposing (qsButton, qsStaticButton, lis, plural, icon, friendlyError)
 
 
 spectating : List String -> Model -> Html Msg
@@ -18,56 +18,88 @@ spectating selected model =
     in
     div
         [ class "container" ]
-        [ h2
-            []
-            [ text gameName ]
-        , h3
-            []
-            [ text screenName ]
-        , ul
-            []
-            ( List.map ( \word -> qsButton ( word ++ " x" ) ( Msg.DeselectWord word selected ) ) selected )
-        , ul
-            []
-            ( List.map ( \word ->
-                button
-                    [ class "waves-effect waves-light btn"
-                    , onClick ( Msg.SelectWord word selected )
-                    , disabled ( List.member word selected )
+        [ div
+            [ class "row" ]
+            [ div
+                [ class "col s12" ]
+                [ div
+                    [ class "card-panel" ]
+                    [ div
+                        []
+                        [ h2
+                            []
+                            [ text gameName ]
+                        , h3
+                            []
+                            [ text screenName ]
+                        ]
                     ]
-                    [ text word ]
-              )
-              hand
-            )
+                ]
+            ]
+        , friendlyError model
         , div
-            []
-            [ button (
-                case selected of
-                    word1 :: word2 :: [] ->
-                        [ class "waves-effect waves-light btn"
-                        , onClick ( Msg.StartPitch word1 word2 )
-                        , disabled False
+            [ class "row" ]
+            [ div
+                [ class "col s12" ]
+                [ div
+                    [ class "card-panel" ]
+                    [ div
+                        [ class "row" ]
+                        [ div
+                            [ class "col m6 s12" ]
+                            [ ul
+                                []
+                                ( List.map ( handEntry selected ) hand )
+                            ]
+                        , div
+                            [ class "col m6 s12" ]
+                            [ selectedWords selected
+                            , button
+                                ( case selected of
+                                    word1 :: word2 :: [] ->
+                                        [ class "waves-effect waves-light btn btn-large indigo cta__button"
+                                        , onClick ( Msg.StartPitch word1 word2 )
+                                        , disabled False
+                                        ]
+                                    _ ->
+                                        [ class "waves-effect waves-light btn btn-large indigo cta__button"
+                                        , disabled True
+                                        ]
+                                )
+                                [ text "Start pitch"
+                                , icon "play_arrow" "right"
+                                ]
+                            ]
                         ]
-                    _ ->
-                        [ class "waves-effect waves-light btn"
-                        , disabled True
-                        ]
-              )
-            [ text "Start pitch" ]
+                    ]
+                ]
             ]
         , div
-            []
-            [ qsButton "Buyer" Msg.RequestBuyer ]
+            [ class "row" ]
+            [ div
+                [ class "col s12" ]
+                [ div
+                    [ class "card-panel" ]
+                    [ div
+                        [ class "row" ]
+                        [ div
+                            [ class "col m6 s12" ]
+                            [ button
+                                [ class "waves-effect waves-light btn purple cta__button"
+                                , onClick Msg.RequestBuyer
+                                ]
+                                [ text "Buyer"
+                                , icon "play_arrow" "right"
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
         , ul
-            [ class "collection with-header" ]
+            [ class "collection z-depth-1" ]
             (
                 [ li
-                    [ class "collection-header" ]
-                    [ h4
-                        []
-                        [ text "Players" ]
-                    ]
-                , li
                     [ class "collection-item" ]
                     [ text "You"
                     , span
@@ -76,12 +108,12 @@ spectating selected model =
                         ]
                         [ text ( toString ( List.length points ) ) ]
                     ]
-                ] ++ List.map collectionLi model.opponents
+                ] ++ List.map playerListEntry model.opponents
             )
         ]
 
-collectionLi : PlayerSummary -> Html Msg
-collectionLi playerSummary =
+playerListEntry : PlayerSummary -> Html Msg
+playerListEntry playerSummary =
     li
         [ class "collection-item" ]
         [ span
@@ -90,4 +122,66 @@ collectionLi playerSummary =
             ]
             [ text ( toString ( List.length playerSummary.points ) ) ]
         , text playerSummary.screenName
+        ]
+
+handEntry : List String -> String -> Html Msg
+handEntry selected word =
+    li
+        [ class "li--spaced" ]
+        [ button
+            [ class "waves-effect waves-light btn bt-flat blue cta__button"
+            , onClick ( Msg.SelectWord word selected )
+            , disabled ( List.member word selected )
+            ]
+            [ text word ]
+        ]
+
+selectedWords : List String -> Html Msg
+selectedWords selected =
+    case selected of
+        first :: second :: [] ->
+            ul
+                []
+                [ selectedWord selected first
+                , selectedWord selected second
+                ]
+        first :: [] ->
+            ul
+                []
+                [ selectedWord selected first
+                , unselectedWord
+                ]
+        [] ->
+            ul
+                []
+                [ unselectedWord
+                , unselectedWord
+                ]
+        _ ->
+            p
+                [ class "error" ]
+                [ text "Too many words selected" ]
+
+selectedWord : List String -> String -> Html Msg
+selectedWord selected word =
+    li
+        [ class "li--spaced" ]
+        [ button
+            [ class "waves-effect waves-light btn btn-large cta__button blue"
+            , onClick ( Msg.DeselectWord word selected )
+            ]
+            [ text word
+            , icon "backspace" "right"
+            ]
+        ]
+
+unselectedWord : Html Msg
+unselectedWord =
+    li
+        [ class "li--spaced" ]
+        [ button
+            [ class "waves-effect waves-light btn btn-large cta__button blue disabled"
+            , disabled True
+            ]
+            [ text "Select word" ]
         ]

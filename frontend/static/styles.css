@@ -1,3 +1,7 @@
+html {
+    background: url("/static/round.png");
+}
+
 body, #root {
     display: flex;
     min-height: 100vh;
@@ -8,9 +12,36 @@ main {
     flex: 1 0 auto;
 }
 
+.a--footer {
+    font-weight: bold;
+    text-decoration: underline;
+}
 
 @media only screen and (max-width: 600px) {
-    .cta__button {
+    .m-cta__button {
         width: 100%;
     }
+}
+
+.cta__button {
+    width: 100%;
+}
+
+#game-code {
+    color: #333333;
+    height: 3rem;
+    font-size: 30px;
+}
+
+.li--spaced {
+    margin-bottom: 5px;
+}
+
+.pitch__card {
+    font-weight: 300;
+    font-size: 60px;
+}
+
+.pitch__card--hidden {
+    visibility: hidden;
 }

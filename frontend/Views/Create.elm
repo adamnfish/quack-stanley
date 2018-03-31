@@ -15,7 +15,7 @@ create gameName screenName model =
         [ div
             [ class "row" ]
             [ button
-                [ class "waves-effect waves-light btn-flat" ]
+                [ class "waves-effect waves-light btn green" ]
                 [ div
                     [ onClick Msg.NavigateHome ]
                     [ icon "navigate_before" "left"
@@ -25,19 +25,29 @@ create gameName screenName model =
             ]
         , div
             [ class "row" ]
-            [ form
-                [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
-                [ input
-                    [ onInput ( \val -> Msg.CreatingNewGame val screenName )
-                    , placeholder "Game name"
+            [ div
+                [ class "col s12" ]
+                [ div
+                    [ class "card-panel" ]
+                    [ form
+                        [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
+                        [ input
+                            [ onInput ( \val -> Msg.CreatingNewGame val screenName )
+                            , placeholder "Game name"
+                            ]
+                            []
+                        , input
+                            [ onInput ( \val -> Msg.CreatingNewGame gameName val )
+                            , placeholder "Player name"
+                            ]
+                            []
+                        , button
+                              [ class "waves-effect waves-light teal btn btn-large" ]
+                              [ text "Create game"
+                              , icon "person" "right"
+                              ]
+                        ]
                     ]
-                    []
-                , input
-                    [ onInput ( \val -> Msg.CreatingNewGame gameName val )
-                    , placeholder "Player name"
-                    ]
-                    []
-                , qsStaticButton "Create game"
                 ]
             ]
         ]

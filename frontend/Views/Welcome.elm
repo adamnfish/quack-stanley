@@ -23,22 +23,28 @@ awake =
             [ class "row" ]
             [ div
                 [ class "col s12 m6 center-align" ]
-                [ button
-                    [ class "waves-effect waves-light btn btn-large cta__button"
-                    , onClick ( Msg.CreatingNewGame "" "" )
-                    ]
-                    [ text "Create game"
-                    , icon "person" "right"
+                [ div
+                    [ class "card-panel" ]
+                    [ button
+                        [ class "waves-effect waves-light btn btn-large teal cta__button"
+                        , onClick ( Msg.CreatingNewGame "" "" )
+                        ]
+                        [ text "Create game"
+                        , icon "person" "right"
+                        ]
                     ]
                 ]
             , div
                 [ class "col s12 m6 center-align" ]
-                [ button
-                    [ class "waves-effect waves-light btn btn-large cta__button"
-                    , onClick ( Msg.JoiningGame "" "" )
-                    ]
-                    [ text "Join game"
-                    , icon "person_add" "right"
+                [  div
+                    [ class "card-panel" ]
+                    [ button
+                        [ class "waves-effect waves-light btn btn-large cyan cta__button"
+                        , onClick ( Msg.JoiningGame "" "" )
+                        ]
+                        [ text "Join game"
+                        , icon "person_add" "right"
+                        ]
                     ]
                 ]
             ]

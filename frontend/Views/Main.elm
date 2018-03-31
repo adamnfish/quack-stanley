@@ -14,7 +14,7 @@ pageTemplate view model =
         [ header
             []
             [ nav
-                [ class "cyan darken-4" ]
+                [ class ( lifecycleTheme model.lifecycle ) ]
                 [ div
                     [ class "nav-wrapper container" ]
                     [ a
@@ -39,7 +39,7 @@ pageTemplate view model =
             []
             [ view model ]
         , footer
-            [ class "page-footer cyan darken-4" ]
+            [ class ( "page-footer " ++ ( lifecycleTheme model.lifecycle ) ) ]
             [ div
                 [ class "container" ]
                 [ div
@@ -47,13 +47,58 @@ pageTemplate view model =
                     [ div
                         [ class "col l9 s12" ]
                         [ text "Quack Stanley is a game written by "
-                        , a [ href "http://www.adamnfish.com/" ] [ text "adamnfish" ]
+                        , a
+                            [ class "a--footer white-text"
+                            , href "http://www.adamnfish.com/" ]
+                            [ text "adamnfish" ]
                         , text ", inspired by "
-                        , a [ href "https://boardgamegeek.com/boardgame/113289/snake-oil" ] [ text "Snake Oil" ]
+                        , a
+                            [ class "a--footer white-text"
+                            , href "https://boardgamegeek.com/boardgame/113289/snake-oil"
+                            ]
+                            [ text "Snake Oil" ]
                         , text ", designed by "
-                        , a [ href "https://boardgamegeek.com/boardgamedesigner/58837/jeff-ochs" ] [ text "Jeff Ochs" ]
+                        , a
+                            [ class "a--footer white-text"
+                            , href "https://boardgamegeek.com/boardgamedesigner/58837/jeff-ochs"
+                            ]
+                            [ text "Jeff Ochs" ]
                         ]
                     ]
                 ]
             ]
         ]
+
+lifecycleTheme : Lifecycle -> String
+lifecycleTheme lifecycle =
+    case lifecycle of
+        Welcome ->
+            "green"
+        Create _ _ ->
+            "teal"
+        Creating ->
+            "teal"
+        CreatorWaiting _ ->
+            "teal"
+        Join _ _ ->
+            "cyan"
+        Joining ->
+            "cyan"
+        Waiting ->
+            "cyan"
+        Starting ->
+            "blue"
+        Spectating _ ->
+            "blue"
+        Pitching _ _ _ ->
+            "indigo"
+        ChooseRole ->
+            "purple"
+        BecomingBuyer ->
+            "purple"
+        Buying _ ->
+            "purple"
+        AwardingPoint _ _ ->
+            "purple"
+        Error _ ->
+            "red"

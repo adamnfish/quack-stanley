@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton)
+import Views.Utils exposing (qsButton, qsStaticButton, icon)
 
 
 buying : String -> Model -> Html Msg
@@ -23,4 +23,12 @@ otherPlayer : String ->  PlayerSummary -> Html Msg
 otherPlayer role playerSummary =
     li
         []
-        [ qsButton playerSummary.screenName ( Msg.AwardPoint role playerSummary.screenName ) ]
+        [ button
+            [ class "waves-effect waves-light btn purple btn-large"
+            , onClick ( Msg.AwardPoint role playerSummary.screenName )
+            ]
+            [ text playerSummary.screenName
+            , icon "done" "right"
+            ]
+
+        ]

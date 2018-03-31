@@ -1,21 +1,35 @@
 TODO:
 
+UI
++ Should say on spectating page what the role is
++ "select two words" on spectate
++ other basic instructions!
++ breadcrumb nav
++ smaller headers
++ spectate header especially is bad
++ screen to show full standings (with words)
+
+GENERAL
 * design UI as a game
 * display fixes
   + show own name
   + show game name
-  + unclickable self
+  - unclickable self
   + discarded words
-  + display own points
+  - display own points
 * change model
 * frontend tests
 * domain
 * proper SPA lambda
 * build with assets
 * help pages
-+ join game, password? (if required)
 
 DONE
+
+UI
+- icon on join game button
+
+GENERAL
 * otherPlayers in API should only return *other players*
 * display fixes
   + mobile zoom
@@ -32,6 +46,7 @@ DONE
   + find unique prefix in API ( -> model)
   + prefixed game key display
 - refactor views
+- join game, password? (if required)
 
 * elm SPA frontend
   - create / join

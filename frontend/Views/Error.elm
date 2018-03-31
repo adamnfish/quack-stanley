@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton, lis, icon)
+import Views.Utils exposing (qsButton, qsStaticButton, lis, icon, resumeGameIfItExists)
 
 
 error : List String -> Model -> Html Msg
@@ -34,18 +34,3 @@ error errs model =
                 ( lis errs )
             ]
         ]
-
-resumeGameIfItExists : Model -> Html Msg
-resumeGameIfItExists model =
-    case model.state of
-        Just state ->
-            button
-               [ class "waves-effect waves-light btn-flat" ]
-               [ div
-                   [ onClick Msg.NavigateSpectate ]
-                   [ icon "navigate_next" "right"
-                   , text "back to game"
-                   ]
-               ]
-        Nothing ->
-            text ""

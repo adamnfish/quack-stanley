@@ -15,7 +15,7 @@ join gameCode screenName model =
         [ div
             [ class "row" ]
             [ button
-                [ class "waves-effect waves-light btn-flat" ]
+                [ class "waves-effect waves-light btn green" ]
                 [ div
                     [ onClick Msg.NavigateHome ]
                     [ icon "navigate_before" "left"
@@ -25,19 +25,29 @@ join gameCode screenName model =
             ]
         , div
             [ class "row" ]
-            [ form
-                [ onSubmit ( Msg.JoinGame gameCode screenName ) ]
-                [ input
-                    [ onInput ( \val -> Msg.JoiningGame val screenName )
-                    , placeholder "Game code"
+            [ div
+                [ class "col s12" ]
+                [ div
+                    [ class "card-panel" ]
+                    [ form
+                        [ onSubmit ( Msg.JoinGame gameCode screenName ) ]
+                        [ input
+                            [ onInput ( \val -> Msg.JoiningGame val screenName )
+                            , placeholder "Game code"
+                            ]
+                            []
+                        , input
+                            [ onInput ( \val -> Msg.JoiningGame gameCode val )
+                            , placeholder "Player name"
+                            ]
+                            []
+                        , button
+                            [ class "waves-effect waves-light cyan btn btn-large" ]
+                            [ text "Join game"
+                            , icon "person_add" "right"
+                            ]
+                        ]
                     ]
-                    []
-                , input
-                    [ onInput ( \val -> Msg.JoiningGame gameCode val )
-                    , placeholder "Player name"
-                    ]
-                    []
-                , qsStaticButton "Join game"
                 ]
             ]
         ]

@@ -12,6 +12,7 @@ import Views.Welcome exposing (welcome)
 import Views.Create exposing (create)
 import Views.CreatorWaiting exposing (creatorWaiting)
 import Views.Join exposing (join)
+import Views.Waiting exposing (waiting)
 import Views.Spectating exposing (spectating)
 import Views.Pitching exposing (pitching)
 import Views.Buying exposing (buying)
@@ -35,7 +36,7 @@ view model =
             message "Joining game..." model
 
         Waiting ->
-            message "waiting for game to start" model
+            waiting model
         CreatorWaiting gameCode ->
             creatorWaiting gameCode model
         Starting ->

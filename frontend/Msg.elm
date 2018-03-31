@@ -160,14 +160,11 @@ update msg model =
 
 
         BecomeBuyer ( Err err ) ->
-            let
-                hand = Maybe.withDefault [] ( Maybe.map ( \state -> state.hand ) model.state )
-            in
-                ( { model | lifecycle = Spectating hand
-                          , errs =  [ "Could not become buyer" ]
-                  }
-                , Cmd.none
-                )
+            ( { model | lifecycle = Spectating []
+                      , errs =  [ "Could not become buyer" ]
+              }
+            , Cmd.none
+            )
         BecomeBuyer ( Ok playerInfo ) ->
             ( { model | lifecycle = Buying ( Maybe.withDefault "Couldn't get a role" playerInfo.state.role ) }
             , Cmd.none
@@ -191,6 +188,7 @@ update msg model =
         AwardedPoint ( Ok playerInfo ) ->
             ( { model | lifecycle = Spectating []
                       , state = Just playerInfo.state
+                      , opponents = playerInfo.opponents
               }
             , Cmd.none
             )
@@ -260,6 +258,7 @@ update msg model =
         FinishedPitchResult ( Ok playerInfo ) ->
             ( { model | lifecycle = Spectating []
                       , state = Just playerInfo.state
+                      , opponents = playerInfo.opponents
               }
             , Cmd.none
             )
