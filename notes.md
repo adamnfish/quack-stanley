@@ -8,6 +8,7 @@ UI
 + smaller headers
 + spectate header especially is bad
 + screen to show full standings (with words)
++ 2x3 grid of words onn spectate page
 
 GENERAL
 * design UI as a game
