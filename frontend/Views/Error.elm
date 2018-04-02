@@ -5,33 +5,34 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, lis, icon, resumeGameIfItExists)
+import Views.Utils exposing (container, row, col, card, gameNav, lis, icon, resumeGameIfItExists)
 
 
 error : List String -> Model -> Html Msg
 error errs model =
-    container
-        [ row
-            [ col "s12"
-                [ button
-                    [ class "waves-effect waves-light btn-flat"
-                    , onClick Msg.NavigateHome
-                    ]
-                    [ icon "navigate_before" "left"
-                    , text "home"
-                    ]
-                , resumeGameIfItExists model
+    div
+        []
+        [ gameNav
+            [ button
+                [ class "waves-effect waves-light btn green"
+                , onClick Msg.NavigateHome
                 ]
+                [ icon "navigate_before" "left"
+                , text "home"
+                ]
+            , resumeGameIfItExists model
             ]
-        , row
-            [ col "s12"
-                [ card
-                    [ h1
-                        []
-                        [ text "Error!" ]
-                    , ul
-                        []
-                        ( lis errs )
+        , container
+            [ row
+                [ col "s12"
+                    [ card
+                        [ h1
+                            []
+                            [ text "Error!" ]
+                        , ul
+                            []
+                            ( lis errs )
+                        ]
                     ]
                 ]
             ]

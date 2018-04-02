@@ -1,6 +1,6 @@
 module Views.Utils exposing
     ( lis, icon, plural, friendlyError, resumeGameIfItExists
-    , container, row, col, card
+    , container, row, col, card, gameNav
     )
 
 import Html exposing (Html, div, text, button, li, i)
@@ -69,3 +69,15 @@ col classes children =
 card : List ( Html Msg ) -> Html Msg
 card children =
     div [ class "card-panel" ] children
+
+gameNav : List ( Html Msg ) -> Html Msg
+gameNav buttons =
+    div
+        [ class "game-nav" ]
+        [ container
+            [ row
+                [ col "s12"
+                    buttons
+                ]
+            ]
+        ]

@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, classList, placeholder, disabled)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..), PitchStatus (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, lis, icon)
+import Views.Utils exposing (container, row, col, card, gameNav, lis, icon)
 
 
 pitching : String -> String -> PitchStatus -> Model -> Html Msg
@@ -14,27 +14,28 @@ pitching word1 word2 pitchStatus model =
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
         screenName = Maybe.withDefault "" ( Maybe.map .screenName model.state )
     in
-    container
-        [ row
-            [ col "s12"
-                [ button
-                    [ class "waves-effect waves-light blue btn-flat"
-                    , onClick Msg.NavigateSpectate
-                    ]
-                    [ icon "navigate_before" "left"
-                    , text "cancel pitch"
-                    ]
+    div
+        []
+        [ gameNav
+            [ button
+                [ class "waves-effect waves-light blue btn-flat"
+                , onClick Msg.NavigateSpectate
+                ]
+                [ icon "navigate_before" "left"
+                , text "cancel pitch"
                 ]
             ]
-        , row
-            [ col "m6 s12"
-                [ wordDisplay word1 ( pitchStatus /= NoCards ) ]
-            , col "m6 s12"
-                [ wordDisplay word2 ( pitchStatus == TwoCards ) ]
-            ]
-        , row
-            [ col "m6 s12 push-m6"
-                [ pitchCta word1 word2 pitchStatus ]
+        , container
+            [ row
+                [ col "m6 s12"
+                    [ wordDisplay word1 ( pitchStatus /= NoCards ) ]
+                , col "m6 s12"
+                    [ wordDisplay word2 ( pitchStatus == TwoCards ) ]
+                ]
+            , row
+                [ col "m6 s12 push-m6"
+                    [ pitchCta word1 word2 pitchStatus ]
+                ]
             ]
         ]
 
