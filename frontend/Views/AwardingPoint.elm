@@ -5,12 +5,12 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (row, col, card)
+import Views.Utils exposing (container, row, col, card)
 
 
 awardingPoint : String -> String -> Model -> Html Msg
 awardingPoint role playerName model =
-    div [ class "container" ]
+    container
         [ row
             [ col "s12"
                 [ card

@@ -5,13 +5,12 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (row, col, card)
+import Views.Utils exposing (container, row, col, card)
 
 
 message : String -> Model -> Html Msg
 message contents model =
-    div
-        [ class "container" ]
+    container
         [ row
             [ col "s12"
                 [ card

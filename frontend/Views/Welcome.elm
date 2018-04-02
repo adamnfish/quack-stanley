@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (row, col, card, icon)
+import Views.Utils exposing (container, row, col, card, icon)
 
 
 welcome : Model -> Html Msg
@@ -17,8 +17,7 @@ welcome model =
 
 awake : Html Msg
 awake =
-    div
-        [ class "container" ]
+    container
         [ row
             [ col "s12 m6 center-align"
                 [ card

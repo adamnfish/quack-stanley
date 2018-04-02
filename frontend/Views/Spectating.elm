@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, placeholder, disabled, attribute)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (plural, icon, friendlyError, card, row, col)
+import Views.Utils exposing (container, row, col, card, plural, icon, friendlyError)
 
 
 spectating : List String -> Model -> Html Msg
@@ -16,8 +16,7 @@ spectating selected model =
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
         points = Maybe.withDefault [] ( Maybe.map .points model.state )
     in
-    div
-        [ class "container" ]
+    container
         [ row
             [ col "s12"
                 [ card

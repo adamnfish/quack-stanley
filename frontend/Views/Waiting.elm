@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, id, placeholder, value, type_, disabled,
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (row, col, card, icon)
+import Views.Utils exposing (container, row, col, card, icon)
 
 
 waiting : Model -> Html Msg
@@ -13,8 +13,7 @@ waiting model =
     let
         gameName = Maybe.withDefault "Game name not found" ( Maybe.map .gameName model.state )
     in
-    div
-        [ class "container" ]
+    container
         [ card
             [ row
                 [ col "s12 m6"

@@ -5,12 +5,12 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (icon, row, col, card)
+import Views.Utils exposing (container, row, col, card, icon)
 
 
 buying : String -> Model -> Html Msg
 buying role model =
-    div [ class "container" ]
+    container
         [ row
             [ col "s12"
                 [ card

@@ -1,6 +1,6 @@
 module Views.Utils exposing
     ( lis, icon, plural, friendlyError, resumeGameIfItExists
-    , card, row, col
+    , container, row, col, card
     )
 
 import Html exposing (Html, div, text, button, li, i)
@@ -55,20 +55,18 @@ plural : String -> Int -> String
 plural str count =
     if count == 1 then str else ( str ++ "s" )
 
-card : List ( Html Msg ) -> Html Msg
-card children =
-    div
-        [ class "card-panel" ]
-        children
+container : List ( Html Msg ) -> Html Msg
+container children =
+    div [ class "container" ] children
 
 row : List ( Html Msg ) -> Html Msg
 row children =
-    div
-        [ class "row" ]
-        children
+    div [ class "row" ] children
 
 col : String -> List ( Html Msg ) -> Html Msg
 col classes children =
-    div
-        [ class ( "col " ++ classes ) ]
-        children
+    div [ class ( "col " ++ classes ) ] children
+
+card : List ( Html Msg ) -> Html Msg
+card children =
+    div [ class "card-panel" ] children

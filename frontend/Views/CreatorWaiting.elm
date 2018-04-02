@@ -5,13 +5,12 @@ import Html.Attributes exposing (class, id, placeholder, value, type_, disabled,
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (row, col, card, icon)
+import Views.Utils exposing (container, row, col, card, icon)
 
 
 creatorWaiting : String -> Model -> Html Msg
 creatorWaiting gameCode model =
-    div
-        [ class "container" ]
+    container
         [ row
             [ col "s12"
                 [ card

@@ -5,13 +5,12 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (row, col, card, lis, icon, resumeGameIfItExists)
+import Views.Utils exposing (container, row, col, card, lis, icon, resumeGameIfItExists)
 
 
 error : List String -> Model -> Html Msg
 error errs model =
-    div
-        [ class "container" ]
+    container
         [ row
             [ col "s12"
                 [ button

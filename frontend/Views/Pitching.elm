@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, classList, placeholder, disabled)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..), PitchStatus (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (row, col, card, lis, icon)
+import Views.Utils exposing (container, row, col, card, lis, icon)
 
 
 pitching : String -> String -> PitchStatus -> Model -> Html Msg
@@ -14,8 +14,7 @@ pitching word1 word2 pitchStatus model =
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
         screenName = Maybe.withDefault "" ( Maybe.map .screenName model.state )
     in
-    div
-        [ class "container" ]
+    container
         [ row
             [ col "s12"
                 [ button
