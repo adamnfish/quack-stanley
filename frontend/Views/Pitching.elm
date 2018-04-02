@@ -1,11 +1,11 @@
 module Views.Pitching exposing (pitching)
 
-import Html exposing (..)
+import Html exposing (Html, div, text, button, span)
 import Html.Attributes exposing (class, classList, placeholder, disabled)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..), PitchStatus (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton, lis, icon)
+import Views.Utils exposing (row, col, card, lis, icon)
 
 
 pitching : String -> String -> PitchStatus -> Model -> Html Msg
@@ -16,31 +16,26 @@ pitching word1 word2 pitchStatus model =
     in
     div
         [ class "container" ]
-        [ div
-            [ class "row" ]
-            [ button
-                [ class "waves-effect waves-light blue btn-flat" ]
-                [ div
-                    [ onClick Msg.NavigateSpectate ]
-                    [ icon "navigate_before" "left"
-                    , text "cancel pitch"
+        [ row
+            [ col "s12"
+                [ button
+                    [ class "waves-effect waves-light blue btn-flat" ]
+                    [ div
+                        [ onClick Msg.NavigateSpectate ]
+                        [ icon "navigate_before" "left"
+                        , text "cancel pitch"
+                        ]
                     ]
                 ]
-
             ]
-        , div
-            [ class "row" ]
-            [ div
-                [ class "col m6 s12" ]
+        , row
+            [ col "m6 s12"
                 [ wordDisplay word1 ( pitchStatus /= NoCards ) ]
-            , div
-                [ class "col m6 s12" ]
+            , col "m6 s12"
                 [ wordDisplay word2 ( pitchStatus == TwoCards ) ]
             ]
-        , div
-            [ class "row" ]
-            [ div
-                [ class "col m6 s12 push-m6" ]
+        , row
+            [ col "m6 s12 push-m6"
                 [ pitchCta word1 word2 pitchStatus ]
             ]
         ]

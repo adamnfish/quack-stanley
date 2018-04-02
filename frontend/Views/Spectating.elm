@@ -1,11 +1,11 @@
 module Views.Spectating exposing (spectating)
 
-import Html exposing (..)
+import Html exposing (Html, div, text, button, ul, li, h2, h3, span, p)
 import Html.Attributes exposing (class, placeholder, disabled, attribute)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton, lis, plural, icon, friendlyError)
+import Views.Utils exposing (plural, icon, friendlyError, card, row, col)
 
 
 spectating : List String -> Model -> Html Msg
@@ -18,41 +18,29 @@ spectating selected model =
     in
     div
         [ class "container" ]
-        [ div
-            [ class "row" ]
-            [ div
-                [ class "col s12" ]
-                [ div
-                    [ class "card-panel" ]
-                    [ div
+        [ row
+            [ col "s12"
+                [ card
+                    [ h2
                         []
-                        [ h2
-                            []
-                            [ text gameName ]
-                        , h3
-                            []
-                            [ text screenName ]
-                        ]
+                        [ text gameName ]
+                    , h3
+                        []
+                        [ text screenName ]
                     ]
                 ]
             ]
         , friendlyError model
-        , div
-            [ class "row" ]
-            [ div
-                [ class "col s12" ]
-                [ div
-                    [ class "card-panel" ]
-                    [ div
-                        [ class "row" ]
-                        [ div
-                            [ class "col m6 s12" ]
+        , row
+            [ col "s12"
+                [ card
+                    [ row
+                        [ col "m6 s12"
                             [ ul
                                 []
                                 ( List.map ( handEntry selected ) hand )
                             ]
-                        , div
-                            [ class "col m6 s12" ]
+                        , col "m6 s12"
                             [ selectedWords selected
                             , button
                                 ( case selected of
@@ -74,42 +62,37 @@ spectating selected model =
                     ]
                 ]
             ]
-        , div
-            [ class "row" ]
-            [ div
-                [ class "col s12" ]
-                [ div
-                    [ class "card-panel" ]
-                    [ div
-                        [ class "row" ]
-                        [ div
-                            [ class "col m6 s12" ]
-                            [ button
-                                [ class "waves-effect waves-light btn purple cta__button"
-                                , onClick Msg.RequestBuyer
-                                ]
-                                [ text "Buyer"
-                                , icon "play_arrow" "right"
-                                ]
-                            ]
+        , row
+            [ col "m6 s12"
+                [ card
+                    [ button
+                        [ class "waves-effect waves-light btn purple cta__button"
+                        , onClick Msg.RequestBuyer
+                        ]
+                        [ text "Buyer"
+                        , icon "play_arrow" "right"
                         ]
                     ]
                 ]
             ]
-        , ul
-            [ class "collection z-depth-1" ]
-            (
-                [ li
-                    [ class "collection-item" ]
-                    [ text "You"
-                    , span
-                        [ class "badge"
-                        , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
-                        ]
-                        [ text ( toString ( List.length points ) ) ]
-                    ]
-                ] ++ List.map playerListEntry model.opponents
-            )
+        , row
+            [ col "s12"
+                [ ul
+                    [ class "collection z-depth-1" ]
+                    (
+                        [ li
+                            [ class "collection-item" ]
+                            [ text "You"
+                            , span
+                                [ class "badge"
+                                , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
+                                ]
+                                [ text ( toString ( List.length points ) ) ]
+                            ]
+                        ] ++ List.map playerListEntry model.opponents
+                    )
+                ]
+            ]
         ]
 
 playerListEntry : PlayerSummary -> Html Msg

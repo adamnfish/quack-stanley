@@ -1,27 +1,22 @@
 module Views.CreatorWaiting exposing (creatorWaiting)
 
-import Html exposing (..)
+import Html exposing (Html, div, text, button, input, label, span, br)
 import Html.Attributes exposing (class, id, placeholder, value, type_, disabled, for)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton, icon)
+import Views.Utils exposing (row, col, card, icon)
 
 
 creatorWaiting : String -> Model -> Html Msg
 creatorWaiting gameCode model =
     div
         [ class "container" ]
-        [ div
-            [ class "row" ]
-            [ div
-                [ class "col s12" ]
-                [ div
-                    [ class "card-panel" ]
-                    [ div
-                        [ class "row" ]
-                        [ div
-                            [ class "col s12 m6" ]
+        [ row
+            [ col "s12"
+                [ card
+                    [ row
+                        [ col "s12 m6"
                             [ div
                                 [ class "input-field" ]
                                 [ icon "assignment" "prefix"
@@ -40,8 +35,7 @@ creatorWaiting gameCode model =
                                     [ text "Game code" ]
                                 ]
                             ]
-                        , div
-                            [ class "col s12 m6" ]
+                        , col "s12 m6"
                             [ span
                                 [ class "flow-text" ]
                                 [ text "Other players can use this code to join your game." ]
@@ -50,16 +44,11 @@ creatorWaiting gameCode model =
                     ]
                 ]
             ]
-        , div
-            [ class "row" ]
-            [ div
-                [ class "col s12" ]
-                [ div
-                    [ class "card-panel" ]
-                    [ div
-                        [ class "row" ]
-                        [ div
-                            [ class "col s12 m6 push-m6" ]
+        , row
+            [ col "s12"
+                [ card
+                    [ row
+                        [ col "s12 m6 push-m6"
                             [ button
                                 [ class "waves-effect waves-light blue btn btn-large cta__button"
                                 , onClick Msg.StartingGame
@@ -68,8 +57,7 @@ creatorWaiting gameCode model =
                                 , icon "play_arrow" "right"
                                 ]
                             ]
-                        , div
-                            [ class "col s12 m6 pull-m6" ]
+                        , col "s12 m6 pull-m6"
                             [ div
                                 []
                                 [ icon "group_add" "left medium hide-on-small-only" ]

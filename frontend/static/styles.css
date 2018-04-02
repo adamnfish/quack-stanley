@@ -12,6 +12,31 @@ main {
     flex: 1 0 auto;
 }
 
+.btn {
+  overflow: hidden;
+}
+
+.btn:hover:before {
+  opacity: 1;
+}
+
+.btn:hover:before {
+  opacity: 0.85;
+}
+
+.btn:before {
+    content: '';
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    transition: opacity .2s;
+    z-index: -1;
+}
+
 nav, footer {
     transition: background .3s ease-in;
 }

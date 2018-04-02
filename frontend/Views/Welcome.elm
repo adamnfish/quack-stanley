@@ -1,11 +1,11 @@
 module Views.Welcome exposing (welcome)
 
-import Html exposing (..)
+import Html exposing (Html, div, text, button)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, icon)
+import Views.Utils exposing (row, col, card, icon)
 
 
 welcome : Model -> Html Msg
@@ -19,12 +19,9 @@ awake : Html Msg
 awake =
     div
         [ class "container" ]
-        [ div
-            [ class "row" ]
-            [ div
-                [ class "col s12 m6 center-align" ]
-                [ div
-                    [ class "card-panel" ]
+        [ row
+            [ col "s12 m6 center-align"
+                [ card
                     [ button
                         [ class "waves-effect waves-light btn btn-large teal cta__button"
                         , onClick ( Msg.CreatingNewGame "" "" )
@@ -34,10 +31,8 @@ awake =
                         ]
                     ]
                 ]
-            , div
-                [ class "col s12 m6 center-align" ]
-                [  div
-                    [ class "card-panel" ]
+            , col "s12 m6 center-align"
+                [  card
                     [ button
                         [ class "waves-effect waves-light btn btn-large cyan cta__button"
                         , onClick ( Msg.JoiningGame "" "" )

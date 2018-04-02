@@ -1,11 +1,11 @@
 module Views.Waiting exposing (waiting)
 
-import Html exposing (..)
+import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, id, placeholder, value, type_, disabled, for)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (qsButton, qsStaticButton, icon)
+import Views.Utils exposing (row, col, card, icon)
 
 
 waiting : Model -> Html Msg
@@ -15,19 +15,15 @@ waiting model =
     in
     div
         [ class "container" ]
-        [ div
-            [ class "card-panel" ]
-            [ div
-                [ class "row" ]
-                [ div
-                    [ class "col s12 m6" ]
+        [ card
+            [ row
+                [ col "s12 m6"
                     [ icon "beenhere" "left medium"
                     , span
                         [ class "flow-text" ]
                         [ text ( "You have joined " ++ gameName ++ "." ) ]
                     ]
-                , div
-                    [ class "col s12 m6" ]
+                , col "s12 m6"
                     [ icon "hourglass_empty" "right medium hide-on-small-only"
                     , span
                         [ class "flow-text" ]

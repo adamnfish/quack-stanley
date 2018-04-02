@@ -1,6 +1,9 @@
-module Views.Utils exposing (qsButton, qsStaticButton, lis, icon, plural, friendlyError, resumeGameIfItExists)
+module Views.Utils exposing
+    ( lis, icon, plural, friendlyError, resumeGameIfItExists
+    , card, row, col
+    )
 
-import Html exposing (..)
+import Html exposing (Html, div, text, button, li, i)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Msg exposing (Msg)
@@ -32,20 +35,6 @@ resumeGameIfItExists model =
         Nothing ->
             text ""
 
-qsButton : String -> Msg -> Html Msg
-qsButton buttonText msg =
-    button
-        [ class "waves-effect waves-light btn"
-        , onClick msg
-        ]
-        [ text buttonText ]
-
-qsStaticButton : String -> Html Msg
-qsStaticButton buttonText =
-    button
-        [ class "waves-effect waves-light btn" ]
-        [ text buttonText ]
-
 lis : List String -> List ( Html Msg )
 lis labels =
     let
@@ -65,3 +54,21 @@ icon code align =
 plural : String -> Int -> String
 plural str count =
     if count == 1 then str else ( str ++ "s" )
+
+card : List ( Html Msg ) -> Html Msg
+card children =
+    div
+        [ class "card-panel" ]
+        children
+
+row : List ( Html Msg ) -> Html Msg
+row children =
+    div
+        [ class "row" ]
+        children
+
+col : String -> List ( Html Msg ) -> Html Msg
+col classes children =
+    div
+        [ class ( "col " ++ classes ) ]
+        children
