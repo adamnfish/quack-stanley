@@ -14,24 +14,25 @@ error errs model =
         [ row
             [ col "s12"
                 [ button
-                    [ class "waves-effect waves-light btn-flat" ]
-                    [ div
-                        [ onClick Msg.NavigateHome ]
-                        [ icon "navigate_before" "left"
-                        , text "home"
-                        ]
+                    [ class "waves-effect waves-light btn-flat"
+                    , onClick Msg.NavigateHome
+                    ]
+                    [ icon "navigate_before" "left"
+                    , text "home"
                     ]
                 , resumeGameIfItExists model
                 ]
             ]
         , row
             [ col "s12"
-                [ h1
-                    []
-                    [ text "Error!" ]
-                , ul
-                    []
-                    ( lis errs )
+                [ card
+                    [ h1
+                        []
+                        [ text "Error!" ]
+                    , ul
+                        []
+                        ( lis errs )
+                    ]
                 ]
             ]
         ]

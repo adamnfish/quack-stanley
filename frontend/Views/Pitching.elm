@@ -18,12 +18,11 @@ pitching word1 word2 pitchStatus model =
         [ row
             [ col "s12"
                 [ button
-                    [ class "waves-effect waves-light blue btn-flat" ]
-                    [ div
-                        [ onClick Msg.NavigateSpectate ]
-                        [ icon "navigate_before" "left"
-                        , text "cancel pitch"
-                        ]
+                    [ class "waves-effect waves-light blue btn-flat"
+                    , onClick Msg.NavigateSpectate
+                    ]
+                    [ icon "navigate_before" "left"
+                    , text "cancel pitch"
                     ]
                 ]
             ]

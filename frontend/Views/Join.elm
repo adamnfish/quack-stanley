@@ -14,12 +14,11 @@ join gameCode screenName model =
         [ row
             [ col "s12"
                 [ button
-                    [ class "waves-effect waves-light btn green" ]
-                    [ div
-                        [ onClick Msg.NavigateHome ]
-                        [ icon "navigate_before" "left"
-                        , text "back"
-                        ]
+                    [ class "waves-effect waves-light btn green"
+                    , onClick Msg.NavigateHome
+                    ]
+                    [ icon "navigate_before" "left"
+                    , text "back"
                     ]
                 ]
             ]

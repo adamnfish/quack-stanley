@@ -25,12 +25,11 @@ resumeGameIfItExists model =
     case model.state of
         Just state ->
             button
-               [ class "waves-effect waves-light btn-flat" ]
-               [ div
-                   [ onClick Msg.NavigateSpectate ]
-                   [ icon "navigate_next" "right"
-                   , text "back to game"
-                   ]
+               [ class "waves-effect waves-light btn-flat"
+               , onClick Msg.NavigateSpectate
+               ]
+               [ icon "navigate_next" "right"
+               , text "back to game"
                ]
         Nothing ->
             text ""
