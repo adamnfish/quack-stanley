@@ -1,28 +1,44 @@
 TODO:
 
 UI
-+ Should say on spectating page what the role is
-+ "select two words" on spectate
-+ other basic instructions!
 + breadcrumb nav
++ 2x3 grid of words on spectate page
 + smaller headers
-+ spectate header especially is bad
+  + spectate header especially is bad
++ "select two words" on spectate
+  + other basic instructions!
 + screen to show full standings (with words)
-+ 2x3 grid of words onn spectate page
++ Say on spectating page what the currently active role is?
+  + and who has that role?
 
 GENERAL
 * design UI as a game
 + additional navigation (e.g. leave game / rejoin from welcome)
+  * (see also "breadcrumbs, above)
 + restart game from saved state (e.g. local storage) on welcome screen?
+  * https://stackoverflow.com/questions/33697444/data-persistence-in-elm
 + stop being buyer without awarding point?
 * display fixes
   + discarded words
 * change model
 * frontend tests
-* domain
-* proper SPA lambda
-* build with assets
+  * https://medium.com/@_rchaves_/testing-in-elm-93ad05ee1832
 * help pages
+
+BUILD / OVERHEAD
++ PROD-ready
+  + CloudFront
+  + static assets in a bucket
+  + domain and cert
++ codepipeline / codebuild / codedeploy CI
++ switch to elm-live instead of elm-reactor with hot reloading for frontend dev server (still use something for local API)
+  * https://github.com/architectcodes/elm-live
+
+
+LONG TERM
++ refactor frontend to use navigation / SPA style
+  * https://dev.to/rtfeldman/tour-of-an-open-source-elm-spa
+
 
 DONE
 
