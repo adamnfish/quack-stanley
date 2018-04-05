@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 cd frontend
-elm-live Main.elm --output app.js
+elm-live Main.elm --debug --output app.js
