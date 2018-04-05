@@ -37,26 +37,29 @@ spectating selected model =
                     [ card
                         [ row
                             [ col "m6 s12"
-                                [ ul
-                                    []
+                                [ div
+                                    [ class "hand__container" ]
                                     ( List.map ( handEntry selected ) hand )
                                 ]
                             , col "m6 s12"
                                 [ selectedWords selected
-                                , button
-                                    ( case selected of
-                                        word1 :: word2 :: [] ->
-                                            [ class "waves-effect waves-light btn btn-large indigo cta__button"
-                                            , onClick ( Msg.StartPitch word1 word2 )
-                                            , disabled False
-                                            ]
-                                        _ ->
-                                            [ class "waves-effect waves-light btn btn-large indigo cta__button"
-                                            , disabled True
-                                            ]
-                                    )
-                                    [ text "Start pitch"
-                                    , icon "play_arrow" "right"
+                                , div
+                                    [ class "container--spaced" ]
+                                    [ button
+                                        ( case selected of
+                                            word1 :: word2 :: [] ->
+                                                [ class "waves-effect waves-light btn btn-large indigo cta__button"
+                                                , onClick ( Msg.StartPitch word1 word2 )
+                                                , disabled False
+                                                ]
+                                            _ ->
+                                                [ class "waves-effect waves-light btn btn-large indigo cta__button"
+                                                , disabled True
+                                                ]
+                                        )
+                                        [ text "Start pitch"
+                                        , icon "play_arrow" "right"
+                                        ]
                                     ]
                                 ]
                             ]
@@ -111,8 +114,8 @@ playerListEntry playerSummary =
 
 handEntry : List String -> String -> Html Msg
 handEntry selected word =
-    li
-        [ class "li--spaced" ]
+    div
+        [ class "hand__card" ]
         [ button
             [ classList
                 [ ( "waves-effect waves-light btn bt-flat blue cta__button", True )
@@ -128,19 +131,19 @@ selectedWords : List String -> Html Msg
 selectedWords selected =
     case selected of
         first :: second :: [] ->
-            ul
+            div
                 []
                 [ selectedWord selected first
                 , selectedWord selected second
                 ]
         first :: [] ->
-            ul
+            div
                 []
                 [ selectedWord selected first
                 , unselectedWord
                 ]
         [] ->
-            ul
+            div
                 []
                 [ unselectedWord
                 , unselectedWord
@@ -152,8 +155,8 @@ selectedWords selected =
 
 selectedWord : List String -> String -> Html Msg
 selectedWord selected word =
-    li
-        [ class "li--spaced" ]
+    div
+        [ class "container--spaced" ]
         [ button
             [ class "waves-effect waves-light btn btn-large cta__button blue"
             , onClick ( Msg.DeselectWord word selected )
@@ -165,8 +168,8 @@ selectedWord selected word =
 
 unselectedWord : Html Msg
 unselectedWord =
-    li
-        [ class "li--spaced" ]
+    div
+        [ class "container--spaced" ]
         [ button
             [ class "waves-effect waves-light btn btn-large cta__button blue disabled"
             , disabled True

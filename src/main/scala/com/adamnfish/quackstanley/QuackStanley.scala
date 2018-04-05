@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext
 
 
 object QuackStanley {
-  val handSize = 5
+  val handSize = 6
 
   /**
     * Creates a new game and automatically registers this player as the creator.
