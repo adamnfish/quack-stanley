@@ -2,7 +2,6 @@ TODO:
 
 UI
 + breadcrumb nav
-+ 2x3 grid of words on spectate page
 + smaller headers
   + spectate header especially is bad
 + "select two words" on spectate
@@ -31,7 +30,6 @@ BUILD / OVERHEAD
   + static assets in a bucket
   + domain and cert
 + codepipeline / codebuild / codedeploy CI
-+ switch to elm-live instead of elm-reactor with hot reloading for frontend dev server (still use something for local API)
   * https://github.com/architectcodes/elm-live
 
 
@@ -44,6 +42,10 @@ DONE
 
 UI
 - icon on join game button
+- 2x3 grid of words on spectate page
+
+BUILD
+- switch to elm-live instead of elm-reactor with hot reloading for frontend dev server (still use something for local API)
 
 GENERAL
 - otherPlayers in API should only return *other players*
