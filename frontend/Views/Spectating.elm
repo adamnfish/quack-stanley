@@ -1,7 +1,7 @@
 module Views.Spectating exposing (spectating)
 
 import Html exposing (Html, div, text, button, ul, li, h2, h3, span, p)
-import Html.Attributes exposing (class, placeholder, disabled, attribute)
+import Html.Attributes exposing (class, classList, placeholder, disabled, attribute)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
@@ -114,7 +114,10 @@ handEntry selected word =
     li
         [ class "li--spaced" ]
         [ button
-            [ class "waves-effect waves-light btn bt-flat blue cta__button"
+            [ classList
+                [ ( "waves-effect waves-light btn bt-flat blue cta__button", True )
+                , ( "word--selected", List.member word selected )
+                ]
             , onClick ( Msg.SelectWord word selected )
             , disabled ( List.member word selected )
             ]

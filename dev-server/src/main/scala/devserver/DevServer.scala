@@ -44,16 +44,6 @@ object DevServer extends StreamApp with LazyLogging {
       }
   }
 
-  val static = HttpService {
-    case request @ GET -> _ =>
-      logger.info(s"request: ${request.pathInfo}")
-      val path = "/static" + request.pathInfo
-      StaticFile.fromResource(path, Some(request))
-        .map(Task.now) // This one is require to make the types match up
-        .getOrElse(NotFound()) // In case the file doesn't exist
-        .flatten
-  }
-
   val lambdaApi = HttpService {
     case request @ POST -> Root =>
       for {
@@ -69,7 +59,6 @@ object DevServer extends StreamApp with LazyLogging {
     BlazeBuilder
       .bindHttp(9001, "0.0.0.0")
       .mountService(lambdaApi, "/api")
-      .mountService(static, "/static")
       .mountService(elmFrontend, "/")
       .serve
   }

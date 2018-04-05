@@ -2,7 +2,7 @@ html {
     background: url("/static/round.png");
 }
 
-body, #root {
+body, #root, #app-root {
     display: flex;
     min-height: 100vh;
     flex-direction: column;

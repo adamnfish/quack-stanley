@@ -10,7 +10,7 @@ import Msg exposing (Msg)
 pageTemplate : (Model -> Html Msg) -> Model -> Html Msg
 pageTemplate view model =
     div
-        [ id "root" ]
+        [ id "app-root" ]
         [ header
             []
             [ nav
