@@ -23,6 +23,8 @@ GENERAL
 * frontend tests
   * https://medium.com/@_rchaves_/testing-in-elm-93ad05ee1832
 * help pages
+* loading pages use vdom!
+  + starts with same headings etc as target page, spinner that loads content. Swaps content in when ready.
 
 BUILD / OVERHEAD
 + PROD-ready

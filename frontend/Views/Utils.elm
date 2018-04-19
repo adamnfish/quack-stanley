@@ -1,6 +1,6 @@
 module Views.Utils exposing
     ( lis, icon, plural, friendlyError, resumeGameIfItExists
-    , container, row, col, card, gameNav
+    , container, row, col, card, gameNav, stripMargin, multiLineText
     )
 
 import Html exposing (Html, div, text, button, li, i)
@@ -81,3 +81,23 @@ gameNav buttons =
                 ]
             ]
         ]
+
+stripMarginLine : String -> String
+stripMarginLine line =
+    let
+        trimmed = String.trimLeft line
+    in
+        if String.startsWith "|" trimmed then
+            String.dropLeft 1 trimmed
+        else
+            line
+
+stripMargin : String -> String
+stripMargin str =
+    let
+        lines = String.split "\n" str
+    in
+        String.join "\n" ( List.map stripMarginLine lines )
+
+multiLineText : String -> Html Msg
+multiLineText str = text ( stripMargin str )
