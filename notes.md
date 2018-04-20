@@ -9,8 +9,10 @@ UI
 + screen to show full standings (with words)
 + Say on spectating page what the currently active role is?
   + and who has that role?
++ use form labels (instead of just placeholders)
 
 GENERAL
+* error handling
 * design UI as a game
 + additional navigation (e.g. leave game / rejoin from welcome)
   * (see also "breadcrumbs, above)
