@@ -19,19 +19,7 @@ spectating selected model =
     div
         []
         [ container
-            [ row
-                [ col "s12"
-                    [ card
-                        [ h2
-                            []
-                            [ text gameName ]
-                        , h3
-                            []
-                            [ text screenName ]
-                        ]
-                    ]
-                ]
-            , friendlyError model
+            [ friendlyError model
             , row
                 [ col "s12"
                     [ card
