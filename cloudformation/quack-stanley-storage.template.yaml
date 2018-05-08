@@ -3,23 +3,31 @@ Description: Persistent resources for quack-stanley application
 
 
 Parameters:
-  DataBucketName:
-    Type: String
-    Description: name for the S3 Bucket that will contain application data
   Stage:
     Type: String
-    Default: PROD
+    Default: prod
 
 Resources:
   AppDataBucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private
-      BucketName: !Ref DataBucketName
+      BucketName: !Sub quack-stanley-data-${Stage}
       LifecycleConfiguration:
         Rules:
         - ExpirationInDays: 7
           Status: Enabled
+      Tags:
+      - Key: app
+        Value: quack-stanley
+      - Key: stage
+        Value: !Ref Stage
+
+  WebrootBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !Sub quack-stanley-www-${Stage}
       Tags:
       - Key: app
         Value: quack-stanley

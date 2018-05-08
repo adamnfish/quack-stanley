@@ -8,26 +8,62 @@ Metadata:
     - Label:
         default: Configuration
       Parameters:
+      - DomainName
       - Stage
+      - TLSCert
       - DistBucket
     - Label:
         default: Application Storage
       Parameters:
       - DataStorageBucket
+      - WebrootBucket
 
 Parameters:
+  DomainName:
+    Type: String
+    Description: Domain for the application (hosted zone must exist and be registered)
+    Default: quackstanley.net
   Stage:
     Type: String
     Description: Environment name
-    Default: PROD
+    Default: prod
+  TLSCert:
+    Type: String
+    Description: ARN of TLS certificate
   DistBucket:
     Type: String
     Description: S3 Bucket that will contain the backend artifacts
   DataStorageBucket:
     Type: String
     Description: Name of the S3 bucket that will store application data
+  WebrootBucket:
+    Type: String
+    Description: Name of the S3 bucket that stores application static assets
 
 Resources:
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      DefinitionBody:
+        swagger: 2.0
+        info:
+          title: QuackStanley gateway
+        basePath: !Sub /${Stage}
+        schemes:
+        - https
+        paths:
+          /api:
+            post:
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Backend.Arn}/invocations
+                httpMethod: POST
+                type: AWS_PROXY
+                passthroughBehavior: when_no_match
+      StageName: !Ref Stage
+      Variables:
+        ServerlessExpressLambdaFunctionName: !Ref Backend
+
   Backend:
     Type: AWS::Serverless::Function
     Properties:
@@ -48,6 +84,7 @@ Resources:
         BackendEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref ApiGateway
             Path: /api
             Method: post
       Policies:
@@ -65,3 +102,71 @@ Resources:
       Tags:
         app: quack-stanley
         stage: !Ref Stage
+
+  CDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+        - !Ref DomainName
+        Origins:
+        - Id: quack-stanley-static
+          CustomOriginConfig:
+            HTTPSPort: 443
+            OriginProtocolPolicy: https-only
+          DomainName: !Sub s3.${AWS::Region}.amazonaws.com
+          OriginPath: !Sub /${WebrootBucket}
+        - Id: quack-stanley-backend
+          CustomOriginConfig:
+            HTTPSPort: 443
+            OriginProtocolPolicy: https-only
+          DomainName: !Sub ${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com
+        DefaultCacheBehavior:
+          AllowedMethods: [DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT]
+          CachedMethods: [HEAD, GET]
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+          TargetOriginId: quack-stanley-static
+          ViewerProtocolPolicy: redirect-to-https
+        CacheBehaviors:
+        - PathPattern: api
+          Compress: true
+          ForwardedValues:
+            Headers:
+            - "*"
+            QueryString: true
+          TargetOriginId: quack-stanley-backend
+          ViewerProtocolPolicy: redirect-to-https
+        CustomErrorResponses:
+        - ErrorCachingMinTTL: 5
+          ErrorCode: 404
+        PriceClass: PriceClass_All
+        Enabled: true
+        ViewerCertificate:
+          AcmCertificateArn: !Ref TLSCert
+          MinimumProtocolVersion: TLSv1
+          SslSupportMethod: sni-only
+        HttpVersion: http2
+      Tags:
+      - Key: app
+        Value: quack-stanley
+      - Key: stage
+        Value: !Ref Stage
+
+  DNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !Sub ${DomainName}.
+      RecordSets:
+      - Name: !Sub ${DomainName}.
+        Type: A
+        AliasTarget:
+          # Zone ID is a magic string for CloudFront
+          HostedZoneId: Z2FDTNDATAQYW2
+          DNSName: !GetAtt CDN.DomainName
+
+Outputs:
+  ApiUrl:
+    Description: Root URL for Quack Stanley's API
+    Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
