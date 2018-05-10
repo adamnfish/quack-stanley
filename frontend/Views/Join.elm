@@ -21,7 +21,7 @@ join gameCode screenName model =
                 , text "back"
                 ]
             ]
-        , container
+        , container "join"
             [ row
                 [ col "s12"
                     [ card

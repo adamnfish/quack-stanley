@@ -10,7 +10,7 @@ import Views.Utils exposing (container, row, col, card)
 
 awardingPoint : String -> String -> Model -> Html Msg
 awardingPoint role playerName model =
-    container
+    container "awarding-point"
         [ row
             [ col "s12"
                 [ card

@@ -18,7 +18,7 @@ spectating selected model =
     in
     div
         []
-        [ container
+        [ container "spectating"
             [ friendlyError model
             , row
                 [ col "s12"

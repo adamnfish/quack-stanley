@@ -54,9 +54,9 @@ plural : String -> Int -> String
 plural str count =
     if count == 1 then str else ( str ++ "s" )
 
-container : List ( Html Msg ) -> Html Msg
-container children =
-    div [ class "container" ] children
+container : String -> List ( Html Msg ) -> Html Msg
+container name children =
+    div [ class ( "container " ++ name ) ] children
 
 row : List ( Html Msg ) -> Html Msg
 row children =
@@ -74,7 +74,7 @@ gameNav : List ( Html Msg ) -> Html Msg
 gameNav buttons =
     div
         [ class "game-nav" ]
-        [ container
+        [ container ""
             [ row
                 [ col "s12"
                     buttons

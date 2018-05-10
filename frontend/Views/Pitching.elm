@@ -25,7 +25,7 @@ pitching word1 word2 pitchStatus model =
                 , text "cancel pitch"
                 ]
             ]
-        , container
+        , container "pitching"
             [ row
                 [ col "m6 s12"
                     [ wordDisplay word1 ( pitchStatus /= NoCards ) ]

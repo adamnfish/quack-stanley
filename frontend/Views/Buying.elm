@@ -10,7 +10,7 @@ import Views.Utils exposing (container, row, col, card, icon)
 
 buying : String -> Model -> Html Msg
 buying role model =
-    container
+    container "buying"
         [ row
             [ col "s12"
                 [ card

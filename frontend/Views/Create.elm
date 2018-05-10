@@ -21,7 +21,7 @@ create gameName screenName model =
                 , text "back"
                 ]
             ]
-        , container
+        , container "create"
             [ row
                 [ col "col s12"
                     [ card

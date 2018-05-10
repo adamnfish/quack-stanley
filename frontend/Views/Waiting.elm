@@ -13,7 +13,7 @@ waiting model =
     let
         gameName = Maybe.withDefault "Game name not found" ( Maybe.map .gameName model.state )
     in
-    container
+    container "waiting"
         [ card
             [ row
                 [ col "s12 m6"

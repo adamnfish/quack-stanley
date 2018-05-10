@@ -10,7 +10,7 @@ import Views.Utils exposing (container, row, col, card, icon)
 
 creatorWaiting : String -> Model -> Html Msg
 creatorWaiting gameCode model =
-    container
+    container "creator-waiting"
         [ row
             [ col "s12"
                 [ card

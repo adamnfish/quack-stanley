@@ -10,7 +10,7 @@ import Views.Utils exposing (container, row, col, card)
 
 message : String -> Model -> Html Msg
 message contents model =
-    container
+    container "message"
         [ row
             [ col "s12"
                 [ card

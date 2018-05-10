@@ -17,7 +17,7 @@ welcome model =
 
 awake : Html Msg
 awake =
-    container
+    container "welcome"
         [ row
             [ col "s12 m6 center-align"
                 [ card

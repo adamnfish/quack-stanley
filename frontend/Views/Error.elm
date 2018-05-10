@@ -22,7 +22,7 @@ error errs model =
                 ]
             , resumeGameIfItExists model
             ]
-        , container
+        , container "error"
             [ row
                 [ col "s12"
                     [ card
