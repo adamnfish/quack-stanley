@@ -6,6 +6,7 @@ import Json.Decode exposing (Decoder, succeed, string, bool, list, nullable)
 import Json.Decode.Pipeline exposing (decode, required, optional)
 
 
+apiUrl : String
 apiUrl = "/api"
 
 

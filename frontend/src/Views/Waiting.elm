@@ -2,7 +2,6 @@ module Views.Waiting exposing (waiting)
 
 import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, id, placeholder, value, type_, disabled, for)
-import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
 import Views.Utils exposing (container, row, col, card, icon)

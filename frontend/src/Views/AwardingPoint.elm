@@ -1,8 +1,6 @@
 module Views.AwardingPoint exposing (awardingPoint)
 
 import Html exposing (Html, div, text, button, ul, li, p, h2)
-import Html.Attributes exposing (class, placeholder)
-import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
 import Views.Utils exposing (container, row, col, card)
