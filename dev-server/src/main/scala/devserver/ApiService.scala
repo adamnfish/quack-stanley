@@ -17,7 +17,7 @@ object ApiService {
   val fakeContext = new FakeContext
   val fakeConfig = Config("", "", new FakePersistence)
 
-  def devQuackStanley(body: Json)(): Future[(Int, String)] = {
+  def devQuackStanley(body: Json): Future[(Int, String)] = {
     (for {
       apiOp <- Serialization.extractJson[ApiOperation](body)
       statusAndResponse <- quackStanley.dispatch(apiOp, fakeContext, fakeConfig)

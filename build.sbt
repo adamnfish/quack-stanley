@@ -21,8 +21,8 @@ lazy val root = (project in file(".")).
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
       "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
       "joda-time" % "joda-time" % "2.9.9",
-      "io.circe" %% "circe-parser" % "0.8.0",
-      "io.circe" %% "circe-generic" % "0.8.0",
+      "io.circe" %% "circe-parser" % "0.9.3",
+      "io.circe" %% "circe-generic" % "0.9.3",
       "org.scalatest" %% "scalatest" % "3.0.4" % Test
     )
   )
@@ -31,10 +31,8 @@ lazy val devServer = (project in file("dev-server")).
   settings(
     name := "dev-server",
     libraryDependencies ++= Seq(
-      "org.http4s" %% "http4s-dsl" % http4sVersion,
-      "org.http4s" %% "http4s-blaze-server" % http4sVersion,
-      "org.http4s" %% "http4s-blaze-client" % http4sVersion,
-      "org.http4s" %% "http4s-circe" % http4sVersion,
+      "com.criteo.lolhttp" %% "lolhttp" % "10.0.0",
+      "com.criteo.lolhttp" %% "loljson" % "10.0.0",
       "ch.qos.logback" % "logback-classic" % "1.2.3"
     )
   ).

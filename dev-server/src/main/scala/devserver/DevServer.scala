@@ -1,79 +1,29 @@
 package devserver
 
-import java.io.FileNotFoundException
-
+import cats.effect.IO
 import com.typesafe.scalalogging.LazyLogging
-import cats.implicits._
 import devserver.ApiService.devQuackStanley
-import fs2.{Strategy, Task}
-import fs2.util.Functor
-import fs2.interop.cats._
 import io.circe.Json
-import org.http4s._
-import org.http4s.dsl._
-import org.http4s.StaticFile
-import org.http4s.StaticFile.getClass
-import org.http4s.circe._
-import org.http4s.client.blaze._
-import org.http4s.dsl.impl.EntityResponseGenerator
-import org.http4s.dsl.{Root, _}
-import org.http4s.server.blaze._
-import org.http4s.util.StreamApp
-import org.http4s.{HttpService, Status}
-
-import scala.io.Source
-import scala.util.Try
+import lol.http._
+import lol.json._
 
 
-object DevServer extends StreamApp with LazyLogging {
+object DevServer extends LazyLogging {
   implicit val ec = scala.concurrent.ExecutionContext.global
-  implicit val strategy = Strategy.sequential
 
-  class ArbitraryStatus(val status: Status) extends AnyVal with EntityResponseGenerator
+  def main(args: Array[String]): Unit = {
+    val frontendClient = Client("localhost", 3000)
 
-  val httpClient = PooledHttp1Client()
-  val elmFrontend = HttpService {
-    case request @ GET -> _ if !request.pathInfo.startsWith("/static") =>
-      logger.info(s"app request: ${request.pathInfo}")
-      val uri = "http://localhost:8000" + request.pathInfo
-      httpClient.get(uri) { response =>
+    Server.listen(9001) {
+      case request @ POST at url"/api" =>
         for {
-          body <- response.as[String]
-          result <- new ArbitraryStatus(response.status)(body).putHeaders(response.headers.toSeq:_*)
-        } yield result
-      }
-  }
+          json <- request.readAs[Json]
+          statusAndResponse <- IO.fromFuture(IO(devQuackStanley(json)))
+          (statusCode, responseBody) = statusAndResponse
+        } yield Response(statusCode, Content.of(responseBody))
 
-  val static = HttpService {
-    case request @ GET -> _ =>
-      logger.info(s"static request: ${request.pathInfo}")
-      val uri = "http://localhost:8001" + request.pathInfo
-      httpClient.get(uri) { response =>
-        for {
-          body <- response.as[String]
-          result <- new ArbitraryStatus(response.status)(body).putHeaders(response.headers.toSeq:_*)
-        } yield result
-      }
-  }
-
-  val lambdaApi = HttpService {
-    case request @ POST -> Root =>
-      logger.info(s"api request")
-      for {
-        json <- request.as[Json]
-        statusAndResponse <- Task.fromFuture(devQuackStanley(json))
-        (statusCode, responseBody) = statusAndResponse
-        status = new ArbitraryStatus(Status.fromInt(statusCode).right.get)
-        response <- status(responseBody)
-      } yield response
-  }
-
-  override def stream(args: List[String]) = {
-    BlazeBuilder
-      .bindHttp(9001, "0.0.0.0")
-      .mountService(lambdaApi, "/api")
-      .mountService(static, "/static")
-      .mountService(elmFrontend, "/")
-      .serve
+      case request =>
+        frontendClient(request)
+    }
   }
 }
