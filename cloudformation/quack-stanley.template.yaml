@@ -9,14 +9,15 @@ Metadata:
         default: Configuration
       Parameters:
       - DomainName
-      - Stage
       - TLSCert
-      - DistBucket
+      - Stage
     - Label:
         default: Application Storage
       Parameters:
+      - DistBucket
       - DataStorageBucket
       - WebrootBucket
+      - WebrootAccessIdentityID
 
 Parameters:
   DomainName:
@@ -30,6 +31,9 @@ Parameters:
   TLSCert:
     Type: String
     Description: ARN of TLS certificate
+  WebrootAccessIdentityID:
+    Type: String
+    Description: ID of CloudFront origin access identity for webroot bucket access (check output of storage stack)
   DistBucket:
     Type: String
     Description: S3 Bucket that will contain the backend artifacts
@@ -111,11 +115,9 @@ Resources:
         - !Ref DomainName
         Origins:
         - Id: quack-stanley-static
-          CustomOriginConfig:
-            HTTPSPort: 443
-            OriginProtocolPolicy: https-only
-          DomainName: !Sub s3.${AWS::Region}.amazonaws.com
-          OriginPath: !Sub /${WebrootBucket}
+          DomainName: !Sub ${WebrootBucket}.s3.amazonaws.com
+          S3OriginConfig:
+            OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${WebrootAccessIdentityID}
         - Id: quack-stanley-backend
           CustomOriginConfig:
             HTTPSPort: 443
@@ -131,6 +133,8 @@ Resources:
           ViewerProtocolPolicy: redirect-to-https
         CacheBehaviors:
         - PathPattern: api
+          AllowedMethods: [DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT]
+          CachedMethods: [HEAD, GET]
           Compress: true
           ForwardedValues:
             Headers:
@@ -138,6 +142,7 @@ Resources:
             QueryString: true
           TargetOriginId: quack-stanley-backend
           ViewerProtocolPolicy: redirect-to-https
+        DefaultRootObject: index.html
         CustomErrorResponses:
         - ErrorCachingMinTTL: 5
           ErrorCode: 404

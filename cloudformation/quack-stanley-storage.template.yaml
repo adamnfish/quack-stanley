@@ -23,13 +23,36 @@ Resources:
       - Key: stage
         Value: !Ref Stage
 
+  WebrootAccessIdentityID:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: QuackStanley webroot CDN access
+
   WebrootBucket:
     Type: AWS::S3::Bucket
     Properties:
-      AccessControl: PublicRead
       BucketName: !Sub quack-stanley-www-${Stage}
       Tags:
       - Key: app
         Value: quack-stanley
       - Key: stage
         Value: !Ref Stage
+
+  WebrootBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebrootBucket
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          Resource: !Sub arn:aws:s3:::${WebrootBucket}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${WebrootAccessIdentityID}
+
+Outputs:
+  WebrootAccessIdentityID:
+    Description: ID of CloudFront origin access identity for webroot bucket access
+    Value: !Ref WebrootAccessIdentityID
