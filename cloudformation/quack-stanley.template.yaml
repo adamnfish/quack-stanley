@@ -30,7 +30,7 @@ Parameters:
     Default: prod
   TLSCert:
     Type: String
-    Description: ARN of TLS certificate
+    Description: ARN of TLS certificate in US-EAST-1 (must work for `${DomainName}` and `api.${DomainName}`)
   WebrootAccessIdentityID:
     Type: String
     Description: ID of CloudFront origin access identity for webroot bucket access (check output of storage stack)
@@ -56,7 +56,7 @@ Resources:
         schemes:
         - https
         paths:
-          /api:
+          /:
             post:
               responses: {}
               x-amazon-apigateway-integration:
@@ -67,6 +67,22 @@ Resources:
       StageName: !Ref Stage
       Variables:
         ServerlessExpressLambdaFunctionName: !Ref Backend
+
+  BackendDomainName:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: !Sub api.${DomainName}
+      EndpointConfiguration:
+        Types:
+        - EDGE
+      CertificateArn: !Ref TLSCert
+
+  BackendBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref BackendDomainName
+      RestApiId: !Ref ApiGateway
+      Stage: !Ref Stage
 
   Backend:
     Type: AWS::Serverless::Function
@@ -89,7 +105,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
-            Path: /api
+            Path: /
             Method: post
       Policies:
       - Version: 2012-10-17
@@ -118,35 +134,20 @@ Resources:
           DomainName: !Sub ${WebrootBucket}.s3.amazonaws.com
           S3OriginConfig:
             OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${WebrootAccessIdentityID}
-        - Id: quack-stanley-backend
-          CustomOriginConfig:
-            HTTPSPort: 443
-            OriginProtocolPolicy: https-only
-          DomainName: !Sub ${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com
         DefaultCacheBehavior:
           AllowedMethods: [DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT]
           CachedMethods: [HEAD, GET]
+          MinTTL: 3600
           Compress: true
           ForwardedValues:
             QueryString: false
           TargetOriginId: quack-stanley-static
           ViewerProtocolPolicy: redirect-to-https
-        CacheBehaviors:
-        - PathPattern: api
-          AllowedMethods: [DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT]
-          CachedMethods: [HEAD, GET]
-          Compress: true
-          ForwardedValues:
-            Headers:
-            - "*"
-            QueryString: true
-          TargetOriginId: quack-stanley-backend
-          ViewerProtocolPolicy: redirect-to-https
         DefaultRootObject: index.html
         CustomErrorResponses:
         - ErrorCachingMinTTL: 5
           ErrorCode: 404
-        PriceClass: PriceClass_All
+        PriceClass: PriceClass_100
         Enabled: true
         ViewerCertificate:
           AcmCertificateArn: !Ref TLSCert
@@ -170,8 +171,17 @@ Resources:
           # Zone ID is a magic string for CloudFront
           HostedZoneId: Z2FDTNDATAQYW2
           DNSName: !GetAtt CDN.DomainName
+      - Name: !Sub api.${DomainName}.
+        Type: A
+        AliasTarget:
+          # Zone ID is a magic string for CloudFront
+          HostedZoneId: Z2FDTNDATAQYW2
+          DNSName: !GetAtt BackendDomainName.DistributionDomainName
 
 Outputs:
   ApiUrl:
     Description: Root URL for Quack Stanley's API
     Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
+  ApiEdgeDns:
+    Description: DNS name for the API Gateway's domain
+    Value: !Ref BackendDomainName
