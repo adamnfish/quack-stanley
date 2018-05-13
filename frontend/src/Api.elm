@@ -4,10 +4,7 @@ import Http exposing (stringBody)
 import Model exposing (PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame)
 import Json.Decode exposing (Decoder, succeed, string, bool, list, nullable)
 import Json.Decode.Pipeline exposing (decode, required, optional)
-
-
-apiUrl : String
-apiUrl = "/api"
+import Config exposing (apiUrl)
 
 
 -- API requests

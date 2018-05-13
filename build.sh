@@ -15,3 +15,11 @@ echo "${green}Created zip bundle at ${PWD}/target/universal/quack-stanley.zip${r
 echo "Deploy function with"
 echo "  aws lambda update-function-code --function-name quack-stanley-prod --zip-file" fileb://${PWD}/target/universal/quack-stanley.zip --profile PROFILE
 echo "replace prod with the correct stage and PROFILE with your AWS profile"
+
+# build frontend
+
+# nvm
+# elm-app build
+# cd build
+# sync
+# think about config (temporary fix there now)
