@@ -39,6 +39,7 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
                    |  "operation": "wake"
                    |}""".stripMargin
       parse(data).right.value.as[ApiOperation]
+        .right.value shouldEqual Wake()
     }
 
     "parses an awardPointRequest" in {
