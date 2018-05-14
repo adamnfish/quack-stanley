@@ -48,7 +48,9 @@ Resources:
   ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
-      Cors: !Sub "'https://${DomainName}'"
+      Cors:
+        AllowHeaders: "'Content-Type'"
+        AllowOrigin: !Sub "'https://${DomainName}'"
       DefinitionBody:
         swagger: 2.0
         info:
@@ -185,4 +187,4 @@ Outputs:
     Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
   ApiEdgeDns:
     Description: DNS name for the API Gateway's domain
-    Value: !Ref BackendDomainName
+    Value: !GetAtt BackendDomainName.DistributionDomainName
