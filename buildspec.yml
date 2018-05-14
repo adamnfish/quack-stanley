@@ -1,0 +1,53 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+    - echo Install started at `date`
+    - echo Current directory is `pwd`
+
+    # Install software for API build
+    - echo Installing sbt
+    - wget https://piccolo.link/sbt-1.0.2.zip
+    - unzip sbt-1.0.2.zip
+
+    # Install software for frontend build
+    - echo Installing node, npm and frontend build dependencies
+    - curl -sL https://deb.nodesource.com/setup_8.x | bash
+    - apt-get install -y nodejs build-essential
+
+    - export NPM_ROOT=$HOME/npm-global
+    - export PATH=$NPM_ROOT/bin:$PATH
+    - mkdir -p $NPM_ROOT
+    - npm config set prefix $NPM_ROOT
+
+    - npm install -g create-elm-app --unsafe-perm=true --allow-root
+
+  build:
+    commands:
+    - echo Build started at `date`
+    # test and package API
+    - sbt/bin/sbt test universal:packageBin
+    # frontend
+    - cd frontend
+    - elm-app install
+    - elm-app build
+    - cd -
+
+  post_build:
+    commands:
+    - echo Deploy started at `date`
+    - echo Deploying API to $FUNCTION_NAME
+    - aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://target/universal/quack-stanley.zip
+
+    - echo Uploading static site to $WWW_BUCKET_NAME
+    - cd frontend/build
+    - aws s3 sync . s3://$WWW_BUCKET_NAME
+    - cd -
+
+    # TODO create invalidation
+
+artifacts:
+  files:
+#    - target/universal/quack-stanley.zip
+    - frontend/build/*
