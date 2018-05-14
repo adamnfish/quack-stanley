@@ -7,12 +7,26 @@ import com.adamnfish.quackstanley.Utils._
 import com.adamnfish.quackstanley.attempt.LambdaIntegration._
 import com.adamnfish.quackstanley.models.ApiOperation
 import com.adamnfish.quackstanley.models.Serialization._
-import org.scalatest.Matchers
+import org.scalatest.{Matchers, OptionValues}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class LambdaIntegrationTest extends org.scalatest.FreeSpec with Matchers with AttemptValues {
+class LambdaIntegrationTest extends org.scalatest.FreeSpec with Matchers with AttemptValues with OptionValues {
+  "headers" - {
+    "includes default headers (just Content-Type) if no origin is supplied" in {
+      headers(None).keys.toList shouldEqual List("Content-Type")
+    }
+
+    "includes Content-Type header if origin is supplied" in {
+      headers(Some("origin")).keys should contain("Content-Type")
+    }
+
+    "includes Access-Control-Allow-Origin header if origin is supplied" in {
+      headers(Some("origin")).get("Access-Control-Allow-Origin").value shouldEqual "origin"
+    }
+  }
+
   "parseBody" - {
     "parses a create game request" in {
       val data = """"{ \"operation\": \"create-game\", \"gameName\": \"test-game\", \"screenName\": \"player-one\" }""""

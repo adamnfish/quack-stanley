@@ -103,6 +103,7 @@ Resources:
         Variables:
           APP_DATA_S3_BUCKET: !Ref DataStorageBucket
           APP_STAGE: !Ref Stage
+          ORIGIN_LOCATION: !Sub https://${DomainName}
       Events:
         BackendEvent:
           Type: Api

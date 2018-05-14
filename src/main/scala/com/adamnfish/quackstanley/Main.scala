@@ -10,11 +10,13 @@ import com.adamnfish.quackstanley.models._
 import com.amazonaws.services.lambda.runtime.Context
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Properties
 import scala.util.control.NonFatal
 
 
 class Main {
   def handleRequest(in: InputStream, out: OutputStream, context: Context): Unit = {
+    val allowedOrigin = Properties.envOrNone("ORIGIN_LOCATION")
     respond[ApiResponse]({
       for {
         config <- Config.fromEnvironment()
@@ -22,7 +24,7 @@ class Main {
         (apiOperation, _) = opAndRequest
         response <- dispatch(apiOperation, context, config)
       } yield response
-    }, out, context)
+    }, out, context, allowedOrigin)
   }
 
   def dispatch(apiOperation: ApiOperation, context: Context, config: Config): Attempt[ApiResponse] = {

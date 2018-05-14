@@ -32,9 +32,17 @@ object LambdaIntegration {
   private implicit val requestDecoder: Decoder[LambdaRequest] = deriveDecoder
   private implicit val responseEncoder: Encoder[LambdaResponse] = deriveEncoder
 
-  val headers = Map(
-    "Content-Type" -> "application/json"
-  )
+  def headers(allowedOrigin: Option[String]): Map[String, String] = {
+    val defaultHeaders = Map(
+      "Content-Type" -> "application/json"
+    )
+    val extraHeaders = for {
+      origin <- allowedOrigin
+    } yield Map(
+      "Access-Control-Allow-Origin" -> origin
+    )
+    defaultHeaders ++ extraHeaders.getOrElse(Map.empty)
+  }
 
   def failureToJson(failure: Failure): Json = {
     Json.obj(
@@ -64,17 +72,17 @@ object LambdaIntegration {
     } yield (bodyJson, lambdaRequest)
   }
 
-  def respond[A](attempt: Attempt[A], outputStream: OutputStream, context: Context)
+  def respond[A](attempt: Attempt[A], outputStream: OutputStream, context: Context, allowedOrigin: Option[String])
                 (implicit encoder: Encoder[A], ec: ExecutionContext): Unit = {
     val resultFuture = attempt.asFuture.map {
       case Right(out) =>
-        LambdaResponse(200, headers, out.asJson.noSpaces)
+        LambdaResponse(200, headers(allowedOrigin), out.asJson.noSpaces)
       case Left(failures) =>
         context.getLogger.log(s"Failure: ${failures.logString}")
         val body = Json.obj(
           "errors" -> Json.fromValues(failures.failures.map(failureToJson))
         )
-        LambdaResponse(failures.statusCode, headers, body.noSpaces)
+        LambdaResponse(failures.statusCode, headers(allowedOrigin), body.noSpaces)
     }
     // wait for result
     val lambdaResponse = Await.result(resultFuture, 20.seconds)
