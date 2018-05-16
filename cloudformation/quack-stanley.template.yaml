@@ -98,7 +98,7 @@ Resources:
       Handler: com.adamnfish.quackstanley.Main::handleRequest
       Runtime: java8
       Timeout: 20
-      MemorySize: 512
+      MemorySize: 1024
       Environment:
         Variables:
           APP_DATA_S3_BUCKET: !Ref DataStorageBucket
