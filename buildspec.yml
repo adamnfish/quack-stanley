@@ -38,6 +38,7 @@ phases:
     commands:
     - echo Deploy started at `date`
     - echo Deploying API to $FUNCTION_NAME
+    # TODO switch to s3 upload and then update function from that location
     - aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://target/universal/quack-stanley.zip
 
     - echo Uploading static site to $WWW_BUCKET_NAME
@@ -49,5 +50,5 @@ phases:
 
 artifacts:
   files:
-#    - target/universal/quack-stanley.zip
+    - target/universal/quack-stanley.zip
     - frontend/build/*
