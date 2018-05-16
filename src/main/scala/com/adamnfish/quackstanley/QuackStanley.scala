@@ -171,9 +171,10 @@ object QuackStanley {
   def ping(data: Ping, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
-      gameState <- getGameState(data.gameId, config)
-      // kick off request in parallel to speed up ping response
-      fPlayerState = getPlayerState(data.playerKey, gameState.gameId, config)
+      // kick off requests in parallel to speed up ping response
+      fGameState = getGameState(data.gameId, config)
+      fPlayerState = getPlayerState(data.playerKey, data.gameId, config)
+      gameState <- fGameState
       _ <- authenticate(data.playerKey, gameState)
       playerState <- fPlayerState
     } yield playerInfo(data.playerKey, playerState, gameState)
