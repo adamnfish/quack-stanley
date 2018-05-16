@@ -51,6 +51,7 @@ Resources:
       Cors:
         AllowHeaders: "'Content-Type'"
         AllowOrigin: !Sub "'https://${DomainName}'"
+        MaxAge: "'86400'"
       DefinitionBody:
         swagger: 2.0
         info:

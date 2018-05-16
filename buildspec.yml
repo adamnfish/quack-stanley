@@ -27,7 +27,7 @@ phases:
     commands:
     - echo Build started at `date`
     # test and package API
-    - sbt/bin/sbt test universal:packageBin
+    - sbt/bin/sbt -no-colors test universal:packageBin
     # frontend
     - cd frontend
     - elm-app install
