@@ -165,13 +165,17 @@ object QuackStanley {
 
   /**
     * return current state for the player.
+    *
+    * Ping is called very regularly so optimisations are in place to reduce costs.
     */
   def ping(data: Ping, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
       gameState <- getGameState(data.gameId, config)
+      // kick off request in parallel to speed up ping response
+      fPlayerState = getPlayerState(data.playerKey, gameState.gameId, config)
       _ <- authenticate(data.playerKey, gameState)
-      playerState <- getPlayerState(data.playerKey, gameState.gameId, config)
+      playerState <- fPlayerState
     } yield playerInfo(data.playerKey, playerState, gameState)
   }
 
