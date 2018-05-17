@@ -38,15 +38,14 @@ phases:
     commands:
     - echo Deploy started at `date`
     - echo Deploying API to $FUNCTION_NAME
-    # TODO switch to s3 upload and then update function from that location
-    - aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://target/universal/quack-stanley.zip
+    - aws s3 cp target/universal/quack-stanley.zip s3://$DIST_BUCKET/$DIST_KEY
+    - aws lambda update-function-code --function-name $FUNCTION_NAME --s3-bucket $DIST_BUCKET --s3-key $DIST_KEY
 
     - echo Uploading static site to $WWW_BUCKET_NAME
     - cd frontend/build
     - aws s3 sync . s3://$WWW_BUCKET_NAME
+    - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DIST_ID --paths \/*
     - cd -
-
-    # TODO create invalidation
 
 artifacts:
   files:
