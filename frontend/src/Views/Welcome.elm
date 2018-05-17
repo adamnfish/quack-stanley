@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, icon)
+import Views.Utils exposing (container, row, col, card, icon, gameNav)
 
 
 welcome : Model -> Html Msg
@@ -17,27 +17,31 @@ welcome model =
 
 awake : Html Msg
 awake =
-    container "welcome"
-        [ row
-            [ col "s12 m6 center-align"
-                [ card
-                    [ button
-                        [ class "waves-effect waves-light btn btn-large teal cta__button"
-                        , onClick ( Msg.CreatingNewGame "" "" )
-                        ]
-                        [ text "Create game"
-                        , icon "person" "right"
+    div
+        []
+        [ gameNav []
+        , container "welcome"
+            [ row
+                [ col "s12 m6 center-align"
+                    [ card
+                        [ button
+                            [ class "waves-effect waves-light btn btn-large teal cta__button"
+                            , onClick ( Msg.CreatingNewGame "" "" )
+                            ]
+                            [ text "Create game"
+                            , icon "person" "right"
+                            ]
                         ]
                     ]
-                ]
-            , col "s12 m6 center-align"
-                [  card
-                    [ button
-                        [ class "waves-effect waves-light btn btn-large cyan cta__button"
-                        , onClick ( Msg.JoiningGame "" "" )
-                        ]
-                        [ text "Join game"
-                        , icon "person_add" "right"
+                , col "s12 m6 center-align"
+                    [  card
+                        [ button
+                            [ class "waves-effect waves-light btn btn-large cyan cta__button"
+                            , onClick ( Msg.JoiningGame "" "" )
+                            ]
+                            [ text "Join game"
+                            , icon "person_add" "right"
+                            ]
                         ]
                     ]
                 ]

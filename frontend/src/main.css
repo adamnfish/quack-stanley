@@ -15,6 +15,7 @@ main {
 .game-nav {
     background-color: #eeeeee;
     padding: 4px 0 6px 0;
+    height: 47px;
     border-bottom: solid 1px #cccccc;
     margin-bottom: 10px;
 }
@@ -56,7 +57,25 @@ main {
     z-index: -1;
 }
 
-nav, footer {
+nav {
+    height: 28px;
+}
+
+.nav-wrapper {
+    position: relative;
+}
+
+#logo-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 80px;
+    border-radius: 40px;
+    border: solid 1px #fff;
+    overflow: hidden;
+}
+
+nav, footer, #logo-container {
     transition: background .3s ease-in;
 }
 
