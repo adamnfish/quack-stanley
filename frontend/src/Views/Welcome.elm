@@ -51,5 +51,8 @@ awake =
 asleep : Html Msg
 asleep =
     div
-        [ class "container" ]
-        [ text "Loading backend" ]
+        []
+        [ gameNav []
+        , container "welcome"
+            [ text "Loading backend" ]
+        ]
