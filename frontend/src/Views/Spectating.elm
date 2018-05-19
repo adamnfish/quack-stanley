@@ -18,7 +18,8 @@ spectating selected model =
     in
     div
         []
-        [ container "spectating"
+        [ gameNav []
+        , container "spectating"
             [ friendlyError model
             , row
                 [ col "s12"

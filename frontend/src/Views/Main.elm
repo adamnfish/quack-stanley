@@ -17,19 +17,16 @@ pageTemplate view model =
                 [ div
                     [ class "nav-wrapper container" ]
                     [ a
-                        [ id "logo-container" ]
-                        [ text "Quack Stanley" ]
-                    , ul
-                        [ class "right hide-on-med-and-down" ]
-                        [ li
-                            []
-                            [ a [ href "" ] [ text "help" ] ]
+                        [ id "logo-container"
+                        , class ( lifecycleTheme model.lifecycle )
                         ]
-                    , ul
-                        [ class "side-nav", id "nav-mobile" ]
-                        [ li
+                        [ img
+                            [ src "/images/stanley.png"
+                            , alt "Quack Stanley"
+                            , width 80
+                            , height 80
+                            ]
                             []
-                            [ a [ href "" ] [ text "help" ] ]
                         ]
                     ]
                 ]

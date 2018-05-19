@@ -5,21 +5,25 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, icon)
+import Views.Utils exposing (container, gameNav, row, col, card, icon)
 
 
 buying : String -> Model -> Html Msg
 buying role model =
-    container "buying"
-        [ row
-            [ col "s12"
-                [ card
-                    [ h2
-                        []
-                        [ text role ]
-                    , ul
-                        []
-                        ( List.map ( otherPlayer role ) model.opponents )
+    div
+        []
+        [ gameNav []
+        , container "buying"
+            [ row
+                [ col "s12"
+                    [ card
+                        [ h2
+                            []
+                            [ text role ]
+                        , ul
+                            []
+                            ( List.map ( otherPlayer role ) model.opponents )
+                        ]
                     ]
                 ]
             ]

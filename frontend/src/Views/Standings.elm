@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, icon, plural)
+import Views.Utils exposing (container, gameNav, row, col, card, icon, plural)
 
 
 standings : Model -> Html Msg
@@ -13,25 +13,29 @@ standings model =
     let
         points = Maybe.withDefault [] ( Maybe.map .points model.state )
     in
-        container "standings"
-            [ row
-                [ col "s12"
-                    [ ul
-                        [ class "collection z-depth-1" ]
-                        (
-                            [ li
-                                [ class "collection-item" ]
-                                [ text "You"
-                                , span
-                                    [ class "badge"
-                                    , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
+        div
+            []
+            [ gameNav []
+            , container "standings"
+                [ row
+                    [ col "s12"
+                        [ ul
+                            [ class "collection z-depth-1" ]
+                            (
+                                [ li
+                                    [ class "collection-item" ]
+                                    [ text "You"
+                                    , span
+                                        [ class "badge"
+                                        , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
+                                        ]
+                                        [ text ( toString ( List.length points ) ) ]
                                     ]
-                                    [ text ( toString ( List.length points ) ) ]
-                                ]
-                            ] ++ List.map playerListEntry model.opponents
-                        )
-                    ]
+                                ] ++ List.map playerListEntry model.opponents
+                            )
+                        ]
 
+                    ]
                 ]
             ]
 
