@@ -36,33 +36,7 @@ pageTemplate view model =
             [ view model ]
         , footer
             [ class ( "page-footer " ++ ( lifecycleTheme model.lifecycle ) ) ]
-            [ div
-                [ class "container" ]
-                [ div
-                    [ class "row" ]
-                    [ div
-                        [ class "col l9 s12" ]
-                        [ text "Quack Stanley is a game written by "
-                        , a
-                            [ class "a--footer white-text"
-                            , href "http://www.adamnfish.com/" ]
-                            [ text "adamnfish" ]
-                        , text ", inspired by "
-                        , a
-                            [ class "a--footer white-text"
-                            , href "https://boardgamegeek.com/boardgame/113289/snake-oil"
-                            ]
-                            [ text "Snake Oil" ]
-                        , text ", designed by "
-                        , a
-                            [ class "a--footer white-text"
-                            , href "https://boardgamegeek.com/boardgamedesigner/58837/jeff-ochs"
-                            ]
-                            [ text "Jeff Ochs" ]
-                        ]
-                    ]
-                ]
-            ]
+            [ ]
         ]
 
 lifecycleTheme : Lifecycle -> String
