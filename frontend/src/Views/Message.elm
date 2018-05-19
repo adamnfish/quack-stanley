@@ -1,21 +1,27 @@
 module Views.Message exposing (message)
 
-import Html exposing (Html, div, text, p)
+import Html exposing (Html, div, text, p, button)
+import Html.Attributes exposing (class)
+import Html.Events exposing (onClick)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card)
+import Views.Utils exposing (container, gameNav, row, col, card, icon)
 
 
 message : String -> Model -> Html Msg
 message contents model =
-    container "message"
-        [ row
-            [ col "s12"
-                [ card
-                    [ p
-                        []
-                        [ text contents ]
+        div
+            []
+            [ gameNav []
+            , container "message"
+                [ row
+                    [ col "s12"
+                        [ card
+                            [ p
+                                []
+                                [ text contents ]
+                            ]
+                        ]
                     ]
                 ]
             ]
-        ]
