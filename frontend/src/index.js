@@ -14,7 +14,7 @@ app.ports.fetchSavedGames.subscribe(function() {
     app.ports.savedGames.send(existingGames);
 });
 
-app.ports.saveGame.subscribe(function(game) {
+app.ports.sendGameToJS.subscribe(function(game) {
     var existingGames = localStorage.getItem(savedGamesKey) || [];
     localStorage.setItem(savedGamesKey, existingGames.unshift(game));
 });
