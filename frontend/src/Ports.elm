@@ -1,15 +1,11 @@
-port module Restore exposing ()
+port module Ports exposing (saveGame, fetchSavedGames, savedGames)
 
-type alias SavedGame =
-    { gameId : String
-    , gameName : String
-    , playerKey : String
-    , screenName : String
-    }
+import Model exposing (SavedGame)
+
 
 port saveGame : SavedGame -> Cmd msg
 
-port fetchSavedGames : Cmd msg
+port fetchSavedGames : () -> Cmd msg
 
 port savedGames : ( List SavedGame -> msg ) -> Sub msg
 

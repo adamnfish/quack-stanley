@@ -5,12 +5,14 @@ import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg, update, wakeServer)
 import View exposing (view)
 import Views.Main exposing (pageTemplate)
+import Ports exposing (fetchSavedGames)
 import Subs exposing (subscriptions)
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { lifecycle = Welcome
+      , savedGames = []
       , backendAwake = False
       , state = Nothing
       , playerKey = Nothing
@@ -18,7 +20,10 @@ init =
       , opponents = []
       , errs = []
       }
-    , wakeServer
+    , Cmd.batch
+        [ wakeServer
+        , fetchSavedGames ()
+        ]
     )
 
 

@@ -1,4 +1,4 @@
-module Model exposing (Model, PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame, Lifecycle(..), PitchStatus (..))
+module Model exposing (Model, PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame, SavedGame, Lifecycle(..), PitchStatus (..))
 
 
 type Lifecycle
@@ -39,6 +39,7 @@ type alias PlayerState =
 type alias Model =
     { lifecycle : Lifecycle
     , backendAwake : Bool
+    , savedGames : List SavedGame
     , state : Maybe PlayerState
     , playerKey : Maybe String
     , isCreator : Bool
@@ -50,6 +51,15 @@ type PitchStatus
     = NoCards
     | OneCard
     | TwoCards
+
+-- Persistence
+
+type alias SavedGame =
+    { gameId : String
+    , gameName : String
+    , playerKey : String
+    , screenName : String
+    }
 
 -- API responses
 

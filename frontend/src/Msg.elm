@@ -2,13 +2,16 @@ module Msg exposing (Msg (..), update, wakeServer)
 
 import Http
 import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
-import Model exposing (Model, Registered, NewGame, PlayerInfo, Lifecycle (..), PitchStatus (..))
+import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..))
 import Time
+import Ports exposing (fetchSavedGames)
 
 
 type Msg
     = BackendAwake
         ( Result Http.Error () )
+    | LoadedGames
+        ( List SavedGame )
     | NavigateHome
     | NavigateSpectate
     | CreatingNewGame
@@ -61,12 +64,18 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NavigateHome ->
-            ( { model | lifecycle = Welcome }, Cmd.none )
+            ( { model | lifecycle = Welcome }
+            , fetchSavedGames ()
+            )
+
         NavigateSpectate ->
             ( { model | lifecycle = Spectating [] }, Cmd.none )
 
         BackendAwake _ ->
             ( { model | backendAwake = True }, Cmd.none )
+
+        LoadedGames games ->
+            ( { model | savedGames = games }, Cmd.none )
 
         CreatingNewGame gameName screenName ->
             ( { model | lifecycle = Create gameName screenName }, Cmd.none )
