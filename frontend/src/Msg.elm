@@ -4,7 +4,7 @@ import Http
 import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
 import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..))
 import Time
-import Ports exposing (fetchSavedGames)
+import Ports exposing (fetchSavedGames, saveGame)
 
 
 type Msg
@@ -26,7 +26,8 @@ type Msg
         ( Result Http.Error NewGame )
     | JoinedGame
         ( Result Http.Error Registered )
-    | WaitForStart
+    | RejoinGame
+        SavedGame
     | StartingGame
     | GameStarted
         ( Result Http.Error PlayerInfo )
@@ -114,8 +115,24 @@ update msg model =
             , Cmd.none
             )
 
-        WaitForStart ->
-            ( { model | lifecycle = Waiting }, Cmd.none )
+        RejoinGame savedGame ->
+            let
+                temporaryState =
+                    { gameId = savedGame.gameId
+                    , gameName = savedGame.gameName
+                    , screenName = savedGame.screenName
+                    , hand = []
+                    , discardedWords = []
+                    , role = Nothing
+                    , points = []
+                    }
+            in
+                ( { model | lifecycle = Waiting
+                          , playerKey = Just savedGame.playerKey
+                          , state = Just temporaryState
+                          }
+                , Cmd.none
+                )
 
         StartingGame ->
             case keys model of
@@ -129,12 +146,16 @@ update msg model =
         GameStarted ( Err err ) ->
             ( { model | lifecycle = Error [ "Error starting game" ] }, Cmd.none )
         GameStarted ( Ok playerInfo ) ->
-            ( { model | lifecycle = Spectating []
-                      , state = Just playerInfo.state
-                      , opponents = playerInfo.opponents
-                      }
-            , Cmd.none
-            )
+            let
+                updatedModel =
+                    { model | lifecycle = Spectating []
+                            , state = Just playerInfo.state
+                            , opponents = playerInfo.opponents
+                    }
+            in
+                ( updatedModel
+                , saveGame updatedModel
+                )
 
         SelectWord newWord selected ->
             let
@@ -221,12 +242,16 @@ update msg model =
             case model.lifecycle of
                 Waiting ->
                     if playerInfo.started then
-                        ( { model | lifecycle = Spectating []
-                                  , state = Just playerInfo.state
-                                  , opponents = playerInfo.opponents
-                          }
-                        , Cmd.none
-                        )
+                        let
+                            updatedModel =
+                                { model | lifecycle = Spectating []
+                                        , state = Just playerInfo.state
+                                        , opponents = playerInfo.opponents
+                                }
+                        in
+                            ( updatedModel
+                            , saveGame updatedModel
+                            )
                     else
                         ( { model | state = Just playerInfo.state
                                   , opponents = playerInfo.opponents

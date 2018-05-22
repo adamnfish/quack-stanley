@@ -1,9 +1,9 @@
 module Views.Welcome exposing (welcome)
 
-import Html exposing (Html, div, text, button)
+import Html exposing (Html, div, ul, li, text, button)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
-import Model exposing (Model, Lifecycle (..))
+import Model exposing (Model, SavedGame, Lifecycle (..))
 import Msg exposing (Msg)
 import Views.Utils exposing (container, row, col, card, icon, gameNav)
 
@@ -11,17 +11,18 @@ import Views.Utils exposing (container, row, col, card, icon, gameNav)
 welcome : Model -> Html Msg
 welcome model =
     if model.backendAwake then
-        awake
+        awake model.savedGames
     else
         asleep
 
-awake : Html Msg
-awake =
+awake : List SavedGame -> Html Msg
+awake savedGames =
     div
         []
         [ gameNav []
         , container "welcome"
-            [ row
+            [ savedGamesBlock savedGames
+            , row
                 [ col "s12 m6 center-align"
                     [ card
                         [ button
@@ -47,6 +48,38 @@ awake =
                 ]
             ]
         ]
+
+savedGamesBlock : List SavedGame -> Html Msg
+savedGamesBlock savedGames =
+    if List.isEmpty savedGames then
+        text ""
+    else
+        row
+            [ col "s12"
+                [ card
+                    [ text "Games in progress:"
+                    , ul
+                        []
+                        ( List.map savedGameBlock savedGames )
+                    ]
+                ]
+            ]
+
+savedGameBlock : SavedGame -> Html Msg
+savedGameBlock game =
+    li
+        []
+        [ button
+            [ class "waves-effect waves-light btn btn-large cyan cta__button"
+            , onClick ( Msg.RejoinGame game )
+            ]
+            [ text "Rejoin: "
+            , text game.gameName
+            , text " "
+            , text game.screenName
+            ]
+        ]
+
 
 asleep : Html Msg
 asleep =
