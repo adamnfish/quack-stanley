@@ -5,11 +5,13 @@ import Model exposing (Model, SavedGame)
 
 send : String -> String -> String -> String -> Cmd msg
 send gameId gameName playerKey screenName =
-    sendGameToJS { gameId     = gameId
-                 , gameName   = gameName
-                 , playerKey  = playerKey
-                 , screenName = screenName
-                 }
+    sendGameToJS
+        { gameId = gameId
+        , gameName = gameName
+        , playerKey = playerKey
+        , screenName = screenName
+        , startTime = 0
+        }
 
 saveGame : Model -> Cmd msg
 saveGame model =

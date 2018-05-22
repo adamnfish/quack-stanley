@@ -3,13 +3,15 @@ module Msg exposing (Msg (..), update, wakeServer)
 import Http
 import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
 import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..))
-import Time
+import Time exposing (Time)
 import Ports exposing (fetchSavedGames, saveGame)
 
 
 type Msg
     = BackendAwake
         ( Result Http.Error () )
+    | WelcomeTick
+        Time
     | LoadedGames
         ( List SavedGame )
     | NavigateHome
@@ -66,6 +68,11 @@ update msg model =
     case msg of
         NavigateHome ->
             ( { model | lifecycle = Welcome }
+            , fetchSavedGames ()
+            )
+
+        WelcomeTick time ->
+            ( { model | time = time }
             , fetchSavedGames ()
             )
 

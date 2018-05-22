@@ -1,5 +1,7 @@
 module Model exposing (Model, PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame, SavedGame, Lifecycle(..), PitchStatus (..))
 
+import Time exposing (Time)
+
 
 type Lifecycle
     = Welcome               -- initial screen (backend awake)
@@ -39,6 +41,7 @@ type alias PlayerState =
 type alias Model =
     { lifecycle : Lifecycle
     , backendAwake : Bool
+    , time : Time
     , savedGames : List SavedGame
     , state : Maybe PlayerState
     , playerKey : Maybe String
@@ -59,6 +62,7 @@ type alias SavedGame =
     , gameName : String
     , playerKey : String
     , screenName : String
+    , startTime : Float
     }
 
 -- API responses

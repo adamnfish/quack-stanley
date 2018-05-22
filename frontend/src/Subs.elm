@@ -1,16 +1,19 @@
 module Subs exposing (subscriptions)
 
 import Model exposing (Model, SavedGame, Lifecycle (Welcome, Waiting, Spectating))
-import Msg exposing (Msg (PingEvent, LoadedGames))
+import Msg exposing (Msg (WelcomeTick, PingEvent, LoadedGames))
 import Ports exposing (savedGames)
-import Time
+import Time exposing (Time, minute)
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     case model.lifecycle of
         Welcome ->
-            savedGames LoadedGames
+            Sub.batch
+                [ savedGames LoadedGames
+                , Time.every minute WelcomeTick
+                ]
         Waiting ->
             Time.every ( 5 * Time.second ) PingEvent
         Spectating _ ->
