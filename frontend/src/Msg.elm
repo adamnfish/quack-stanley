@@ -4,7 +4,7 @@ import Http
 import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
 import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..))
 import Time exposing (Time)
-import Ports exposing (fetchSavedGames, saveGame)
+import Ports exposing (fetchSavedGames, saveGame, removeSavedGame)
 
 
 type Msg
@@ -29,6 +29,8 @@ type Msg
     | JoinedGame
         ( Result Http.Error Registered )
     | RejoinGame
+        SavedGame
+    | RemoveSavedGame
         SavedGame
     | StartingGame
     | GameStarted
@@ -140,6 +142,11 @@ update msg model =
                           }
                 , Cmd.none
                 )
+
+        RemoveSavedGame savedGame ->
+            ( model
+            , removeSavedGame savedGame
+            )
 
         StartingGame ->
             case keys model of

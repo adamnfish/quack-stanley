@@ -1,6 +1,6 @@
 module Views.Welcome exposing (welcome)
 
-import Html exposing (Html, div, ul, li, text, button)
+import Html exposing (Html, div, ul, li, dl, dt, dd, p, button, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, SavedGame, Lifecycle (..))
@@ -91,16 +91,31 @@ savedGameBlock now game =
     in
         li
             []
-            [ button
+            [ dl
+                []
+                [ dt
+                    []
+                    [ text "Game name:" ]
+                , dd
+                    []
+                    [ text game.gameName ]
+                , dt
+                    []
+                    [ text "Screen name" ]
+                , dd
+                    []
+                    [ text game.screenName ]
+                ]
+            , button
+                [ class "waves-effect waves-light btn cyan cta__button"
+                , onClick ( Msg.RemoveSavedGame game )
+                ]
+                [ text "x" ]
+            , button
                 [ class "waves-effect waves-light btn btn-large cyan cta__button"
                 , onClick ( Msg.RejoinGame game )
                 ]
-                [ text "Rejoin: "
-                , text game.gameName
-                , text " "
-                , text game.screenName
-                , text " "
-                , text ago
+                [ text "Rejoin"
                 ]
             ]
 
