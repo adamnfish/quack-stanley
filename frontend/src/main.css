@@ -121,9 +121,10 @@ nav, footer, #logo-container {
     margin-bottom: 5px;
 }
 
-.pitch__card {
-    font-weight: 300;
-    font-size: 80px;
+.pitch--text {
+    font-weight: 400;
+    font-size: 90px;
+    text-shadow: 1px 1px #888888;
 }
 
 .pitch__card--hidden {

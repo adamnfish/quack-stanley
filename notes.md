@@ -1,7 +1,13 @@
 TODO:
 
+PRIORITY
++ error messages
+  + https://guide.elm-lang.org/interop/javascript.html
++ rejoin games
++ how to play
++ Write blog posts
+
 UI
-+ breadcrumb nav
 + smaller headers
   + spectate header especially is bad
 + "select two words" on spectate
@@ -10,9 +16,13 @@ UI
 + Say on spectating page what the currently active role is?
   + and who has that role?
 + use form labels (instead of just placeholders)
+  + materialize style animated to show both?
 
 GENERAL
++ better asset versioning (cache headers) so updates manifest?
 * error handling
++ UI tests that ensure user journey
++ use flags for api endpoint config
 * design UI as a game
 + additional navigation (e.g. leave game / rejoin from welcome)
   * (see also "breadcrumbs, above)
@@ -29,13 +39,7 @@ GENERAL
   + starts with same headings etc as target page, spinner that loads content. Swaps content in when ready.
 
 BUILD / OVERHEAD
-+ PROD-ready
-  + CloudFront
-  + static assets in a bucket
-  + domain and cert
-+ codepipeline / codebuild / codedeploy CI
-  * https://github.com/architectcodes/elm-live
-
++ cloudformation for build pipeline
 
 LONG TERM
 + refactor frontend to use navigation / SPA style
@@ -47,9 +51,16 @@ DONE
 UI
 - icon on join game button
 - 2x3 grid of words on spectate page
+- breadcrumb nav
 
 BUILD
 - switch to elm-live instead of elm-reactor with hot reloading for frontend dev server (still use something for local API)
+- PROD-ready
+  - CloudFront
+  - static assets in a bucket
+  - domain and cert
+- codepipeline / codebuild / codedeploy CI
+
 
 GENERAL
 - otherPlayers in API should only return *other players*

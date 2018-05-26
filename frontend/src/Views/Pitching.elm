@@ -25,7 +25,10 @@ pitching word1 word2 pitchStatus model =
                 , text "cancel pitch"
                 ]
             ]
-        , container "pitching"
+        , div
+            [ class "container pitching"
+            , onClick ( Msg.RevealCard word1 word2 pitchStatus )
+            ]
             [ row
                 [ col "m6 s12"
                     [ wordDisplay word1 ( pitchStatus /= NoCards ) ]
@@ -43,14 +46,14 @@ wordDisplay : String -> Bool -> Html Msg
 wordDisplay word show =
     div
         [ classList
-            [ ( "card white", True )
+            [ ( "card white pitch__card", True )
             , ( "pitch__card--hidden", ( not show ) )
             ]
         ]
         [ div
-            [ class "card-content center-align" ]
+            [ class "card-content center-align pitch__card-content" ]
             [ span
-                [ class "pitch__card center-align" ]
+                [ class "pitch--text center-align" ]
                 [ text ( if show then word else "\x00A0" ) ]
             ]
         ]
