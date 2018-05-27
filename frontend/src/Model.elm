@@ -14,6 +14,7 @@ type Lifecycle
         String String
     | Joining               -- waiting for API to confirm game entry
     | Waiting               -- waiting for game to start (will have game and screen name)
+    | Rejoining             -- reconnecting to a game (will have game and screen name)
     | Starting              -- triggered game start, waiting for API to complete
     | Spectating            -- game has started, player is spectating (and can choose words)
         ( List String )
