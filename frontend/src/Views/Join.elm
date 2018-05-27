@@ -1,11 +1,11 @@
 module Views.Join exposing (join)
 
-import Html exposing (Html, div, text, button,form, input)
+import Html exposing (Html, div, text, button,form)
 import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, icon)
+import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput)
 
 
 join : String -> String -> Model -> Html Msg
@@ -27,16 +27,10 @@ join gameCode screenName model =
                     [ card
                         [ form
                             [ onSubmit ( Msg.JoinGame gameCode screenName ) ]
-                            [ input
-                                [ onInput ( \val -> Msg.JoiningGame val screenName )
-                                , placeholder "Game code"
-                                ]
-                                []
-                            , input
-                                [ onInput ( \val -> Msg.JoiningGame gameCode val )
-                                , placeholder "Player name"
-                                ]
-                                []
+                            [ textInput "Game code" "game-code-input" gameCode
+                                [ onInput ( \val -> Msg.JoiningGame val screenName ) ]
+                            , textInput "Player name" "player-name-input" screenName
+                                [ onInput ( \val -> Msg.JoiningGame gameCode val ) ]
                             , button
                                 [ class "waves-effect waves-light cyan btn btn-large" ]
                                 [ text "Join game"
