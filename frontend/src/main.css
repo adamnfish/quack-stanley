@@ -94,6 +94,15 @@ nav, footer, #logo-container {
     width: 100%;
 }
 
+.rejoin--close {
+    transform: rotate(0deg);
+    transition-duration: 0.2s;
+    transition-property: transform;
+}
+.rejoin--close:hover, .rejoin--close:focus {
+    transform: rotate(-90deg);
+}
+
 #game-code {
     color: #333333;
     height: 3rem;

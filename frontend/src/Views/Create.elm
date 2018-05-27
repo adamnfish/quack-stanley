@@ -40,7 +40,7 @@ create gameName screenName model =
                             , button
                                   [ class "waves-effect waves-light teal btn btn-large" ]
                                   [ text "Create game"
-                                  , icon "person" "right"
+                                  , icon "gamepad" "right"
                                   ]
                             ]
                         ]
