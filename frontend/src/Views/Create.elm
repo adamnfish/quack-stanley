@@ -1,11 +1,11 @@
 module Views.Create exposing (create)
 
-import Html exposing (Html, div, text, button, form, input)
-import Html.Attributes exposing (class, placeholder)
+import Html exposing (Html, div, text, button, form)
+import Html.Attributes exposing (id, class, classList, placeholder, for)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, icon)
+import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput)
 
 
 create : String -> String -> Model -> Html Msg
@@ -27,16 +27,10 @@ create gameName screenName model =
                     [ card
                         [ form
                             [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
-                            [ input
-                                [ onInput ( \val -> Msg.CreatingNewGame val screenName )
-                                , placeholder "Game name"
-                                ]
-                                []
-                            , input
-                                [ onInput ( \val -> Msg.CreatingNewGame gameName val )
-                                , placeholder "Player name"
-                                ]
-                                []
+                            [ textInput "Game name" "create-game-input" gameName
+                                [ onInput ( \val -> Msg.CreatingNewGame val screenName ) ]
+                            , textInput "Player name" "player-name-input" screenName
+                                [ onInput ( \val -> Msg.CreatingNewGame gameName val ) ]
                             , button
                                   [ class "waves-effect waves-light teal btn btn-large" ]
                                   [ text "Create game"

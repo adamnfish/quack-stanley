@@ -1,9 +1,10 @@
 module Views.Utils exposing
     ( lis, icon, plural, friendlyError, resumeGameIfItExists
     , container, row, col, card, gameNav, stripMargin, multiLineText
+    , textInput
     )
 
-import Html exposing (Html, div, text, button, li, i)
+import Html exposing (Html, Attribute, div, text, button, input, label, li, i)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Msg exposing (Msg)
@@ -101,3 +102,20 @@ stripMargin str =
 
 multiLineText : String -> Html Msg
 multiLineText str = text ( stripMargin str )
+
+textInput : String -> String -> String -> List ( Attribute Msg ) -> Html Msg
+textInput elementLabel elementId value attrs =
+    let
+        fixedAttrs = [ id elementId, type_ "text" ]
+    in
+        div
+            [ class "input-field" ]
+            [ input
+                ( fixedAttrs ++ attrs )
+                []
+            , label
+                [ for elementId
+                , classList [ ("active", not ( String.isEmpty value )) ]
+                ]
+                [ text elementLabel ]
+            ]
