@@ -3,11 +3,13 @@ TODO:
 PRIORITY
 + error messages
   + https://guide.elm-lang.org/interop/javascript.html
-+ rejoin games
++ Fix Welcome loading
+  + skip "loading" or make it nicer
 + how to play
 + Write blog posts
 
 UI
++ integrate error handling
 + smaller headers
   + spectate header especially is bad
 + "select two words" on spectate
@@ -15,10 +17,11 @@ UI
 + screen to show full standings (with words)
 + Say on spectating page what the currently active role is?
   + and who has that role?
-+ use form labels (instead of just placeholders)
-  + materialize style animated to show both?
 
 GENERAL
++ loading pages over last page
+  + wipe a curtain with a stanley picture or something
++ errors as well (see above)
 + better asset versioning (cache headers) so updates manifest?
 * error handling
 + UI tests that ensure user journey
@@ -26,8 +29,6 @@ GENERAL
 * design UI as a game
 + additional navigation (e.g. leave game / rejoin from welcome)
   * (see also "breadcrumbs, above)
-+ restart game from saved state (e.g. local storage) on welcome screen?
-  * https://stackoverflow.com/questions/33697444/data-persistence-in-elm
 + stop being buyer without awarding point?
 * display fixes
   + discarded words
@@ -40,6 +41,7 @@ GENERAL
 
 BUILD / OVERHEAD
 + cloudformation for build pipeline
++ refactor backend into sub-project
 
 LONG TERM
 + refactor frontend to use navigation / SPA style
@@ -52,6 +54,8 @@ UI
 - icon on join game button
 - 2x3 grid of words on spectate page
 - breadcrumb nav
+- use form labels (instead of just placeholders)
+  - materialize style animated to show both?
 
 BUILD
 - switch to elm-live instead of elm-reactor with hot reloading for frontend dev server (still use something for local API)
@@ -63,6 +67,9 @@ BUILD
 
 
 GENERAL
++ restart game from saved state (e.g. local storage) on welcome screen?
+  * https://stackoverflow.com/questions/33697444/data-persistence-in-elm
+- rejoin games
 - otherPlayers in API should only return *other players*
 * display fixes
   - mobile zoom
