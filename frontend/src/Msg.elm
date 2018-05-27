@@ -136,11 +136,11 @@ update msg model =
                     , points = []
                     }
             in
-                ( { model | lifecycle = Waiting
+                ( { model | lifecycle = Rejoining
                           , playerKey = Just savedGame.playerKey
                           , state = Just temporaryState
                           }
-                , Cmd.none
+                , ping savedGame.gameId savedGame.playerKey
                 )
 
         RemoveSavedGame savedGame ->
@@ -268,6 +268,13 @@ update msg model =
                             )
                     else
                         ( { model | state = Just playerInfo.state
+                                  , opponents = playerInfo.opponents
+                          }
+                        , Cmd.none
+                        )
+                Rejoining ->
+                        ( { model | lifecycle = Spectating []
+                                  , state = Just playerInfo.state
                                   , opponents = playerInfo.opponents
                           }
                         , Cmd.none

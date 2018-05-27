@@ -11,6 +11,7 @@ import Views.Create exposing (create)
 import Views.CreatorWaiting exposing (creatorWaiting)
 import Views.Join exposing (join)
 import Views.Waiting exposing (waiting)
+import Views.Rejoining exposing (rejoining)
 import Views.Spectating exposing (spectating)
 import Views.Pitching exposing (pitching)
 import Views.Buying exposing (buying)
@@ -35,6 +36,8 @@ view model =
 
         Waiting ->
             waiting model
+        Rejoining ->
+            rejoining model
         CreatorWaiting gameCode ->
             creatorWaiting gameCode model
         Starting ->
