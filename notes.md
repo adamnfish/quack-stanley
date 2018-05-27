@@ -3,7 +3,6 @@ TODO:
 PRIORITY
 + error messages
   + https://guide.elm-lang.org/interop/javascript.html
-+ rejoin games
 + how to play
 + Write blog posts
 
@@ -15,8 +14,6 @@ UI
 + screen to show full standings (with words)
 + Say on spectating page what the currently active role is?
   + and who has that role?
-+ use form labels (instead of just placeholders)
-  + materialize style animated to show both?
 
 GENERAL
 + better asset versioning (cache headers) so updates manifest?
@@ -26,8 +23,6 @@ GENERAL
 * design UI as a game
 + additional navigation (e.g. leave game / rejoin from welcome)
   * (see also "breadcrumbs, above)
-+ restart game from saved state (e.g. local storage) on welcome screen?
-  * https://stackoverflow.com/questions/33697444/data-persistence-in-elm
 + stop being buyer without awarding point?
 * display fixes
   + discarded words
@@ -52,6 +47,8 @@ UI
 - icon on join game button
 - 2x3 grid of words on spectate page
 - breadcrumb nav
+- use form labels (instead of just placeholders)
+  - materialize style animated to show both?
 
 BUILD
 - switch to elm-live instead of elm-reactor with hot reloading for frontend dev server (still use something for local API)
@@ -63,6 +60,9 @@ BUILD
 
 
 GENERAL
++ restart game from saved state (e.g. local storage) on welcome screen?
+  * https://stackoverflow.com/questions/33697444/data-persistence-in-elm
+- rejoin games
 - otherPlayers in API should only return *other players*
 * display fixes
   - mobile zoom
