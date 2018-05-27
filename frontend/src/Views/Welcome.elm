@@ -1,6 +1,6 @@
 module Views.Welcome exposing (welcome)
 
-import Html exposing (Html, div, ul, li, dl, dt, dd, p, button, text)
+import Html exposing (Html, div, ul, li, dl, dt, dd, button, p, strong, em, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, SavedGame, Lifecycle (..))
@@ -31,7 +31,7 @@ awake now savedGames =
                             , onClick ( Msg.CreatingNewGame "" "" )
                             ]
                             [ text "Create game"
-                            , icon "person" "right"
+                            , icon "gamepad" "right"
                             ]
                         ]
                     ]
@@ -55,16 +55,7 @@ savedGamesBlock now savedGames =
     if List.isEmpty savedGames then
         text ""
     else
-        row
-            [ col "s12"
-                [ card
-                    [ text "Games in progress:"
-                    , ul
-                        []
-                        ( List.map ( savedGameBlock now ) savedGames )
-                    ]
-                ]
-            ]
+        row ( List.map ( savedGameBlock now ) savedGames )
 
 savedGameBlock : Time -> SavedGame -> Html Msg
 savedGameBlock now game =
@@ -89,33 +80,41 @@ savedGameBlock now game =
             else
                 ( toString days ) ++ " days ago"
     in
-        li
-            []
-            [ dl
-                []
-                [ dt
-                    []
-                    [ text "Game name:" ]
-                , dd
-                    []
-                    [ text game.gameName ]
-                , dt
-                    []
-                    [ text "Screen name" ]
-                , dd
-                    []
-                    [ text game.screenName ]
-                ]
-            , button
-                [ class "waves-effect waves-light btn cyan cta__button"
-                , onClick ( Msg.RemoveSavedGame game )
-                ]
-                [ text "x" ]
-            , button
-                [ class "waves-effect waves-light btn btn-large cyan cta__button"
-                , onClick ( Msg.RejoinGame game )
-                ]
-                [ text "Rejoin"
+        col "s12 m6"
+            [ card
+                [ button
+                    [ class "rejoin--close waves-effect waves-light btn btn-floating brown right"
+                    , onClick ( Msg.RemoveSavedGame game )
+                    ]
+                    [ icon "close" "right" ]
+                , div
+                    [ class "valign-wrapper" ]
+                    [ icon "access_time" "left"
+                    , div
+                        [ class "rejoin-game__ago-text grey-text" ]
+                        [ em
+                            []
+                            [ text ago ]
+                        ]
+                    ]
+                , p
+                    [ class "rejoin-game__game-name valign-wrapper" ]
+                    [ icon "gamepad" "left"
+                    , strong
+                        []
+                        [ text game.gameName ]
+                    ]
+                , p
+                    [ class "rejoin-screen-name valign-wrapper" ]
+                    [ icon "person" "left"
+                    , text game.screenName ]
+                , button
+                    [ class "waves-effect waves-light btn btn-large cyan cta__button"
+                    , onClick ( Msg.RejoinGame game )
+                    ]
+                    [ text "Rejoin"
+                    , icon "group_add" "right"
+                    ]
                 ]
             ]
 
