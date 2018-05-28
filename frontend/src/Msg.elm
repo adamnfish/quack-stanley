@@ -1,8 +1,9 @@
 module Msg exposing (Msg (..), update, wakeServer)
 
 import Http
+import Api.Api exposing (qsSend)
 import Api.Requests exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
-import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..))
+import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..), ApiResponse (..))
 import Time exposing (Time)
 import Ports exposing (fetchSavedGames, saveGame, removeSavedGame)
 
@@ -25,7 +26,7 @@ type Msg
     | JoinGame
         String String
     | CreatedGame
-        ( Result Http.Error NewGame )
+        ( ApiResponse NewGame )
     | JoinedGame
         ( Result Http.Error Registered )
     | RejoinGame
@@ -105,9 +106,9 @@ update msg model =
             , joinGame gameId screenName
             )
 
-        CreatedGame ( Err err ) ->
-            ( { model | lifecycle = Error [ "Error creating game" ] }, Cmd.none )
-        CreatedGame ( Ok newGame ) ->
+        CreatedGame ( ApiErr err ) ->
+            ( { model | lifecycle = Error ( List.map .message err ) }, Cmd.none )
+        CreatedGame ( ApiOk newGame ) ->
             ( { model | lifecycle = CreatorWaiting newGame.gameCode
                       , playerKey = Just newGame.playerKey
                       , state = Just newGame.state
@@ -327,7 +328,7 @@ wakeServer =
 
 createGame : String -> String -> Cmd Msg
 createGame gameName screenName =
-    Http.send CreatedGame ( createGameRequest gameName screenName )
+    qsSend CreatedGame ( createGameRequest gameName screenName )
 
 joinGame : String -> String -> Cmd Msg
 joinGame gameId screenName =
