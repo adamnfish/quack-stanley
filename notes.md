@@ -3,10 +3,13 @@ TODO:
 PRIORITY
 + error messages
   + https://guide.elm-lang.org/interop/javascript.html
++ Fix Welcome loading
+  + skip "loading" or make it nicer
 + how to play
 + Write blog posts
 
 UI
++ integrate error handling
 + smaller headers
   + spectate header especially is bad
 + "select two words" on spectate
@@ -16,6 +19,9 @@ UI
   + and who has that role?
 
 GENERAL
++ loading pages over last page
+  + wipe a curtain with a stanley picture or something
++ errors as well (see above)
 + better asset versioning (cache headers) so updates manifest?
 * error handling
 + UI tests that ensure user journey
@@ -35,6 +41,7 @@ GENERAL
 
 BUILD / OVERHEAD
 + cloudformation for build pipeline
++ refactor backend into sub-project
 
 LONG TERM
 + refactor frontend to use navigation / SPA style
