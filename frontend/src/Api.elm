@@ -1,8 +1,8 @@
-module Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
+module Api exposing (qsSend, wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
 
 import Http exposing (stringBody)
-import Model exposing (PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame)
-import Json.Decode exposing (Decoder, succeed, string, bool, list, nullable)
+import Model exposing (PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame, ApiError, ApiResponse (..))
+import Json.Decode exposing (Decoder, decodeString, field, succeed, maybe, string, bool, list, nullable)
 import Json.Decode.Pipeline exposing (decode, required, optional)
 import Config exposing (apiUrl)
 
@@ -68,6 +68,45 @@ pingRequest gameId playerKey =
         body = """{ "operation": "ping", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
         Http.post apiUrl ( stringBody "application/json" body ) playerInfoDecoder
+
+
+qsSend : (ApiResponse a -> msg) -> Http.Request a -> Cmd msg
+qsSend toMessage request =
+    Http.send ( toMessage << handleApiResponse ) request
+
+
+-- API errors
+
+handleApiResponse : Result Http.Error a -> ApiResponse a
+handleApiResponse result =
+    case result of
+        Ok a ->
+            ApiOk a
+        Err ( Http.BadStatus response ) ->
+            case ( decodeString apiErrsDecoder response.body ) of
+                Ok apiErrors ->
+                    ApiErr apiErrors
+                Err _ ->
+                    ApiErr [ { message = "Invalid response from server", context = Nothing } ]
+        Err ( Http.BadUrl message ) ->
+            ApiErr [ { message = message, context = Nothing } ]
+        Err Http.Timeout ->
+            ApiErr [ { message = "Request timed out", context = Nothing } ]
+        Err Http.NetworkError ->
+            ApiErr [ { message = "Connection error", context = Nothing } ]
+        Err ( Http.BadPayload message response ) ->
+            ApiErr [ { message = message, context = Nothing } ]
+
+apiErrsDecoder : Decoder ( List ApiError )
+apiErrsDecoder =
+    field "errors" ( list apiErrorDecoder )
+
+apiErrorDecoder : Decoder ApiError
+apiErrorDecoder =
+    decode ApiError
+        |> required "message" string
+        |> optional "context" (Json.Decode.map Just Json.Decode.string) Nothing
+
 
 -- API serialisation
 

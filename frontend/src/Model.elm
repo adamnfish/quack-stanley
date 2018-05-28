@@ -1,4 +1,6 @@
-module Model exposing (Model, PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame, SavedGame, Lifecycle(..), PitchStatus (..))
+module Model exposing
+    ( Model, PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame, SavedGame
+    , ApiResponse (..), ApiError, Lifecycle(..), PitchStatus (..))
 
 import Time exposing (Time)
 
@@ -67,6 +69,15 @@ type alias SavedGame =
     }
 
 -- API responses
+
+type alias ApiError =
+    { message : String
+    , context : Maybe String
+    }
+
+type ApiResponse a
+    = ApiOk a
+    | ApiErr ( List ApiError )
 
 type alias PlayerInfo =
     { state : PlayerState
