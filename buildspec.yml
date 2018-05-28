@@ -44,7 +44,7 @@ phases:
     - echo Uploading static site to $WWW_BUCKET_NAME
     - cd frontend/build
     - aws s3 sync . s3://$WWW_BUCKET_NAME
-    - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DIST_ID --paths \/*
+    - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DIST_ID --paths "/*"
     - cd -
 
 artifacts:
