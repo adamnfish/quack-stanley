@@ -1,7 +1,7 @@
 module Msg exposing (Msg (..), update, wakeServer)
 
 import Http
-import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
+import Api.Requests exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
 import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..))
 import Time exposing (Time)
 import Ports exposing (fetchSavedGames, saveGame, removeSavedGame)
