@@ -1,15 +1,15 @@
 module Msg exposing (Msg (..), update, wakeServer)
 
-import Http
-import Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
-import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..))
+import Api.Api exposing (sendApiCall)
+import Api.Requests exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
+import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..), ApiResponse (..))
 import Time exposing (Time)
 import Ports exposing (fetchSavedGames, saveGame, removeSavedGame)
 
 
 type Msg
     = BackendAwake
-        ( Result Http.Error () )
+        ( ApiResponse () )
     | WelcomeTick
         Time
     | LoadedGames
@@ -25,29 +25,29 @@ type Msg
     | JoinGame
         String String
     | CreatedGame
-        ( Result Http.Error NewGame )
+        ( ApiResponse NewGame )
     | JoinedGame
-        ( Result Http.Error Registered )
+        ( ApiResponse Registered )
     | RejoinGame
         SavedGame
     | RemoveSavedGame
         SavedGame
     | StartingGame
     | GameStarted
-        ( Result Http.Error PlayerInfo )
+        ( ApiResponse PlayerInfo )
     | SelectWord
         String ( List String )
     | DeselectWord
         String ( List String )
     | RequestBuyer
     | BecomeBuyer
-        ( Result Http.Error PlayerInfo )
+        ( ApiResponse PlayerInfo )
     | AwardPoint
         String String
     | AwardedPoint
-        ( Result Http.Error PlayerInfo )
+        ( ApiResponse PlayerInfo )
     | PingResult
-        ( Result Http.Error PlayerInfo )
+        ( ApiResponse PlayerInfo )
     | PingEvent
         Time.Time
     | StartPitch
@@ -57,7 +57,7 @@ type Msg
     | FinishedPitch
         String String
     | FinishedPitchResult
-        ( Result Http.Error PlayerInfo )
+        ( ApiResponse PlayerInfo )
 
 
 keys : Model -> Maybe ( String, String )
@@ -105,18 +105,18 @@ update msg model =
             , joinGame gameId screenName
             )
 
-        CreatedGame ( Err err ) ->
-            ( { model | lifecycle = Error [ "Error creating game" ] }, Cmd.none )
-        CreatedGame ( Ok newGame ) ->
+        CreatedGame ( ApiErr err ) ->
+            ( { model | lifecycle = Error ( List.map .message err ) }, Cmd.none )
+        CreatedGame ( ApiOk newGame ) ->
             ( { model | lifecycle = CreatorWaiting newGame.gameCode
                       , playerKey = Just newGame.playerKey
                       , state = Just newGame.state
                       }
             , Cmd.none
             )
-        JoinedGame ( Err err ) ->
-            ( { model | lifecycle = Error [ "Error joining game" ] }, Cmd.none )
-        JoinedGame ( Ok registered ) ->
+        JoinedGame ( ApiErr err ) ->
+            ( { model | lifecycle = Error ( List.map .message err ) }, Cmd.none )
+        JoinedGame ( ApiOk registered ) ->
             ( { model | lifecycle = Waiting
                       , playerKey = Just registered.playerKey
                       , state = Just registered.state
@@ -157,9 +157,9 @@ update msg model =
                 Nothing ->
                     ( { model | lifecycle = Error [ "Could not start game" ] }, Cmd.none )
 
-        GameStarted ( Err err ) ->
-            ( { model | lifecycle = Error [ "Error starting game" ] }, Cmd.none )
-        GameStarted ( Ok playerInfo ) ->
+        GameStarted ( ApiErr err ) ->
+            ( { model | lifecycle = Error ( List.map .message err ) }, Cmd.none )
+        GameStarted ( ApiOk playerInfo ) ->
             let
                 updatedModel =
                     { model | lifecycle = Spectating []
@@ -203,13 +203,13 @@ update msg model =
                     ( { model | lifecycle = Error [ "No player key or game ID" ] }, Cmd.none )
 
 
-        BecomeBuyer ( Err err ) ->
+        BecomeBuyer ( ApiErr err ) ->
             ( { model | lifecycle = Spectating []
-                      , errs =  [ "Could not become buyer" ]
+                      , errs =  List.map .message err
               }
             , Cmd.none
             )
-        BecomeBuyer ( Ok playerInfo ) ->
+        BecomeBuyer ( ApiOk playerInfo ) ->
             ( { model | lifecycle = Buying ( Maybe.withDefault "Couldn't get a role" playerInfo.state.role ) }
             , Cmd.none
             )
@@ -225,11 +225,11 @@ update msg model =
                     , Cmd.none
                     )
                     
-        AwardedPoint ( Err err ) ->
-            ( { model | lifecycle = Error [ "Couldn't award point" ] }
+        AwardedPoint ( ApiErr err ) ->
+            ( { model | lifecycle = Error ( List.map .message err ) }
             , Cmd.none
             )
-        AwardedPoint ( Ok playerInfo ) ->
+        AwardedPoint ( ApiOk playerInfo ) ->
             ( { model | lifecycle = Spectating []
                       , state = Just playerInfo.state
                       , opponents = playerInfo.opponents
@@ -244,15 +244,15 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        PingResult ( Err err ) ->
+        PingResult ( ApiErr err ) ->
             case model.lifecycle of
                 Waiting ->
                     ( model, Cmd.none )
                 _ ->
-                    ( { model | lifecycle = Error [ "Lost connection to game" ] }
+                    ( { model | lifecycle = Error ( List.map .message err ) }
                     , Cmd.none
                     )
-        PingResult ( Ok playerInfo ) ->
+        PingResult ( ApiOk playerInfo ) ->
             case model.lifecycle of
                 Waiting ->
                     if playerInfo.started then
@@ -306,11 +306,11 @@ update msg model =
                     ( model, finishPitch gameId playerKey ( word1, word2 ) )
                 Nothing ->
                     ( model, Cmd.none )
-        FinishedPitchResult ( Err err ) ->
-            ( { model | lifecycle = Error [ "Lost connection to game" ] }
+        FinishedPitchResult ( ApiErr err ) ->
+            ( { model | lifecycle = Error ( List.map .message err ) }
             , Cmd.none
             )
-        FinishedPitchResult ( Ok playerInfo ) ->
+        FinishedPitchResult ( ApiOk playerInfo ) ->
             ( { model | lifecycle = Spectating []
                       , state = Just playerInfo.state
                       , opponents = playerInfo.opponents
@@ -323,32 +323,32 @@ update msg model =
 
 wakeServer : Cmd Msg
 wakeServer =
-    Http.send BackendAwake ( wakeServerRequest )
+    sendApiCall BackendAwake ( wakeServerRequest )
 
 createGame : String -> String -> Cmd Msg
 createGame gameName screenName =
-    Http.send CreatedGame ( createGameRequest gameName screenName )
+    sendApiCall CreatedGame ( createGameRequest gameName screenName )
 
 joinGame : String -> String -> Cmd Msg
 joinGame gameId screenName =
-    Http.send JoinedGame ( joinGameRequest gameId screenName )
+    sendApiCall JoinedGame ( joinGameRequest gameId screenName )
 
 startGame : String -> String -> Cmd Msg
 startGame gameId playerKey =
-    Http.send GameStarted ( startGameRequest gameId playerKey )
+    sendApiCall GameStarted ( startGameRequest gameId playerKey )
 
 becomeBuyer : String -> String -> Cmd Msg
 becomeBuyer gameId playerKey =
-    Http.send BecomeBuyer ( becomeBuyerRequest gameId playerKey )
+    sendApiCall BecomeBuyer ( becomeBuyerRequest gameId playerKey )
 
 awardPoint : String -> String -> String -> String -> Cmd Msg
 awardPoint gameId playerKey role playerName =
-    Http.send AwardedPoint ( awardPointRequest gameId playerKey role playerName )
+    sendApiCall AwardedPoint ( awardPointRequest gameId playerKey role playerName )
 
 ping : String -> String -> Cmd Msg
 ping gameId playerKey =
-    Http.send PingResult ( pingRequest gameId playerKey )
+    sendApiCall PingResult ( pingRequest gameId playerKey )
 
 finishPitch : String -> String -> ( String, String ) -> Cmd Msg
 finishPitch gameId playerKey words =
-    Http.send FinishedPitchResult ( finishPitchRequest gameId playerKey words )
+    sendApiCall FinishedPitchResult ( finishPitchRequest gameId playerKey words )

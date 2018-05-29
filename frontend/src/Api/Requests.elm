@@ -1,13 +1,15 @@
-module Api exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
+module Api.Requests exposing
+    ( wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest
+    , becomeBuyerRequest, awardPointRequest, finishPitchRequest, pingRequest
+    )
 
-import Http exposing (stringBody)
-import Model exposing (PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame)
-import Json.Decode exposing (Decoder, succeed, string, bool, list, nullable)
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Api.Codecs exposing (apiErrsDecoder, registeredDecoder, newGameDecoder, playerStateDecoder, playerSummaryDecoder, playerInfoDecoder)
 import Config exposing (apiUrl)
+import Http exposing (stringBody)
+import Json.Decode exposing (succeed)
+import Model exposing (PlayerInfo, Registered, NewGame)
 
 
--- API requests
 
 wakeServerRequest : Http.Request ()
 wakeServerRequest =
@@ -68,42 +70,3 @@ pingRequest gameId playerKey =
         body = """{ "operation": "ping", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
         Http.post apiUrl ( stringBody "application/json" body ) playerInfoDecoder
-
--- API serialisation
-
-playerStateDecoder : Decoder PlayerState
-playerStateDecoder =
-    decode PlayerState
-        |> required "gameId" string
-        |> required "gameName" string
-        |> required "screenName" string
-        |> required "hand" ( list string )
-        |> required "discardedWords" ( list string )
-        |> required "role" ( nullable string )
-        |> required "points" ( list string )
-
-playerSummaryDecoder : Decoder PlayerSummary
-playerSummaryDecoder =
-    decode PlayerSummary
-        |> required "screenName" string
-        |> required "points" ( list string )
-
-newGameDecoder : Decoder NewGame
-newGameDecoder =
-    decode NewGame
-        |> required "state" playerStateDecoder
-        |> required "playerKey" string
-        |> required "gameCode" string
-
-registeredDecoder : Decoder Registered
-registeredDecoder =
-    decode Registered
-        |> required "state" playerStateDecoder
-        |> required "playerKey" string
-
-playerInfoDecoder : Decoder PlayerInfo
-playerInfoDecoder =
-    decode PlayerInfo
-        |> required "state" playerStateDecoder
-        |> required "started" bool
-        |> required "opponents" ( list playerSummaryDecoder )

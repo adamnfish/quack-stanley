@@ -44,7 +44,7 @@ object Logic {
 
   def authenticate(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[PlayerSummary] = {
     Attempt.fromOption(gameState.players.get(playerKey),
-      Failure("Player key not found in game state", "Invalid player", 404).asAttempt
+      Failure("Player key not found in game state", "You are not a player in this game", 404).asAttempt
     )
   }
 
@@ -53,7 +53,7 @@ object Logic {
       Attempt.Right(gameState.creator)
     } else {
       Attempt.Left {
-        Failure("Player key not found in game state", "Invalid player", 404).asAttempt
+        Failure("Player key not found in game state", "You are not the game's creator", 404).asAttempt
       }
     }
   }
@@ -69,7 +69,7 @@ object Logic {
 
   def playerHasRole(playerState: PlayerState, role: Role): Attempt[Role] = {
     Attempt.fromOption(playerState.role.find(_ == role),
-      Failure("Player does not have this role to give", "Attempting to award a point for incorrect role", 400).asAttempt
+      Failure("Player does not have this role to give", "Cannot award point for a role that isn't yours", 400).asAttempt
     )
   }
 
@@ -103,7 +103,7 @@ object Logic {
       case None =>
         Attempt.Right(())
       case Some(buyerKey) =>
-        val playerName = gameState.players.getOrElse(buyerKey, "another player")
+        val playerName = gameState.players.mapValues(_.screenName).getOrElse(buyerKey, "another player")
         Attempt.Left(Failure(s"Buyer already exists: $playerName", s"$playerName is already the buyer", 400))
     }
   }
@@ -188,7 +188,7 @@ object Logic {
   def discardWords(words: (Word, Word), playerState: PlayerState): Attempt[PlayerState] = {
     val failures = List(words._1, words._2).flatMap { word =>
       if (playerState.hand.contains(word)) None
-      else Some(Failure("Player cannot discard word not in their hand", s"Cannot discard words that aren;t in your hand ($word)", 400, Some(word.value)))
+      else Some(Failure("Player cannot discard word not in their hand", s"Cannot discard words that aren't in your hand ($word)", 400, Some(word.value)))
     }
 
     if (failures.isEmpty) {
@@ -227,7 +227,7 @@ object Logic {
           loop(prefixLength + 1)
         case _ =>
           Attempt.Left(
-            Failure("Couldn't create unique prefix of GameID", "Couldn't create game password", 500)
+            Failure("Couldn't create unique prefix of GameID", "Couldn't set up game with a join code", 500)
           )
       }
     }
@@ -242,11 +242,11 @@ object Logic {
     }
     matches match {
       case Nil => Attempt.Left(
-        Failure("Couldn't find game from gameCode", "No matching games found", 404, Some(gameCode))
+        Failure("Couldn't find game from gameCode", "Couldn't find a game with that code", 404, Some(gameCode))
       )
       case result :: Nil => Attempt.Right(result)
       case _ => Attempt.Left(
-        Failure("Multiple games matched gameCode", "Couldn't add you to a game, invalid code", 404, Some(gameCode))
+        Failure("Multiple games matched gameCode", "Couldn't find a game to add you to, invalid code", 404, Some(gameCode))
       )
     }
   }
