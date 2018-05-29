@@ -1,4 +1,4 @@
-module Api.Api exposing (qsSend)
+module Api.Api exposing (sendApiCall)
 
 import Http
 import Model exposing (ApiError, ApiResponse (..))
@@ -6,8 +6,8 @@ import Json.Decode exposing (decodeString)
 import Api.Codecs exposing (apiErrsDecoder)
 
 
-qsSend : (ApiResponse a -> msg) -> Http.Request a -> Cmd msg
-qsSend toMessage request =
+sendApiCall : (ApiResponse a -> msg) -> Http.Request a -> Cmd msg
+sendApiCall toMessage request =
     Http.send ( toMessage << handleApiResponse ) request
 
 
