@@ -8,12 +8,12 @@ import Msg exposing (Msg)
 import Views.Utils exposing (container, gameNav, row, col, card, icon)
 
 
-buying : String -> Model -> Html Msg
+buying : String -> Model -> ( List ( Html Msg ), Html Msg )
 buying role model =
-    div
+    ( []
+    , div
         []
-        [ gameNav []
-        , container "buying"
+        [ container "buying"
             [ row
                 [ col "s12"
                     [ card
@@ -28,6 +28,7 @@ buying role model =
                 ]
             ]
         ]
+    )
 
 otherPlayer : String ->  PlayerSummary -> Html Msg
 otherPlayer role playerSummary =

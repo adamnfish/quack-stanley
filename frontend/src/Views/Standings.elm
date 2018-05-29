@@ -8,15 +8,15 @@ import Msg exposing (Msg)
 import Views.Utils exposing (container, gameNav, row, col, card, icon, plural)
 
 
-standings : Model -> Html Msg
+standings : Model -> ( List ( Html Msg ), Html Msg )
 standings model =
     let
         points = Maybe.withDefault [] ( Maybe.map .points model.state )
     in
-        div
+        ( []
+        , div
             []
-            [ gameNav []
-            , container "standings"
+            [ container "standings"
                 [ row
                     [ col "s12"
                         [ ul
@@ -38,6 +38,7 @@ standings model =
                     ]
                 ]
             ]
+        )
 
 playerListEntry : PlayerSummary -> Html Msg
 playerListEntry playerSummary =

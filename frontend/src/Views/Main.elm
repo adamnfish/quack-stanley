@@ -2,42 +2,48 @@ module Views.Main exposing (pageTemplate)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
+import Views.Utils exposing (gameNav, icon)
 
 
-pageTemplate : (Model -> Html Msg) -> Model -> Html Msg
+pageTemplate : (Model -> ( List ( Html Msg ), Html Msg ) ) -> Model -> Html Msg
 pageTemplate view model =
-    div
-        [ id "app-root" ]
-        [ header
-            []
-            [ nav
-                [ class ( lifecycleTheme model.lifecycle ) ]
-                [ div
-                    [ class "nav-wrapper container" ]
-                    [ a
-                        [ id "logo-container"
-                        , class ( lifecycleTheme model.lifecycle )
-                        ]
-                        [ img
-                            [ src "/images/stanley.png"
-                            , alt "Quack Stanley"
-                            , width 80
-                            , height 80
+    let
+        ( navButtons, content ) = view model
+    in
+        div
+            [ id "app-root" ]
+            [ header
+                []
+                [ nav
+                    [ class ( lifecycleTheme model.lifecycle ) ]
+                    [ div
+                        [ class "nav-wrapper container" ]
+                        [ a
+                            [ id "logo-container"
+                            , class ( lifecycleTheme model.lifecycle )
                             ]
-                            []
+                            [ img
+                                [ src "/images/stanley.png"
+                                , alt "Quack Stanley"
+                                , width 80
+                                , height 80
+                                ]
+                                []
+                            ]
                         ]
                     ]
                 ]
+            , gameNav navButtons
+            , main_
+                []
+                [ content ]
+            , footer
+                [ class ( "page-footer " ++ ( lifecycleTheme model.lifecycle ) ) ]
+                [ ]
             ]
-        , main_
-            []
-            [ view model ]
-        , footer
-            [ class ( "page-footer " ++ ( lifecycleTheme model.lifecycle ) ) ]
-            [ ]
-        ]
 
 lifecycleTheme : Lifecycle -> String
 lifecycleTheme lifecycle =

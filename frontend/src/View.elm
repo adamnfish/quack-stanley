@@ -18,7 +18,7 @@ import Views.Buying exposing (buying)
 import Views.AwardingPoint exposing (awardingPoint)
 
 
-view : Model -> Html Msg
+view : Model -> ( List ( Html Msg ), Html Msg )
 view model =
     case model.lifecycle of
         Welcome ->

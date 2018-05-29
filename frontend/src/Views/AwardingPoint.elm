@@ -6,12 +6,12 @@ import Msg exposing (Msg)
 import Views.Utils exposing (container, gameNav, row, col, card, icon)
 
 
-awardingPoint : String -> String -> Model -> Html Msg
+awardingPoint : String -> String -> Model -> ( List ( Html Msg ), Html Msg )
 awardingPoint role playerName model =
-    div
+    ( []
+    , div
         []
-        [ gameNav []
-        , container "awarding-point"
+        [ container "awarding-point"
             [ row
                 [ col "s12"
                     [ card
@@ -31,6 +31,7 @@ awardingPoint role playerName model =
                 ]
             ]
         ]
+    )
 
 otherPlayer : PlayerSummary -> Html Msg
 otherPlayer playerSummary =

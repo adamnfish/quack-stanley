@@ -8,7 +8,7 @@ import Msg exposing (Msg)
 import Views.Utils exposing (container, row, col, card, gameNav, plural, icon, friendlyError)
 
 
-spectating : List String -> Model -> Html Msg
+spectating : List String -> Model -> ( List ( Html Msg ), Html Msg )
 spectating selected model =
     let
         hand = Maybe.withDefault [] ( Maybe.map .hand model.state )
@@ -16,78 +16,79 @@ spectating selected model =
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
         points = Maybe.withDefault [] ( Maybe.map .points model.state )
     in
-    div
-        []
-        [ gameNav []
-        , container "spectating"
-            [ friendlyError model
-            , row
-                [ col "s12"
-                    [ card
-                        [ row
-                            [ col "m6 s12"
-                                [ div
-                                    [ class "hand__container" ]
-                                    ( List.map ( handEntry selected ) hand )
-                                ]
-                            , col "m6 s12"
-                                [ selectedWords selected
-                                , div
-                                    [ class "container--spaced" ]
-                                    [ button
-                                        ( case selected of
-                                            word1 :: word2 :: [] ->
-                                                [ class "waves-effect waves-light btn btn-large indigo cta__button"
-                                                , onClick ( Msg.StartPitch word1 word2 )
-                                                , disabled False
-                                                ]
-                                            _ ->
-                                                [ class "waves-effect waves-light btn btn-large indigo cta__button"
-                                                , disabled True
-                                                ]
-                                        )
-                                        [ text "Start pitch"
-                                        , icon "play_arrow" "right"
+        ( []
+        , div
+            []
+            [ container "spectating"
+                [ friendlyError model
+                , row
+                    [ col "s12"
+                        [ card
+                            [ row
+                                [ col "m6 s12"
+                                    [ div
+                                        [ class "hand__container" ]
+                                        ( List.map ( handEntry selected ) hand )
+                                    ]
+                                , col "m6 s12"
+                                    [ selectedWords selected
+                                    , div
+                                        [ class "container--spaced" ]
+                                        [ button
+                                            ( case selected of
+                                                word1 :: word2 :: [] ->
+                                                    [ class "waves-effect waves-light btn btn-large indigo cta__button"
+                                                    , onClick ( Msg.StartPitch word1 word2 )
+                                                    , disabled False
+                                                    ]
+                                                _ ->
+                                                    [ class "waves-effect waves-light btn btn-large indigo cta__button"
+                                                    , disabled True
+                                                    ]
+                                            )
+                                            [ text "Start pitch"
+                                            , icon "play_arrow" "right"
+                                            ]
                                         ]
                                     ]
                                 ]
                             ]
                         ]
                     ]
-                ]
-            , row
-                [ col "m6 s12"
-                    [ card
-                        [ button
-                            [ class "waves-effect waves-light btn purple cta__button"
-                            , onClick Msg.RequestBuyer
-                            ]
-                            [ text "Buyer"
-                            , icon "play_arrow" "right"
+                , row
+                    [ col "m6 s12"
+                        [ card
+                            [ button
+                                [ class "waves-effect waves-light btn purple cta__button"
+                                , onClick Msg.RequestBuyer
+                                ]
+                                [ text "Buyer"
+                                , icon "play_arrow" "right"
+                                ]
                             ]
                         ]
                     ]
-                ]
-            , row
-                [ col "s12"
-                    [ ul
-                        [ class "collection z-depth-1" ]
-                        (
-                            [ li
-                                [ class "collection-item" ]
-                                [ text "You"
-                                , span
-                                    [ class "badge"
-                                    , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
+                , row
+                    [ col "s12"
+                        [ ul
+                            [ class "collection z-depth-1" ]
+                            (
+                                [ li
+                                    [ class "collection-item" ]
+                                    [ text "You"
+                                    , span
+                                        [ class "badge"
+                                        , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
+                                        ]
+                                        [ text ( toString ( List.length points ) ) ]
                                     ]
-                                    [ text ( toString ( List.length points ) ) ]
-                                ]
-                            ] ++ List.map playerListEntry model.opponents
-                        )
+                                ] ++ List.map playerListEntry model.opponents
+                            )
+                        ]
                     ]
                 ]
             ]
-        ]
+        )
 
 playerListEntry : PlayerSummary -> Html Msg
 playerListEntry playerSummary =

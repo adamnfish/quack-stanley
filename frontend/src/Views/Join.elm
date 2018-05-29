@@ -8,20 +8,20 @@ import Msg exposing (Msg)
 import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput)
 
 
-join : String -> String -> Model -> Html Msg
+join : String -> String -> Model -> ( List ( Html Msg ), Html Msg )
 join gameCode screenName model =
-    div
-        []
-        [ gameNav
-            [ button
-                [ class "waves-effect waves-light btn green"
-                , onClick Msg.NavigateHome
-                ]
-                [ icon "navigate_before" "left"
-                , text "back"
-                ]
+    (
+        [ button
+            [ class "waves-effect waves-light btn green"
+            , onClick Msg.NavigateHome
             ]
-        , container "join"
+            [ icon "navigate_before" "left"
+            , text "back"
+            ]
+        ]
+    , div
+        []
+        [ container "join"
             [ row
                 [ col "s12"
                     [ card
@@ -42,3 +42,4 @@ join gameCode screenName model =
                 ]
             ]
         ]
+    )

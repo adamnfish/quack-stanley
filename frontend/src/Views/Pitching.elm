@@ -8,15 +8,13 @@ import Msg exposing (Msg)
 import Views.Utils exposing (container, row, col, card, gameNav, lis, icon)
 
 
-pitching : String -> String -> PitchStatus -> Model -> Html Msg
+pitching : String -> String -> PitchStatus -> Model -> ( List ( Html Msg ), Html Msg )
 pitching word1 word2 pitchStatus model =
     let
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
         screenName = Maybe.withDefault "" ( Maybe.map .screenName model.state )
     in
-    div
-        []
-        [ gameNav
+        (
             [ button
                 [ class "waves-effect waves-light blue btn-flat"
                 , onClick Msg.NavigateSpectate
@@ -26,21 +24,24 @@ pitching word1 word2 pitchStatus model =
                 ]
             ]
         , div
-            [ class "container pitching"
-            , onClick ( Msg.RevealCard word1 word2 pitchStatus )
-            ]
-            [ row
-                [ col "m6 s12"
-                    [ wordDisplay word1 ( pitchStatus /= NoCards ) ]
-                , col "m6 s12"
-                    [ wordDisplay word2 ( pitchStatus == TwoCards ) ]
+            []
+            [ div
+                [ class "container pitching"
+                , onClick ( Msg.RevealCard word1 word2 pitchStatus )
                 ]
-            , row
-                [ col "m6 s12 push-m6"
-                    [ pitchCta word1 word2 pitchStatus ]
+                [ row
+                    [ col "m6 s12"
+                        [ wordDisplay word1 ( pitchStatus /= NoCards ) ]
+                    , col "m6 s12"
+                        [ wordDisplay word2 ( pitchStatus == TwoCards ) ]
+                    ]
+                , row
+                    [ col "m6 s12 push-m6"
+                        [ pitchCta word1 word2 pitchStatus ]
+                    ]
                 ]
             ]
-        ]
+        )
 
 wordDisplay : String -> Bool -> Html Msg
 wordDisplay word show =

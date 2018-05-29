@@ -8,10 +8,9 @@ import Msg exposing (Msg)
 import Views.Utils exposing (container, row, col, card, gameNav, lis, icon, resumeGameIfItExists)
 
 
-error : List String -> Model -> Html Msg
+error : List String -> Model -> ( List ( Html Msg ), Html Msg )
 error errs model =
-    div
-        []
+    (
         [ gameNav
             [ button
                 [ class "waves-effect waves-light btn green"
@@ -22,7 +21,10 @@ error errs model =
                 ]
             , resumeGameIfItExists model
             ]
-        , container "error"
+        ]
+    , div
+        []
+        [ container "error"
             [ row
                 [ col "s12"
                     [ card
@@ -37,3 +39,4 @@ error errs model =
                 ]
             ]
         ]
+    )
