@@ -11,17 +11,15 @@ import Views.Utils exposing (container, row, col, card, icon, gameNav)
 
 welcome : Model -> ( List ( Html Msg ), Html Msg )
 welcome model =
-    if model.backendAwake then
-        awake model.time model.savedGames
-    else
-        asleep
+    awake model.time model.savedGames model.backendAwake
 
-awake : Time -> List SavedGame -> ( List ( Html Msg ), Html Msg )
-awake now savedGames =
+awake : Time -> List SavedGame -> Bool -> ( List ( Html Msg ), Html Msg )
+awake now savedGames isAwake =
     ( []
     , div
         []
-        [ container "welcome"
+        [ shroudIfAsleep isAwake
+        , container "welcome"
             [ savedGamesBlock now savedGames
             , row
                 [ col "s12 m6 center-align"
@@ -120,12 +118,11 @@ savedGameBlock now game =
             ]
 
 
-asleep : ( List ( Html Msg ), Html Msg )
-asleep =
-    ( []
-    , div
-        []
-        [ container "welcome"
+shroudIfAsleep : Bool -> Html Msg
+shroudIfAsleep isAwake =
+    if isAwake then
+        div
+            [ class "shroud" ]
             [ text "Loading backend" ]
-        ]
-    )
+    else
+        text ""

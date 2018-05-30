@@ -12,6 +12,31 @@ main {
     flex: 1 0 auto;
 }
 
+/*
+full modal shroud
+clipped for non-ie to show header and footer
+animate opacity
+thing within modal shroud that shows stanley and an appropriate loading message
+ ^- box / circle?
+
+         ,  '
+       /      \
+ _____|   S    |______
+|      `      '       |
+|       MESSAGE       |
+|_____________________|
+*/
+
+.shroud {
+    position: absolute;
+    top: 0px;
+    height: 100%;
+    width: 100%;
+    background-color: #ffffff;
+    z-index: 10;
+    clip: rect(72px, 0, 100px, 0px);
+}
+
 .game-nav {
     background-color: #eeeeee;
     padding: 4px 0 6px 0;
