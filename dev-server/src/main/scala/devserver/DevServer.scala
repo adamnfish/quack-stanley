@@ -6,6 +6,7 @@ import devserver.ApiService.devQuackStanley
 import io.circe.Json
 import lol.http._
 import lol.json._
+import concurrent.duration._
 
 
 object DevServer extends LazyLogging {
@@ -19,6 +20,7 @@ object DevServer extends LazyLogging {
         for {
           json <- request.readAs[Json]
           statusAndResponse <- IO.fromFuture(IO(devQuackStanley(json)))
+          _ <- IO.sleep(2.seconds)
           (statusCode, responseBody) = statusAndResponse
         } yield Response(statusCode, Content.of(responseBody))
 
