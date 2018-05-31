@@ -2,7 +2,6 @@ module Views.Main exposing (pageTemplate)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
 import Views.Utils exposing (gameNav, icon)
@@ -41,8 +40,11 @@ pageTemplate view model =
                 []
                 [ content ]
             , footer
-                [ class ( "page-footer " ++ ( lifecycleTheme model.lifecycle ) ) ]
-                [ ]
+                [ class "page-footer" ]
+                [ div
+                    [ class ( "footer-color " ++ ( lifecycleTheme model.lifecycle ) ) ]
+                    []
+                ]
             ]
 
 lifecycleTheme : Lifecycle -> String

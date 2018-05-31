@@ -12,33 +12,46 @@ main {
     flex: 1 0 auto;
 }
 
-/*
-full modal shroud
-clipped for non-ie to show header and footer
-animate opacity
-thing within modal shroud that shows stanley and an appropriate loading message
- ^- box / circle?
+/* CHROME */
 
-         ,  '
-       /      \
- _____|   S    |______
-|      `      '       |
-|       MESSAGE       |
-|_____________________|
-*/
+nav {
+    position: fixed;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    height: 28px;
+}
 
-.shroud {
+.nav-wrapper {
+    position: relative;
+}
+
+#logo-container {
     position: absolute;
-    top: 0px;
-    height: 100%;
-    width: 100%;
-    background-color: #ffffff;
     z-index: 10;
-    clip: rect(72px, 0, 100px, 0px);
+    top: 3px;
+    right: 0;
+    height: 80px;
+    border-radius: 40px;
+    border: solid 1px #fff;
+    overflow: hidden;
+}
+
+.footer-color {
+    position: fixed;
+    z-index: 3;
+    height: 20px;
+    width: 100%;
+    bottom: 0;
+}
+
+nav, .footer-color, #logo-container {
+    transition: background .3s ease-in;
 }
 
 .game-nav {
     background-color: #eeeeee;
+    margin-top: 28px;
     padding: 4px 0 6px 0;
     height: 47px;
     border-bottom: solid 1px #cccccc;
@@ -48,6 +61,13 @@ thing within modal shroud that shows stanley and an appropriate loading message
 .row {
     margin-bottom: 0px;
 }
+
+.elm-overlay {
+    /* lest fixed footer / shroud cause problems in dev-mode */
+    z-index: 5;
+}
+
+/* FRAMEWORK ADJUSTMENTS */
 
 .btn {
   overflow: hidden;
@@ -82,28 +102,6 @@ thing within modal shroud that shows stanley and an appropriate loading message
     z-index: -1;
 }
 
-nav {
-    height: 28px;
-}
-
-.nav-wrapper {
-    position: relative;
-}
-
-#logo-container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 80px;
-    border-radius: 40px;
-    border: solid 1px #fff;
-    overflow: hidden;
-}
-
-nav, footer, #logo-container {
-    transition: background .3s ease-in;
-}
-
 .a--footer {
     font-weight: bold;
     text-decoration: underline;
@@ -118,6 +116,60 @@ nav, footer, #logo-container {
 .cta__button {
     width: 100%;
 }
+
+/* INFO SHROUD
+TODO: stanley in a breakout bulge
+argument for "mode"
+loading / error / ?
+
+         ,  '
+       /      \
+ _____|   S    |______
+|      `      '       |
+|       MESSAGE       |
+|_____________________|
+*/
+
+.shroud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.message-box__container {
+    margin: auto;
+    width: 75%;
+    padding: 10px;
+    border-radius: 2px;
+    background-color: #ffffff;
+}
+
+@media only screen and (max-width: 600px) {
+    .message-box__container {
+        padding: 10px 10px;
+        width: 85%;
+    }
+}
+
+.message-box {
+    padding: 35px 25px;
+    text-align: center;
+    background-color: #ffffff;
+    border: solid 1px #cccccc;
+    border-radius: 2px;
+    text-shadow: 1px 1px #cccccc;
+    color: #555555;
+    font-size: 2rem;
+}
+
+/* PAGE ELEMENTS */
 
 .rejoin--close {
     transform: rotate(0deg);

@@ -1,7 +1,7 @@
 module Views.Utils exposing
     ( lis, icon, plural, friendlyError, resumeGameIfItExists
     , container, row, col, card, gameNav, stripMargin, multiLineText
-    , textInput
+    , textInput, shroud
     )
 
 import Html exposing (Html, Attribute, div, text, button, input, label, li, i)
@@ -119,3 +119,15 @@ textInput elementLabel elementId value attrs =
                 ]
                 [ text elementLabel ]
             ]
+
+shroud : List ( Html Msg ) -> Html Msg
+shroud contents =
+    div
+        [ class "shroud" ]
+        [ div
+            [ class "message-box__container" ]
+            [ div
+                [ class "message-box" ]
+                contents
+            ]
+        ]
