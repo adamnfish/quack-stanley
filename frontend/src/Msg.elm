@@ -88,13 +88,29 @@ update msg model =
             ( { model | savedGames = games }, Cmd.none )
 
         CreatingNewGame gameName screenName ->
-            ( { model | lifecycle = Create gameName screenName }, Cmd.none )
+            let
+                createState =
+                    { gameName = gameName
+                    , screenName = screenName
+                    , loading = False
+                    , errors = []
+                    }
+            in
+                ( { model | lifecycle = Create createState }
+                , Cmd.none
+                )
         CreateNewGame gameName screenName ->
-            ( { model | lifecycle = Creating gameName screenName
-                      , isCreator = True
-                      }
-            , createGame gameName screenName
-            )
+            let
+                createState =
+                    { gameName = gameName
+                    , screenName = screenName
+                    , loading = True
+                    , errors = []
+                    }
+            in
+                ( { model | lifecycle = Create createState }
+                , createGame gameName screenName
+                )
 
         JoiningGame gameId screenName ->
             ( { model | lifecycle = Join gameId screenName }, Cmd.none )
@@ -105,16 +121,23 @@ update msg model =
             , joinGame gameId screenName
             )
 
-        CreatedGame gameName screenName ( ApiErr err ) ->
-            ( { model | lifecycle = Create gameName screenName
-                      , errs = List.map .message err
-              }
-            , Cmd.none
-            )
+        CreatedGame gameName screenName ( ApiErr errs ) ->
+            let
+                createState =
+                    { gameName = gameName
+                    , screenName = screenName
+                    , loading = False
+                    , errors = errs
+                    }
+            in
+                ( { model | lifecycle = Create createState }
+                , Cmd.none
+                )
         CreatedGame _ _ ( ApiOk newGame ) ->
             ( { model | lifecycle = CreatorWaiting newGame.gameCode
                       , playerKey = Just newGame.playerKey
                       , state = Just newGame.state
+                      , isCreator = True
                       }
             , Cmd.none
             )

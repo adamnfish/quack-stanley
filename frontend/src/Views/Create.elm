@@ -3,13 +3,13 @@ module Views.Create exposing (create)
 import Html exposing (Html, div, ul, li, text, button, form)
 import Html.Attributes exposing (id, class, classList, placeholder, for)
 import Html.Events exposing (onClick, onSubmit, onInput)
-import Model exposing (Model, Lifecycle (..))
+import Model exposing (Model, ApiError, Lifecycle (..))
 import Msg exposing (Msg)
 import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput, shroud)
 
 
-create : Bool -> String -> String -> Model -> ( List ( Html Msg ), Html Msg )
-create loading gameName screenName model =
+create : Bool -> String -> String -> List ApiError -> Model -> ( List ( Html Msg ), Html Msg )
+create loading gameName screenName errors model =
     (
         [ button
             [ class "waves-effect waves-light btn green"
@@ -26,7 +26,7 @@ create loading gameName screenName model =
             [ row
                 [ col "col s12"
                     [ card
-                        [ showErrors model
+                        [ showErrors errors
                         , form
                             [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
                             [ textInput "Game name" "create-game-input" gameName
@@ -54,11 +54,11 @@ shroudIfLoading loading =
     else
         text ""
 
-showErrors : Model -> Html Msg
-showErrors model =
-    if List.isEmpty model.errs then
+showErrors : List ApiError -> Html Msg
+showErrors errors =
+    if List.isEmpty errors then
         text ""
     else
         ul
             []
-            ( List.map (\msg -> li [][ text msg ]) model.errs )
+            ( List.map (\err -> li [][ text err.message ]) errors )

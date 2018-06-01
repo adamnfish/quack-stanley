@@ -52,9 +52,7 @@ lifecycleTheme lifecycle =
     case lifecycle of
         Welcome ->
             "green"
-        Create _ _ ->
-            "teal"
-        Creating _ _ ->
+        Create _ ->
             "teal"
         CreatorWaiting _ ->
             "teal"

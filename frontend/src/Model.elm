@@ -7,10 +7,8 @@ import Time exposing (Time)
 
 type Lifecycle
     = Welcome               -- initial screen (backend awake)
-    | Create                -- create new game (gameName, screenName)
-        String String
-    | Creating              -- waiting for API to confirm creation
-        String String
+    | Create                -- create new game (gameName, screenName, loading)
+        CreateState
     | CreatorWaiting        -- waiting for game to start (will have game and screen name)
         String
     | Join                  -- join existing game (gameId, screenName)
@@ -54,10 +52,19 @@ type alias Model =
     , errs : List String
     }
 
+-- Lifecycles
+
 type PitchStatus
     = NoCards
     | OneCard
     | TwoCards
+
+type alias CreateState =
+    { gameName : String
+    , screenName : String
+    , loading : Bool
+    , errors : List ApiError
+    }
 
 -- Persistence
 

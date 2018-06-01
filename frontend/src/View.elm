@@ -24,10 +24,8 @@ view model =
         Welcome ->
             welcome model
 
-        Create gameName screenName ->
-            create False gameName screenName model
-        Creating gameName screenName ->
-            create True gameName screenName model
+        Create createState ->
+            create createState.loading createState.gameName createState.screenName createState.errors model
 
         Join gameCode screenName ->
             join gameCode screenName model
