@@ -10,6 +10,7 @@ type Lifecycle
     | Create                -- create new game (gameName, screenName)
         String String
     | Creating              -- waiting for API to confirm creation
+        String String
     | CreatorWaiting        -- waiting for game to start (will have game and screen name)
         String
     | Join                  -- join existing game (gameId, screenName)

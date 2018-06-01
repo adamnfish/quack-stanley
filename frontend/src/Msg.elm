@@ -25,7 +25,7 @@ type Msg
     | JoinGame
         String String
     | CreatedGame
-        ( ApiResponse NewGame )
+        String String ( ApiResponse NewGame )
     | JoinedGame
         ( ApiResponse Registered )
     | RejoinGame
@@ -90,7 +90,7 @@ update msg model =
         CreatingNewGame gameName screenName ->
             ( { model | lifecycle = Create gameName screenName }, Cmd.none )
         CreateNewGame gameName screenName ->
-            ( { model | lifecycle = Creating
+            ( { model | lifecycle = Creating gameName screenName
                       , isCreator = True
                       }
             , createGame gameName screenName
@@ -105,9 +105,13 @@ update msg model =
             , joinGame gameId screenName
             )
 
-        CreatedGame ( ApiErr err ) ->
-            ( { model | lifecycle = Error ( List.map .message err ) }, Cmd.none )
-        CreatedGame ( ApiOk newGame ) ->
+        CreatedGame gameName screenName ( ApiErr err ) ->
+            ( { model | lifecycle = Create gameName screenName
+                      , errs = List.map .message err
+              }
+            , Cmd.none
+            )
+        CreatedGame _ _ ( ApiOk newGame ) ->
             ( { model | lifecycle = CreatorWaiting newGame.gameCode
                       , playerKey = Just newGame.playerKey
                       , state = Just newGame.state
@@ -327,7 +331,7 @@ wakeServer =
 
 createGame : String -> String -> Cmd Msg
 createGame gameName screenName =
-    sendApiCall CreatedGame ( createGameRequest gameName screenName )
+    sendApiCall ( CreatedGame gameName screenName ) ( createGameRequest gameName screenName )
 
 joinGame : String -> String -> Cmd Msg
 joinGame gameId screenName =

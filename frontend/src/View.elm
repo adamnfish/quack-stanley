@@ -25,9 +25,9 @@ view model =
             welcome model
 
         Create gameName screenName ->
-            create gameName screenName model
-        Creating ->
-            message "Creating game..." model
+            create False gameName screenName model
+        Creating gameName screenName ->
+            create True gameName screenName model
 
         Join gameCode screenName ->
             join gameCode screenName model
