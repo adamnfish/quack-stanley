@@ -11,16 +11,14 @@ import Views.Utils exposing (container, row, col, card, gameNav, lis, icon, resu
 error : List String -> Model -> ( List ( Html Msg ), Html Msg )
 error errs model =
     (
-        [ gameNav
-            [ button
-                [ class "waves-effect waves-light btn green"
-                , onClick Msg.NavigateHome
-                ]
-                [ icon "navigate_before" "left"
-                , text "home"
-                ]
-            , resumeGameIfItExists model
+        [ button
+            [ class "waves-effect waves-light btn green"
+            , onClick Msg.NavigateHome
             ]
+            [ icon "navigate_before" "left"
+            , text "home"
+            ]
+        , resumeGameIfItExists model
         ]
     , div
         []
