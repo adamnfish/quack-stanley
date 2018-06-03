@@ -138,17 +138,24 @@ loading / error / ?
     width: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+}
+
+.shroud.hidden {
+    display: none;
 }
 
 .message-box__container {
     margin: auto;
-    width: 75%;
+    margin-top: 15px;
+    width: 55%;
     padding: 10px;
     border-radius: 2px;
     background-color: #ffffff;
+    transition: margin-top 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.message-box__container.hidden {
+    margin-top: -200px;
 }
 
 @media only screen and (max-width: 600px) {
@@ -159,6 +166,7 @@ loading / error / ?
 }
 
 .message-box {
+    min-height: 150px;
     padding: 35px 25px;
     text-align: center;
     background-color: #ffffff;

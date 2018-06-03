@@ -1,7 +1,7 @@
 module Views.Utils exposing
     ( lis, icon, plural, friendlyError, resumeGameIfItExists
     , container, row, col, card, gameNav, stripMargin, multiLineText
-    , textInput, shroud
+    , textInput, shroud, empty, ShroudContent (..)
     )
 
 import Html exposing (Html, Attribute, div, text, button, input, label, li, i)
@@ -10,6 +10,10 @@ import Html.Events exposing (onClick, onSubmit, onInput)
 import Msg exposing (Msg)
 import Model exposing (Model)
 
+
+empty : Html Msg
+empty =
+    text ""
 
 friendlyError : Model -> Html Msg
 friendlyError model =
@@ -120,14 +124,40 @@ textInput elementLabel elementId value attrs =
                 [ text elementLabel ]
             ]
 
-shroud : List ( Html Msg ) -> Html Msg
-shroud contents =
+shroudMarkup : List ( Html Msg ) -> Bool -> Html Msg
+shroudMarkup contents visible =
     div
-        [ class "shroud" ]
+        [ classList
+            [ ( "shroud", True )
+            , ( "hidden", not visible )
+            ]
+        ]
         [ div
-            [ class "message-box__container" ]
+            [ classList
+                [ ( "message-box__container", True )
+                , ( "hidden", not visible )
+                ]
+            ]
             [ div
                 [ class "message-box" ]
                 contents
             ]
         ]
+
+shroud : ShroudContent -> Html Msg
+shroud shroudContent =
+    case shroudContent of
+        LoadingMessage visible content ->
+            if visible then
+                shroudMarkup content visible
+            else
+                shroudMarkup [ empty ] visible
+        ErrorMessage visible content ->
+            if visible then
+                shroudMarkup content visible
+            else
+                shroudMarkup [ empty ] visible
+
+type ShroudContent
+    = LoadingMessage Bool ( List ( Html Msg ) )
+    | ErrorMessage Bool ( List ( Html Msg ) )

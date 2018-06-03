@@ -6,7 +6,7 @@ import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, SavedGame, Lifecycle (..))
 import Msg exposing (Msg)
 import Time exposing (Time)
-import Views.Utils exposing (container, row, col, card, icon, gameNav, shroud)
+import Views.Utils exposing (container, row, col, card, icon, gameNav, shroud, ShroudContent (..))
 
 
 welcome : Model -> ( List ( Html Msg ), Html Msg )
@@ -18,7 +18,7 @@ awake now savedGames isAwake =
     ( []
     , div
         []
-        [ shroudIfAsleep isAwake
+        [ shroud ( LoadingMessage ( not isAwake ) [ text "Waking server" ] )
         , container "welcome"
             [ savedGamesBlock now savedGames
             , row
@@ -116,12 +116,3 @@ savedGameBlock now game =
                     ]
                 ]
             ]
-
-
-shroudIfAsleep : Bool -> Html Msg
-shroudIfAsleep isAwake =
-    if isAwake then
-        text ""
-    else
-        shroud
-            [ text "Loading backend" ]

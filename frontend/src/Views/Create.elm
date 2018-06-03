@@ -5,7 +5,7 @@ import Html.Attributes exposing (id, class, classList, placeholder, for)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, ApiError, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput, shroud)
+import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput, shroud, ShroudContent (..))
 
 
 create : Bool -> String -> String -> List ApiError -> Model -> ( List ( Html Msg ), Html Msg )
@@ -21,7 +21,7 @@ create loading gameName screenName errors model =
         ]
     , div
         []
-        [ shroudIfLoading loading
+        [ shroud ( LoadingMessage loading ( [ text "Creating game" ] ) )
         , container "create"
             [ row
                 [ col "col s12"
@@ -34,10 +34,10 @@ create loading gameName screenName errors model =
                             , textInput "Player name" "player-name-input" screenName
                                 [ onInput ( \val -> Msg.CreatingNewGame gameName val ) ]
                             , button
-                                  [ class "waves-effect waves-light teal btn btn-large" ]
-                                  [ text "Create game"
-                                  , icon "gamepad" "right"
-                                  ]
+                                [ class "waves-effect waves-light teal btn btn-large" ]
+                                [ text "Create game"
+                                , icon "gamepad" "right"
+                                ]
                             ]
                         ]
                     ]
@@ -45,14 +45,6 @@ create loading gameName screenName errors model =
             ]
         ]
     )
-
-shroudIfLoading : Bool -> Html Msg
-shroudIfLoading loading =
-    if loading then
-        shroud
-            [ text "Creating game" ]
-    else
-        text ""
 
 showErrors : List ApiError -> Html Msg
 showErrors errors =
