@@ -2,13 +2,14 @@ module Views.Utils exposing
     ( lis, icon, plural, friendlyError, resumeGameIfItExists
     , container, row, col, card, gameNav, stripMargin, multiLineText
     , textInput, shroud, empty, ShroudContent (..)
+    , errorsForField, errorsExcludingField, nonFieldErrors, showErrors
     )
 
-import Html exposing (Html, Attribute, div, text, button, input, label, li, i)
+import Html exposing (Html, Attribute, div, text, button, input, label, li, i, span)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Msg exposing (Msg)
-import Model exposing (Model)
+import Model exposing (Model, ApiError)
 
 
 empty : Html Msg
@@ -107,10 +108,13 @@ stripMargin str =
 multiLineText : String -> Html Msg
 multiLineText str = text ( stripMargin str )
 
-textInput : String -> String -> String -> List ( Attribute Msg ) -> Html Msg
-textInput elementLabel elementId value attrs =
+textInput : String -> String -> String -> List ApiError -> List ( Attribute Msg ) -> Html Msg
+textInput elementLabel elementName value errors attrs =
     let
-        fixedAttrs = [ id elementId, type_ "text" ]
+        showError = not ( List.isEmpty errors )
+        elementId = elementName ++ "-id"
+        fixedAttrs = [ id elementId, name elementName, type_ "text", classList [ ( "invalid", showError ) ] ]
+        errMessages = String.concat ( List.intersperse ", " ( List.map .message errors ) )
     in
         div
             [ class "input-field" ]
@@ -122,6 +126,11 @@ textInput elementLabel elementId value attrs =
                 , classList [ ("active", not ( String.isEmpty value )) ]
                 ]
                 [ text elementLabel ]
+            , span
+                [ class "helper-text"
+                , attribute "data-error" errMessages
+                ]
+                []
             ]
 
 shroudMarkup : List ( Html Msg ) -> Bool -> Html Msg
@@ -164,3 +173,31 @@ type ShroudContent
     = LoadingMessage Bool ( List ( Html Msg ) )
     | ErrorMessage Bool ( List ( Html Msg ) )
     | NoLoadingShroud
+
+
+errorsForField : String -> List ApiError -> List ApiError
+errorsForField field errors =
+    List.filter
+        ( .context >> Maybe.withDefault "" >> ( (==) field ) )
+        errors
+
+errorsExcludingField : String -> List ApiError -> List ApiError
+errorsExcludingField field errors =
+    List.filter
+        ( .context >> Maybe.withDefault "" >> ( (/=) field ) )
+        errors
+
+nonFieldErrors : List String -> List ApiError -> List ApiError
+nonFieldErrors fields errors =
+    List.filter
+        ( .context >> Maybe.withDefault "" >> ( flip List.member fields ) >> not )
+        errors
+
+showErrors : List ApiError -> Html Msg
+showErrors errors =
+    if List.isEmpty errors then
+        text ""
+    else
+        div
+            [ class "card-panel red lighten-4" ]
+            [ text ( String.concat ( List.intersperse ", " ( List.map .message errors ) ) ) ]

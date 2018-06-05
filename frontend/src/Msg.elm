@@ -2,7 +2,7 @@ module Msg exposing (Msg (..), update, wakeServer)
 
 import Api.Api exposing (sendApiCall)
 import Api.Requests exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
-import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..), ApiResponse (..))
+import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..), ApiResponse (..), ApiError)
 import Time exposing (Time)
 import Ports exposing (fetchSavedGames, saveGame, removeSavedGame)
 
@@ -17,7 +17,7 @@ type Msg
     | NavigateHome
     | NavigateSpectate
     | CreatingNewGame
-        String String
+        String String ( List ApiError )
     | CreateNewGame
         String String
     | JoiningGame
@@ -87,13 +87,13 @@ update msg model =
         LoadedGames games ->
             ( { model | savedGames = games }, Cmd.none )
 
-        CreatingNewGame gameName screenName ->
+        CreatingNewGame gameName screenName errs ->
             let
                 createState =
                     { gameName = gameName
                     , screenName = screenName
                     , loading = False
-                    , errors = []
+                    , errors = errs
                     }
             in
                 ( { model | lifecycle = Create createState }

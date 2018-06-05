@@ -26,7 +26,7 @@ awake now savedGames isAwake =
                     [ card
                         [ button
                             [ class "waves-effect waves-light btn btn-large teal cta__button"
-                            , onClick ( Msg.CreatingNewGame "" "" )
+                            , onClick ( Msg.CreatingNewGame "" "" [] )
                             ]
                             [ text "Create game"
                             , icon "gamepad" "right"

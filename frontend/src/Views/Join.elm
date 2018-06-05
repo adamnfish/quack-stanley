@@ -28,9 +28,9 @@ join gameCode screenName model =
                     [ card
                         [ form
                             [ onSubmit ( Msg.JoinGame gameCode screenName ) ]
-                            [ textInput "Game code" "game-code-input" gameCode
+                            [ textInput "Game code" "game-code" gameCode []
                                 [ onInput ( \val -> Msg.JoiningGame val screenName ) ]
-                            , textInput "Player name" "player-name-input" screenName
+                            , textInput "Player name" "player-name" screenName []
                                 [ onInput ( \val -> Msg.JoiningGame gameCode val ) ]
                             , button
                                 [ class "waves-effect waves-light cyan btn btn-large" ]
