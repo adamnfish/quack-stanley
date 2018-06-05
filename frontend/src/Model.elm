@@ -12,8 +12,7 @@ type Lifecycle
     | CreatorWaiting        -- waiting for game to start (will have game and screen name)
         String
     | Join                  -- join existing game (gameId, screenName)
-        String String
-    | Joining               -- waiting for API to confirm game entry
+        JoinState
     | Waiting               -- waiting for game to start (will have game and screen name)
     | Rejoining             -- reconnecting to a game (will have game and screen name)
     | Starting              -- triggered game start, waiting for API to complete
@@ -61,6 +60,13 @@ type PitchStatus
 
 type alias CreateState =
     { gameName : String
+    , screenName : String
+    , loading : Bool
+    , errors : List ApiError
+    }
+
+type alias JoinState =
+    { gameCode : String
     , screenName : String
     , loading : Bool
     , errors : List ApiError

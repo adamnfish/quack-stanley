@@ -28,10 +28,8 @@ view model =
         Create createState ->
             create createState.loading createState.gameName createState.screenName createState.errors model
 
-        Join gameCode screenName ->
-            join gameCode screenName model
-        Joining ->
-            message "Joining game..." model
+        Join joinState ->
+            join joinState.loading joinState.gameCode joinState.screenName joinState.errors model
 
         Waiting ->
             waiting model

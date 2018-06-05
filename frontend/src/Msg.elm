@@ -21,13 +21,13 @@ type Msg
     | CreateNewGame
         String String
     | JoiningGame
-        String String
+        String String ( List ApiError )
     | JoinGame
         String String
     | CreatedGame
         String String ( ApiResponse NewGame )
     | JoinedGame
-        ( ApiResponse Registered )
+        String String ( ApiResponse Registered )
     | RejoinGame
         SavedGame
     | RemoveSavedGame
@@ -112,14 +112,30 @@ update msg model =
                 , createGame gameName screenName
                 )
 
-        JoiningGame gameId screenName ->
-            ( { model | lifecycle = Join gameId screenName }, Cmd.none )
-        JoinGame gameId screenName->
-            ( { model | lifecycle = Joining
-                      , isCreator = False
-                      }
-            , joinGame gameId screenName
-            )
+        JoiningGame gameId screenName errs ->
+            let
+                joinState =
+                    { gameCode = gameId
+                    , screenName = screenName
+                    , loading = False
+                    , errors = errs
+                    }
+            in
+                ( { model | lifecycle = Join joinState }
+                , Cmd.none
+                )
+        JoinGame gameId screenName ->
+            let
+                joinState =
+                    { gameCode = gameId
+                    , screenName = screenName
+                    , loading = True
+                    , errors = []
+                    }
+            in
+                ( { model | lifecycle = Join joinState }
+                , joinGame gameId screenName
+                )
 
         CreatedGame gameName screenName ( ApiErr errs ) ->
             let
@@ -141,12 +157,23 @@ update msg model =
                       }
             , Cmd.none
             )
-        JoinedGame ( ApiErr err ) ->
-            ( { model | lifecycle = Error ( List.map .message err ) }, Cmd.none )
-        JoinedGame ( ApiOk registered ) ->
+        JoinedGame gameCode screenName ( ApiErr errs ) ->
+            let
+                joinState =
+                    { gameCode = gameCode
+                    , screenName = screenName
+                    , loading = False
+                    , errors = errs
+                    }
+            in
+                ( { model | lifecycle = Join joinState }
+                , Cmd.none
+                )
+        JoinedGame _ _ ( ApiOk registered ) ->
             ( { model | lifecycle = Waiting
                       , playerKey = Just registered.playerKey
                       , state = Just registered.state
+                      , isCreator = False
                       }
             , Cmd.none
             )
@@ -357,8 +384,8 @@ createGame gameName screenName =
     sendApiCall ( CreatedGame gameName screenName ) ( createGameRequest gameName screenName )
 
 joinGame : String -> String -> Cmd Msg
-joinGame gameId screenName =
-    sendApiCall JoinedGame ( joinGameRequest gameId screenName )
+joinGame gameCode screenName =
+    sendApiCall ( JoinedGame gameCode screenName ) ( joinGameRequest gameCode screenName )
 
 startGame : String -> String -> Cmd Msg
 startGame gameId playerKey =
