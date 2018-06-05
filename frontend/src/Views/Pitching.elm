@@ -5,10 +5,10 @@ import Html.Attributes exposing (class, classList, placeholder, disabled)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..), PitchStatus (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, lis, icon)
+import Views.Utils exposing (container, row, col, card, gameNav, lis, icon, ShroudContent (..))
 
 
-pitching : String -> String -> PitchStatus -> Model -> ( List ( Html Msg ), Html Msg )
+pitching : String -> String -> PitchStatus -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 pitching word1 word2 pitchStatus model =
     let
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
@@ -23,6 +23,7 @@ pitching word1 word2 pitchStatus model =
                 , text "cancel pitch"
                 ]
             ]
+        , NoLoadingShroud
         , div
             []
             [ div

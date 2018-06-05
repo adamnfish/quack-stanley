@@ -5,10 +5,10 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput)
+import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput, ShroudContent (..))
 
 
-join : String -> String -> Model -> ( List ( Html Msg ), Html Msg )
+join : String -> String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 join gameCode screenName model =
     (
         [ button
@@ -19,6 +19,7 @@ join gameCode screenName model =
             , text "back"
             ]
         ]
+    , NoLoadingShroud
     , div
         []
         [ container "join"

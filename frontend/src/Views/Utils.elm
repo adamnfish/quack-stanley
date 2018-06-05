@@ -157,7 +157,10 @@ shroud shroudContent =
                 shroudMarkup content visible
             else
                 shroudMarkup [ empty ] visible
+        NoLoadingShroud ->
+            shroudMarkup [ empty ] False
 
 type ShroudContent
     = LoadingMessage Bool ( List ( Html Msg ) )
     | ErrorMessage Bool ( List ( Html Msg ) )
+    | NoLoadingShroud

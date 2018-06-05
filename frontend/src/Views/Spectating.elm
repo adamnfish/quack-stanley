@@ -5,10 +5,10 @@ import Html.Attributes exposing (class, classList, placeholder, disabled, attrib
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, plural, icon, friendlyError)
+import Views.Utils exposing (container, row, col, card, gameNav, plural, icon, friendlyError, ShroudContent (..))
 
 
-spectating : List String -> Model -> ( List ( Html Msg ), Html Msg )
+spectating : List String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 spectating selected model =
     let
         hand = Maybe.withDefault [] ( Maybe.map .hand model.state )
@@ -17,6 +17,7 @@ spectating selected model =
         points = Maybe.withDefault [] ( Maybe.map .points model.state )
     in
         ( []
+        , NoLoadingShroud
         , div
             []
             [ container "spectating"

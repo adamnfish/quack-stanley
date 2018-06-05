@@ -4,15 +4,16 @@ import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, id, placeholder, value, type_, disabled, for)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon)
+import Views.Utils exposing (container, gameNav, row, col, card, icon, ShroudContent (..))
 
 
-waiting : Model -> ( List ( Html Msg ), Html Msg )
+waiting : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 waiting model =
     let
         gameName = Maybe.withDefault "Game name not found" ( Maybe.map .gameName model.state )
     in
         ( []
+        , NoLoadingShroud
         , div
             []
             [ container "waiting"

@@ -8,7 +8,7 @@ import Msg exposing (Msg)
 import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput, shroud, ShroudContent (..))
 
 
-create : Bool -> String -> String -> List ApiError -> Model -> ( List ( Html Msg ), Html Msg )
+create : Bool -> String -> String -> List ApiError -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 create loading gameName screenName errors model =
     (
         [ button
@@ -19,10 +19,10 @@ create loading gameName screenName errors model =
             , text "back"
             ]
         ]
+    , LoadingMessage loading ( [ text "Creating game" ] )
     , div
         []
-        [ shroud ( LoadingMessage loading ( [ text "Creating game" ] ) )
-        , container "create"
+        [ container "create"
             [ row
                 [ col "col s12"
                     [ card

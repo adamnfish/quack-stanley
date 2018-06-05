@@ -5,12 +5,13 @@ import Html.Attributes exposing (class, id, placeholder, value, type_, disabled,
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon)
+import Views.Utils exposing (container, gameNav, row, col, card, icon, ShroudContent (..))
 
 
-creatorWaiting : String -> Model -> ( List ( Html Msg ), Html Msg )
+creatorWaiting : String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 creatorWaiting gameCode model =
     ( []
+    , NoLoadingShroud
     , div
         []
         [ container "creator-waiting"

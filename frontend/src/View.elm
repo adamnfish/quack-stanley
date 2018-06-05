@@ -16,9 +16,10 @@ import Views.Spectating exposing (spectating)
 import Views.Pitching exposing (pitching)
 import Views.Buying exposing (buying)
 import Views.AwardingPoint exposing (awardingPoint)
+import Views.Utils exposing (ShroudContent (..))
 
 
-view : Model -> ( List ( Html Msg ), Html Msg )
+view : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 view model =
     case model.lifecycle of
         Welcome ->

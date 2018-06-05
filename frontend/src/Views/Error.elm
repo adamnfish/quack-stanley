@@ -5,10 +5,10 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, lis, icon, resumeGameIfItExists)
+import Views.Utils exposing (container, row, col, card, gameNav, lis, icon, resumeGameIfItExists, ShroudContent (..))
 
 
-error : List String -> Model -> ( List ( Html Msg ), Html Msg )
+error : List String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 error errs model =
     (
         [ button
@@ -20,6 +20,7 @@ error errs model =
             ]
         , resumeGameIfItExists model
         ]
+    , NoLoadingShroud
     , div
         []
         [ container "error"

@@ -4,13 +4,13 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (gameNav, icon)
+import Views.Utils exposing (gameNav, icon, shroud, ShroudContent (..))
 
 
-pageTemplate : (Model -> ( List ( Html Msg ), Html Msg ) ) -> Model -> Html Msg
+pageTemplate : (Model -> ( List ( Html Msg ), ShroudContent, Html Msg ) ) -> Model -> Html Msg
 pageTemplate view model =
     let
-        ( navButtons, content ) = view model
+        ( navButtons, shroudContent, content ) = view model
     in
         div
             [ id "app-root" ]
@@ -36,6 +36,7 @@ pageTemplate view model =
                     ]
                 ]
             , gameNav navButtons
+            , shroud shroudContent
             , main_
                 []
                 [ content ]

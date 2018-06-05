@@ -9,17 +9,17 @@ import Time exposing (Time)
 import Views.Utils exposing (container, row, col, card, icon, gameNav, shroud, ShroudContent (..))
 
 
-welcome : Model -> ( List ( Html Msg ), Html Msg )
+welcome : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 welcome model =
     awake model.time model.savedGames model.backendAwake
 
-awake : Time -> List SavedGame -> Bool -> ( List ( Html Msg ), Html Msg )
+awake : Time -> List SavedGame -> Bool -> ( List ( Html Msg ), ShroudContent, Html Msg )
 awake now savedGames isAwake =
     ( []
+    , LoadingMessage ( not isAwake ) [ text "Waking server" ]
     , div
         []
-        [ shroud ( LoadingMessage ( not isAwake ) [ text "Waking server" ] )
-        , container "welcome"
+        [ container "welcome"
             [ savedGamesBlock now savedGames
             , row
                 [ col "s12 m6 center-align"

@@ -3,12 +3,13 @@ module Views.AwardingPoint exposing (awardingPoint)
 import Html exposing (Html, div, text, button, ul, li, p, h2)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon)
+import Views.Utils exposing (container, gameNav, row, col, card, icon, ShroudContent (..))
 
 
-awardingPoint : String -> String -> Model -> ( List ( Html Msg ), Html Msg )
+awardingPoint : String -> String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 awardingPoint role playerName model =
     ( []
+    , NoLoadingShroud
     , div
         []
         [ container "awarding-point"

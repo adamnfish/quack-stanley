@@ -5,12 +5,13 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon)
+import Views.Utils exposing (container, gameNav, row, col, card, icon, ShroudContent (..))
 
 
-buying : String -> Model -> ( List ( Html Msg ), Html Msg )
+buying : String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 buying role model =
     ( []
+    , NoLoadingShroud
     , div
         []
         [ container "buying"
