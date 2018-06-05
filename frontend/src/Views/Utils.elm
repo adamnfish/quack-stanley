@@ -113,7 +113,13 @@ textInput elementLabel elementName value errors attrs =
     let
         showError = not ( List.isEmpty errors )
         elementId = elementName ++ "-id"
-        fixedAttrs = [ id elementId, name elementName, type_ "text", classList [ ( "invalid", showError ) ] ]
+        fixedAttrs =
+            [ id elementId
+            , name elementName
+            , type_ "text"
+            , autocomplete False
+            , classList [ ( "invalid", showError ) ]
+            ]
         errMessages = String.concat ( List.intersperse ", " ( List.map .message errors ) )
     in
         div
