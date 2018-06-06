@@ -2,7 +2,7 @@ module Msg exposing (Msg (..), update, wakeServer)
 
 import Api.Api exposing (sendApiCall)
 import Api.Requests exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
-import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..), ApiResponse (..))
+import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..), ApiResponse (..), ApiError)
 import Time exposing (Time)
 import Ports exposing (fetchSavedGames, saveGame, removeSavedGame)
 
@@ -17,17 +17,17 @@ type Msg
     | NavigateHome
     | NavigateSpectate
     | CreatingNewGame
-        String String
+        String String ( List ApiError )
     | CreateNewGame
         String String
     | JoiningGame
-        String String
+        String String ( List ApiError )
     | JoinGame
         String String
     | CreatedGame
-        ( ApiResponse NewGame )
+        String String ( ApiResponse NewGame )
     | JoinedGame
-        ( ApiResponse Registered )
+        String String ( ApiResponse Registered )
     | RejoinGame
         SavedGame
     | RemoveSavedGame
@@ -87,39 +87,93 @@ update msg model =
         LoadedGames games ->
             ( { model | savedGames = games }, Cmd.none )
 
-        CreatingNewGame gameName screenName ->
-            ( { model | lifecycle = Create gameName screenName }, Cmd.none )
+        CreatingNewGame gameName screenName errs ->
+            let
+                createState =
+                    { gameName = gameName
+                    , screenName = screenName
+                    , loading = False
+                    , errors = errs
+                    }
+            in
+                ( { model | lifecycle = Create createState }
+                , Cmd.none
+                )
         CreateNewGame gameName screenName ->
-            ( { model | lifecycle = Creating
-                      , isCreator = True
-                      }
-            , createGame gameName screenName
-            )
+            let
+                createState =
+                    { gameName = gameName
+                    , screenName = screenName
+                    , loading = True
+                    , errors = []
+                    }
+            in
+                ( { model | lifecycle = Create createState }
+                , createGame gameName screenName
+                )
 
-        JoiningGame gameId screenName ->
-            ( { model | lifecycle = Join gameId screenName }, Cmd.none )
-        JoinGame gameId screenName->
-            ( { model | lifecycle = Joining
-                      , isCreator = False
-                      }
-            , joinGame gameId screenName
-            )
+        JoiningGame gameId screenName errs ->
+            let
+                joinState =
+                    { gameCode = gameId
+                    , screenName = screenName
+                    , loading = False
+                    , errors = errs
+                    }
+            in
+                ( { model | lifecycle = Join joinState }
+                , Cmd.none
+                )
+        JoinGame gameId screenName ->
+            let
+                joinState =
+                    { gameCode = gameId
+                    , screenName = screenName
+                    , loading = True
+                    , errors = []
+                    }
+            in
+                ( { model | lifecycle = Join joinState }
+                , joinGame gameId screenName
+                )
 
-        CreatedGame ( ApiErr err ) ->
-            ( { model | lifecycle = Error ( List.map .message err ) }, Cmd.none )
-        CreatedGame ( ApiOk newGame ) ->
+        CreatedGame gameName screenName ( ApiErr errs ) ->
+            let
+                createState =
+                    { gameName = gameName
+                    , screenName = screenName
+                    , loading = False
+                    , errors = errs
+                    }
+            in
+                ( { model | lifecycle = Create createState }
+                , Cmd.none
+                )
+        CreatedGame _ _ ( ApiOk newGame ) ->
             ( { model | lifecycle = CreatorWaiting newGame.gameCode
                       , playerKey = Just newGame.playerKey
                       , state = Just newGame.state
+                      , isCreator = True
                       }
             , Cmd.none
             )
-        JoinedGame ( ApiErr err ) ->
-            ( { model | lifecycle = Error ( List.map .message err ) }, Cmd.none )
-        JoinedGame ( ApiOk registered ) ->
+        JoinedGame gameCode screenName ( ApiErr errs ) ->
+            let
+                joinState =
+                    { gameCode = gameCode
+                    , screenName = screenName
+                    , loading = False
+                    , errors = errs
+                    }
+            in
+                ( { model | lifecycle = Join joinState }
+                , Cmd.none
+                )
+        JoinedGame _ _ ( ApiOk registered ) ->
             ( { model | lifecycle = Waiting
                       , playerKey = Just registered.playerKey
                       , state = Just registered.state
+                      , isCreator = False
                       }
             , Cmd.none
             )
@@ -136,7 +190,7 @@ update msg model =
                     , points = []
                     }
             in
-                ( { model | lifecycle = Rejoining
+                ( { model | lifecycle = Rejoining savedGame
                           , playerKey = Just savedGame.playerKey
                           , state = Just temporaryState
                           }
@@ -272,7 +326,7 @@ update msg model =
                           }
                         , Cmd.none
                         )
-                Rejoining ->
+                Rejoining _ ->
                         ( { model | lifecycle = Spectating []
                                   , state = Just playerInfo.state
                                   , opponents = playerInfo.opponents
@@ -287,7 +341,7 @@ update msg model =
                     )
 
         StartPitch word1 word2 ->
-            ( { model | lifecycle = Pitching word1 word2 NoCards }
+            ( { model | lifecycle = Pitching word1 word2 NoCards False }
             , Cmd.none
             )
         RevealCard word1 word2 pitchStatus ->
@@ -297,13 +351,14 @@ update msg model =
                     OneCard  -> TwoCards
                     TwoCards -> TwoCards
             in
-                ( { model | lifecycle = Pitching word1 word2 nextPitchStatus }
+                ( { model | lifecycle = Pitching word1 word2 nextPitchStatus False }
                 , Cmd.none
                 )
         FinishedPitch word1 word2 ->
             case keys model of
                 Just ( gameId, playerKey ) ->
-                    ( model, finishPitch gameId playerKey ( word1, word2 ) )
+                    ( { model | lifecycle = Pitching word1 word2 TwoCards True }
+                    , finishPitch gameId playerKey ( word1, word2 ) )
                 Nothing ->
                     ( model, Cmd.none )
         FinishedPitchResult ( ApiErr err ) ->
@@ -327,11 +382,11 @@ wakeServer =
 
 createGame : String -> String -> Cmd Msg
 createGame gameName screenName =
-    sendApiCall CreatedGame ( createGameRequest gameName screenName )
+    sendApiCall ( CreatedGame gameName screenName ) ( createGameRequest gameName screenName )
 
 joinGame : String -> String -> Cmd Msg
-joinGame gameId screenName =
-    sendApiCall JoinedGame ( joinGameRequest gameId screenName )
+joinGame gameCode screenName =
+    sendApiCall ( JoinedGame gameCode screenName ) ( joinGameRequest gameCode screenName )
 
 startGame : String -> String -> Cmd Msg
 startGame gameId playerKey =

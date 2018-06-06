@@ -7,21 +7,20 @@ import Time exposing (Time)
 
 type Lifecycle
     = Welcome               -- initial screen (backend awake)
-    | Create                -- create new game (gameName, screenName)
-        String String
-    | Creating              -- waiting for API to confirm creation
+    | Create                -- create new game (gameName, screenName, loading)
+        CreateState
     | CreatorWaiting        -- waiting for game to start (will have game and screen name)
         String
     | Join                  -- join existing game (gameId, screenName)
-        String String
-    | Joining               -- waiting for API to confirm game entry
+        JoinState
     | Waiting               -- waiting for game to start (will have game and screen name)
     | Rejoining             -- reconnecting to a game (will have game and screen name)
+        SavedGame
     | Starting              -- triggered game start, waiting for API to complete
     | Spectating            -- game has started, player is spectating (and can choose words)
         ( List String )
     | Pitching              -- player is pitching two cards from hand
-        String String PitchStatus
+        String String PitchStatus Bool
     | ChooseRole            -- player is given two roles to choose from
     | BecomingBuyer         -- player would like to be the buyer, asking API
     | Buying                -- player is the buyer, will have a role
@@ -53,10 +52,26 @@ type alias Model =
     , errs : List String
     }
 
+-- Lifecycles
+
 type PitchStatus
     = NoCards
     | OneCard
     | TwoCards
+
+type alias CreateState =
+    { gameName : String
+    , screenName : String
+    , loading : Bool
+    , errors : List ApiError
+    }
+
+type alias JoinState =
+    { gameCode : String
+    , screenName : String
+    , loading : Bool
+    , errors : List ApiError
+    }
 
 -- Persistence
 

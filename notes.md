@@ -2,16 +2,12 @@ TODO:
 
 PRIORITY
 + error messages
-  + https://guide.elm-lang.org/interop/javascript.html
 + Fix Welcome loading
   + skip "loading" or make it nicer
 + how to play
 + Write blog posts
 
 UI
-+ integrate error handling
-+ smaller headers
-  + spectate header especially is bad
 + "select two words" on spectate
   + other basic instructions!
 + screen to show full standings (with words)
@@ -19,14 +15,11 @@ UI
   + and who has that role?
 
 GENERAL
-+ loading pages over last page
-  + wipe a curtain with a stanley picture or something
-+ errors as well (see above)
++ Show joinedplayers on CreatorWaiting screen
 + better asset versioning (cache headers) so updates manifest?
 * error handling
 + UI tests that ensure user journey
 + use flags for api endpoint config
-* design UI as a game
 + additional navigation (e.g. leave game / rejoin from welcome)
   * (see also "breadcrumbs, above)
 + stop being buyer without awarding point?
@@ -56,6 +49,9 @@ UI
 - breadcrumb nav
 - use form labels (instead of just placeholders)
   - materialize style animated to show both?
+- smaller headers
+  - spectate header especially is bad
++ integrate error handling
 
 BUILD
 - switch to elm-live instead of elm-reactor with hot reloading for frontend dev server (still use something for local API)
@@ -67,6 +63,7 @@ BUILD
 
 
 GENERAL
++ errors as well (see above)
 + restart game from saved state (e.g. local storage) on welcome screen?
   * https://stackoverflow.com/questions/33697444/data-persistence-in-elm
 - rejoin games
@@ -92,6 +89,10 @@ GENERAL
   + prefixed game key display
 - refactor views
 - join game, password? (if required)
+- loading pages over last page
+  - wipe a curtain with a stanley picture or something
+- design UI as a game
+
 
 * elm SPA frontend
   - create / join

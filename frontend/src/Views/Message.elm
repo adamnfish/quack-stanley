@@ -3,23 +3,12 @@ module Views.Message exposing (message)
 import Html exposing (Html, div, text, p, button)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon)
+import Views.Utils exposing (container, gameNav, row, col, card, icon, empty, ShroudContent (..))
 
 
-message : String -> Model -> Html Msg
+message : String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 message contents model =
-        div
-            []
-            [ gameNav []
-            , container "message"
-                [ row
-                    [ col "s12"
-                        [ card
-                            [ p
-                                []
-                                [ text contents ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+    ( []
+    , LoadingMessage True [ text contents ]
+    , empty
+    )

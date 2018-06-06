@@ -6,29 +6,27 @@ import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, SavedGame, Lifecycle (..))
 import Msg exposing (Msg)
 import Time exposing (Time)
-import Views.Utils exposing (container, row, col, card, icon, gameNav)
+import Views.Utils exposing (container, row, col, card, icon, gameNav, shroud, ShroudContent (..))
 
 
-welcome : Model -> Html Msg
+welcome : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 welcome model =
-    if model.backendAwake then
-        awake model.time model.savedGames
-    else
-        asleep
+    awake model.time model.savedGames model.backendAwake
 
-awake : Time -> List SavedGame -> Html Msg
-awake now savedGames =
-    div
+awake : Time -> List SavedGame -> Bool -> ( List ( Html Msg ), ShroudContent, Html Msg )
+awake now savedGames isAwake =
+    ( []
+    , LoadingMessage ( not isAwake ) [ text "Waking server" ]
+    , div
         []
-        [ gameNav []
-        , container "welcome"
+        [ container "welcome"
             [ savedGamesBlock now savedGames
             , row
                 [ col "s12 m6 center-align"
                     [ card
                         [ button
                             [ class "waves-effect waves-light btn btn-large teal cta__button"
-                            , onClick ( Msg.CreatingNewGame "" "" )
+                            , onClick ( Msg.CreatingNewGame "" "" [] )
                             ]
                             [ text "Create game"
                             , icon "gamepad" "right"
@@ -39,7 +37,7 @@ awake now savedGames =
                     [  card
                         [ button
                             [ class "waves-effect waves-light btn btn-large cyan cta__button"
-                            , onClick ( Msg.JoiningGame "" "" )
+                            , onClick ( Msg.JoiningGame "" "" [] )
                             ]
                             [ text "Join game"
                             , icon "person_add" "right"
@@ -49,6 +47,7 @@ awake now savedGames =
                 ]
             ]
         ]
+    )
 
 savedGamesBlock : Time -> List SavedGame -> Html Msg
 savedGamesBlock now savedGames =
@@ -117,13 +116,3 @@ savedGameBlock now game =
                     ]
                 ]
             ]
-
-
-asleep : Html Msg
-asleep =
-    div
-        []
-        [ gameNav []
-        , container "welcome"
-            [ text "Loading backend" ]
-        ]

@@ -1,42 +1,29 @@
 module Views.Rejoining exposing (rejoining)
 
-import Html exposing (Html, div, strong, span, text)
+import Html exposing (Html, div, p, strong, span, text)
 import Html.Attributes exposing (class, id, placeholder, value, type_, disabled, for)
-import Model exposing (Model, Lifecycle (..))
+import Model exposing (Model, SavedGame, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon)
+import Views.Utils exposing (container, gameNav, row, col, card, icon, ShroudContent (..))
 
 
-rejoining : Model -> Html Msg
-rejoining model =
+rejoining : SavedGame -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
+rejoining savedGame model =
     let
         gameName = Maybe.withDefault "Game name not found" ( Maybe.map .gameName model.state )
     in
-    div
-        []
-        [ gameNav []
-        , container "rejoining"
-            [ card
-                [ row
-                    [ col "s12 m6"
-                        [ icon "gamepad" "left medium"
-                        , span
-                            [ class "flow-text" ]
-                            [ text "Re-joining "
-                            , strong
-                                []
-                                [ text gameName ]
-                            , text "."
-                            ]
-                        ]
-                    , col "s12 m6"
-                        [ icon "hourglass_empty" "right medium hide-on-small-only"
-                        , span
-                            [ class "flow-text" ]
-                            [ text "Fetching game data." ]
-                        , icon "hourglass_empty" "left medium hide-on-med-and-up"
-                        ]
-                    ]
+        ( []
+        , LoadingMessage True
+            [ p
+                []
+                [ icon "gamepad" "left medium"
+                , text "Re-joining "
+                , text savedGame.gameName
                 ]
             ]
-        ]
+        , div
+            []
+            [ container "rejoining"
+                []
+            ]
+        )

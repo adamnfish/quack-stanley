@@ -5,18 +5,19 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon, plural)
+import Views.Utils exposing (container, gameNav, row, col, card, icon, plural, ShroudContent (..))
 
 
-standings : Model -> Html Msg
+standings : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 standings model =
     let
         points = Maybe.withDefault [] ( Maybe.map .points model.state )
     in
-        div
+        ( []
+        , NoLoadingShroud
+        , div
             []
-            [ gameNav []
-            , container "standings"
+            [ container "standings"
                 [ row
                     [ col "s12"
                         [ ul
@@ -38,6 +39,7 @@ standings model =
                     ]
                 ]
             ]
+        )
 
 playerListEntry : PlayerSummary -> Html Msg
 playerListEntry playerSummary =

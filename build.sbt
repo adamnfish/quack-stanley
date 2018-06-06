@@ -33,7 +33,8 @@ lazy val devServer = (project in file("dev-server")).
     libraryDependencies ++= Seq(
       "com.criteo.lolhttp" %% "lolhttp" % "10.0.0",
       "com.criteo.lolhttp" %% "loljson" % "10.0.0",
-      "ch.qos.logback" % "logback-classic" % "1.2.3"
+      "ch.qos.logback" % "logback-classic" % "1.2.3",
+      "org.typelevel" %% "cats-effect" % "1.0.0-RC"
     )
   ).
   dependsOn(root)

@@ -15,29 +15,25 @@ import Views.Rejoining exposing (rejoining)
 import Views.Spectating exposing (spectating)
 import Views.Pitching exposing (pitching)
 import Views.Buying exposing (buying)
-import Views.AwardingPoint exposing (awardingPoint)
+import Views.Utils exposing (ShroudContent (..))
 
 
-view : Model -> Html Msg
+view : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 view model =
     case model.lifecycle of
         Welcome ->
             welcome model
 
-        Create gameName screenName ->
-            create gameName screenName model
-        Creating ->
-            message "Creating game..." model
+        Create createState ->
+            create createState.loading createState.gameName createState.screenName createState.errors model
 
-        Join gameCode screenName ->
-            join gameCode screenName model
-        Joining ->
-            message "Joining game..." model
+        Join joinState ->
+            join joinState.loading joinState.gameCode joinState.screenName joinState.errors model
 
         Waiting ->
             waiting model
-        Rejoining ->
-            rejoining model
+        Rejoining savedGame ->
+            rejoining savedGame model
         CreatorWaiting gameCode ->
             creatorWaiting gameCode model
         Starting ->
@@ -46,15 +42,15 @@ view model =
         Spectating selected ->
             spectating selected model
 
-        Pitching word1 word2 pitchStatus ->
-            pitching word1 word2 pitchStatus model
+        Pitching word1 word2 pitchStatus loading ->
+            pitching word1 word2 pitchStatus loading model
 
         BecomingBuyer ->
             message "Loading role" model
         Buying role ->
-            buying role model
+            buying role Nothing model
         AwardingPoint role playerName ->
-            awardingPoint role playerName model
+            buying role ( Just playerName ) model
 
         Error errs ->
             error errs model

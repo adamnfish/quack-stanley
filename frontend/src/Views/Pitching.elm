@@ -5,18 +5,21 @@ import Html.Attributes exposing (class, classList, placeholder, disabled)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..), PitchStatus (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, lis, icon)
+import Views.Utils exposing (container, row, col, card, gameNav, lis, icon, ShroudContent (..))
 
 
-pitching : String -> String -> PitchStatus -> Model -> Html Msg
-pitching word1 word2 pitchStatus model =
+pitching : String -> String -> PitchStatus -> Bool -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
+pitching word1 word2 pitchStatus loading model =
     let
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
         screenName = Maybe.withDefault "" ( Maybe.map .screenName model.state )
+        tapEvent =
+            if pitchStatus /= TwoCards then
+                [ onClick ( Msg.RevealCard word1 word2 pitchStatus ) ]
+            else
+                []
     in
-    div
-        []
-        [ gameNav
+        (
             [ button
                 [ class "waves-effect waves-light blue btn-flat"
                 , onClick Msg.NavigateSpectate
@@ -25,22 +28,24 @@ pitching word1 word2 pitchStatus model =
                 , text "cancel pitch"
                 ]
             ]
+        , LoadingMessage loading [ text "Finishing pitch" ]
         , div
-            [ class "container pitching"
-            , onClick ( Msg.RevealCard word1 word2 pitchStatus )
-            ]
-            [ row
-                [ col "m6 s12"
-                    [ wordDisplay word1 ( pitchStatus /= NoCards ) ]
-                , col "m6 s12"
-                    [ wordDisplay word2 ( pitchStatus == TwoCards ) ]
+            []
+            [ div
+                ( [ class "container pitching" ] ++ tapEvent )
+                [ row
+                    [ col "m6 s12"
+                        [ wordDisplay word1 ( pitchStatus /= NoCards ) ]
+                    , col "m6 s12"
+                        [ wordDisplay word2 ( pitchStatus == TwoCards ) ]
+                    ]
+                , row
+                    [ col "m6 s12 push-m6"
+                        [ pitchCta word1 word2 pitchStatus ]
+                    ]
                 ]
-            , row
-                [ col "m6 s12 push-m6"
-                    [ pitchCta word1 word2 pitchStatus ]
-                ]
             ]
-        ]
+        )
 
 wordDisplay : String -> Bool -> Html Msg
 wordDisplay word show =
@@ -60,8 +65,7 @@ wordDisplay word show =
 
 pitchCta : String -> String -> PitchStatus -> Html Msg
 pitchCta word1 word2 pitchStatus =
-    if ( pitchStatus == TwoCards )
-    then
+    if ( pitchStatus == TwoCards ) then
         button
             [ class "waves-effect waves-light btn btn-large blue cta__button"
             , onClick ( Msg.FinishedPitch word1 word2 )
