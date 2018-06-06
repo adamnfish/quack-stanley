@@ -15,7 +15,6 @@ import Views.Rejoining exposing (rejoining)
 import Views.Spectating exposing (spectating)
 import Views.Pitching exposing (pitching)
 import Views.Buying exposing (buying)
-import Views.AwardingPoint exposing (awardingPoint)
 import Views.Utils exposing (ShroudContent (..))
 
 
@@ -49,9 +48,9 @@ view model =
         BecomingBuyer ->
             message "Loading role" model
         Buying role ->
-            buying role model
+            buying role Nothing model
         AwardingPoint role playerName ->
-            awardingPoint role playerName model
+            buying role ( Just playerName ) model
 
         Error errs ->
             error errs model
