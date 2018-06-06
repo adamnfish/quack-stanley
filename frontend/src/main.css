@@ -136,26 +136,22 @@ loading / error / ?
     left: 0;
     height: 100%;
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    background-color: #ffffff;
+    border-bottom: solid 2px #cccccc;
     z-index: 2;
+    transition: height 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .shroud.hidden {
-    display: none;
+    height: 0px;
 }
 
 .message-box__container {
-    margin: auto;
-    margin-top: 15px;
     width: 55%;
-    padding: 10px;
-    border-radius: 2px;
-    background-color: #ffffff;
-    transition: margin-top 0.4s cubic-bezier(0.77, 0, 0.175, 1);
-}
-
-.message-box__container.hidden {
-    margin-top: -200px;
 }
 
 @media only screen and (max-width: 600px) {
@@ -166,12 +162,7 @@ loading / error / ?
 }
 
 .message-box {
-    min-height: 150px;
-    padding: 35px 25px;
     text-align: center;
-    background-color: #ffffff;
-    border: solid 1px #cccccc;
-    border-radius: 2px;
     text-shadow: 1px 1px #cccccc;
     color: #555555;
     font-size: 2rem;
