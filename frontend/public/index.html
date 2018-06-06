@@ -11,15 +11,38 @@
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    <link rel="stylesheet" href="/materializecss/css/materialize.min.css">
+    <link rel="stylesheet" href="%PUBLIC_URL%/materializecss/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <title>Quack Stanley</title>
 </head>
 <body>
-    <noscript>
-        You need to enable JavaScript to run this app.
-    </noscript>
     <div id="root"></div>
+
+    <noscript>
+        <style>
+            .stanley--noscript {
+                width: 120px;
+                height: 120px;
+                background-color: #4CAF50;
+                border-radius: 60px;
+                border: solid 1px #cccccc;
+            }
+            .noscript-message {
+                margin-top: 100px;
+            }
+        </style>
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <div class="noscript-message center-align flow-text">
+                        <img src="%PUBLIC_URL%/images/stanley.png" class="stanley--noscript" />
+                        <br />
+                        You need to enable JavaScript to play Quack Stanley
+                    </div>
+                </div>
+            </div>
+        </div>
+    </noscript>
 </body>
 </html>
