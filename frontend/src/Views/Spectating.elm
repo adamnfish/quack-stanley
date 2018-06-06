@@ -16,7 +16,15 @@ spectating selected model =
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
         points = Maybe.withDefault [] ( Maybe.map .points model.state )
     in
-        ( []
+        (
+            [ button
+                [ class "waves-effect waves-light btn green"
+                , onClick Msg.NavigateHome
+                ]
+                [ icon "navigate_before" "left"
+                , text "Leave game"
+                ]
+            ]
         , NoLoadingShroud
         , div
             []
