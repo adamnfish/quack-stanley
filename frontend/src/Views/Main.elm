@@ -61,7 +61,7 @@ lifecycleTheme lifecycle =
             "cyan"
         Waiting ->
             "cyan"
-        Rejoining ->
+        Rejoining _ ->
             "cyan"
         Starting ->
             "blue"

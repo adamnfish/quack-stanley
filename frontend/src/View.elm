@@ -33,8 +33,8 @@ view model =
 
         Waiting ->
             waiting model
-        Rejoining ->
-            rejoining model
+        Rejoining savedGame ->
+            rejoining savedGame model
         CreatorWaiting gameCode ->
             creatorWaiting gameCode model
         Starting ->

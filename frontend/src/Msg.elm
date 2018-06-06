@@ -190,7 +190,7 @@ update msg model =
                     , points = []
                     }
             in
-                ( { model | lifecycle = Rejoining
+                ( { model | lifecycle = Rejoining savedGame
                           , playerKey = Just savedGame.playerKey
                           , state = Just temporaryState
                           }
@@ -326,7 +326,7 @@ update msg model =
                           }
                         , Cmd.none
                         )
-                Rejoining ->
+                Rejoining _ ->
                         ( { model | lifecycle = Spectating []
                                   , state = Just playerInfo.state
                                   , opponents = playerInfo.opponents
