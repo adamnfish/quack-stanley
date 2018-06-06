@@ -189,5 +189,10 @@ class ValidationTest extends FreeSpec with Matchers with AttemptValues with Opti
     "is not case sensitive" in {
       validate(RegisterPlayer("ABCD", "screen name")).isSuccessfulAttempt() shouldBe true
     }
+
+    "does not how duplicate errors for empty game code" in {
+      val result = validate(RegisterPlayer("", "screen name")).leftValue()
+      result.failures.filter(_.context.contains("game code")) should have size 1
+    }
   }
 }
