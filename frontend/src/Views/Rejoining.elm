@@ -16,8 +16,7 @@ rejoining savedGame model =
         , LoadingMessage True
             [ p
                 []
-                [ icon "gamepad" "left medium"
-                , text "Re-joining "
+                [ text "Re-joining "
                 , text savedGame.gameName
                 ]
             ]
