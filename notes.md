@@ -15,7 +15,8 @@ UI
   + and who has that role?
 
 GENERAL
-+ Show joinedplayers on CreatorWaiting screen
+* improve error messages for users
++ Show joined players on CreatorWaiting screen
 + better asset versioning (cache headers) so updates manifest?
 * error handling
 + UI tests that ensure user journey
