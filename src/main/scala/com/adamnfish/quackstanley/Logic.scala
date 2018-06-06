@@ -63,7 +63,7 @@ object Logic {
       gameState.buyer.flatMap { buyerKey =>
         gameState.buyer.find(_ == playerKey)
       },
-      Failure("Player is not buyer", "Another player is already buyer", 404).asAttempt
+      Failure("Player is not buyer", "Another player is already the buyer", 404).asAttempt
     )
   }
 
@@ -87,7 +87,7 @@ object Logic {
 
   def lookupPlayerByName(states: Map[PlayerKey, PlayerState], screenName: String): Attempt[(PlayerKey, PlayerState)] = {
     Attempt.fromOption(states.find(_._2.screenName == screenName),
-      Failure("Couldn't lookup player by name", s"Failed to lookup player with name '$screenName'", 500, None).asAttempt
+      Failure("Couldn't lookup player by name", s"Couldn't find a player called '$screenName'", 500, None).asAttempt
     )
   }
 

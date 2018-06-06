@@ -18,7 +18,7 @@ object Resources {
     } catch {
       case NonFatal(e) =>
         Attempt.Left(
-          Failure("Failed to open words resource file", "Failed to load resources", 500, Some("words"), Some(e)).asAttempt
+          Failure("Failed to open words resource file", "Couldn't load words", 500, Some("words"), Some(e)).asAttempt
         )
     }
   }
@@ -34,7 +34,7 @@ object Resources {
     } catch {
       case NonFatal(e) =>
         Attempt.Left(
-          Failure("Failed to open words resource file", "Failed to load resources", 500, Some("words"), Some(e)).asAttempt
+          Failure("Failed to open words resource file", "Couldn't load roles", 500, Some("roles"), Some(e)).asAttempt
         )
     }
   }

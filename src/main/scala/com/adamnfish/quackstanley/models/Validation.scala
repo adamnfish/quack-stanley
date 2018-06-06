@@ -11,7 +11,7 @@ object Validation {
   val nonEmpty: Validator[String] = { (iter, context) =>
     if (iter.isEmpty) {
       List(
-        Failure("Validation failure: empty", s"Invalid data $context was empty", 400, Some(context))
+        Failure("Validation failure: empty", s"$context was missing", 400, Some(context))
       )
     } else Nil
   }
@@ -53,7 +53,7 @@ object Validation {
   def minLength(min: Int): Validator[String] = { (str, context) =>
     if (str.length < min)
       List(
-        Failure("Failed min length", s"$context is not long enough", 400, Some(context))
+        Failure("Failed min length", s"$context must be at least $min characters", 400, Some(context))
       )
     else Nil
   }
