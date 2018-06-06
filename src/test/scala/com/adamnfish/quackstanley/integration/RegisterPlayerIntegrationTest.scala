@@ -102,7 +102,7 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
         "gives all errors if everything fails" in {
           val request = RegisterPlayer("", "")
           val failure = registerPlayer(request, testConfig).leftValue()
-          failure.failures should have length 3
+          failure.failures should have length 2
         }
       }
 

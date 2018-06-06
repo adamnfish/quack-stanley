@@ -11,7 +11,7 @@ object Validation {
   val nonEmpty: Validator[String] = { (iter, context) =>
     if (iter.isEmpty) {
       List(
-        Failure("Validation failure: empty", s"$context was missing", 400, Some(context))
+        Failure("Validation failure: empty", s"$context is required", 400, Some(context))
       )
     } else Nil
   }
@@ -34,7 +34,7 @@ object Validation {
     * Game codes are a case-insensitive UUID prefix
     */
   val gameCode: Validator[String] = { (str, context) =>
-    val wasEmpty = nonEmpty(str, context)
+    val wasEmpty = nonEmpty(str, context).headOption
     val ValidChar = "([0-9a-fA-F\\-])".r
     val valid = str.zipWithIndex.forall {
       case (ValidChar(c), i) =>
@@ -45,9 +45,9 @@ object Validation {
         false
     }
     val wasUUIDPrefix =
-      if (valid) Nil
-      else List(Failure(s"$str is not a UUID prefix", "Invalid game code", 400, Some(context)))
-    wasEmpty ++ wasUUIDPrefix
+      if (valid) None
+      else Some(Failure(s"$str is not a UUID prefix", "Invalid game code", 400, Some(context)))
+    wasEmpty.orElse(wasUUIDPrefix).toList
   }
 
   def minLength(min: Int): Validator[String] = { (str, context) =>
@@ -70,8 +70,10 @@ object Validation {
   }
 
   def validate(registerPlayer: RegisterPlayer)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(registerPlayer.gameCode, "game code", gameCode) |@|
-      validate(registerPlayer.gameCode, "game code", minLength(4)) |@|
+    val gameCodeFailures = validate(registerPlayer.gameCode, "game code", gameCode) |@|
+      validate(registerPlayer.gameCode, "game code", minLength(4))
+
+    gameCodeFailures.firstFailure() |@|
       validate(registerPlayer.screenName, "screen name", nonEmpty)
   }
 

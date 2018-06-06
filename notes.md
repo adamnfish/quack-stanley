@@ -1,28 +1,22 @@
 TODO:
 
 PRIORITY
-+ error messages
 + Fix Welcome loading
   + skip "loading" or make it nicer
 + how to play
 + Write blog posts
 
 UI
-+ "select two words" on spectate
-  + other basic instructions!
 + screen to show full standings (with words)
 + Say on spectating page what the currently active role is?
   + and who has that role?
 
 GENERAL
-* improve error messages for users
 + Show joined players on CreatorWaiting screen
 + better asset versioning (cache headers) so updates manifest?
-* error handling
+* error handling (minimise usage of generic error view)
 + UI tests that ensure user journey
 + use flags for api endpoint config
-+ additional navigation (e.g. leave game / rejoin from welcome)
-  * (see also "breadcrumbs, above)
 + stop being buyer without awarding point?
 * display fixes
   + discarded words
@@ -30,8 +24,6 @@ GENERAL
 * frontend tests
   * https://medium.com/@_rchaves_/testing-in-elm-93ad05ee1832
 * help pages
-* loading pages use vdom!
-  + starts with same headings etc as target page, spinner that loads content. Swaps content in when ready.
 
 BUILD / OVERHEAD
 + cloudformation for build pipeline
@@ -64,8 +56,12 @@ BUILD
 
 
 GENERAL
-+ errors as well (see above)
-+ restart game from saved state (e.g. local storage) on welcome screen?
+- additional navigation (e.g. leave game / rejoin from welcome)
+  * (see also "breadcrumbs, above)
+* improve error messages for users
+- error messages
+- errors as well (see above)
+- restart game from saved state (e.g. local storage) on welcome screen?
   * https://stackoverflow.com/questions/33697444/data-persistence-in-elm
 - rejoin games
 - otherPlayers in API should only return *other players*
@@ -93,6 +89,8 @@ GENERAL
 - loading pages over last page
   - wipe a curtain with a stanley picture or something
 - design UI as a game
+- loading pages use vdom!
+  - starts with same headings etc as target page, spinner that loads content. Swaps content in when ready.
 
 
 * elm SPA frontend

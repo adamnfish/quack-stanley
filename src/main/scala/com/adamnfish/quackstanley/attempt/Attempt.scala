@@ -59,6 +59,21 @@ case class Attempt[+A] private (underlying: Future[Either[FailedAttempt, A]]) {
   }
 
   /**
+    * If the attempt is a failure, return a copy containing only the first failure.
+    */
+  def firstFailure()(implicit ec: ExecutionContext): Attempt[A] = Attempt {
+    fold(
+      {
+        case FailedAttempt(first :: _) =>
+          scala.Left(FailedAttempt(first))
+        case fa =>
+          scala.Left(fa)
+      },
+      a => scala.Right(a)
+    )
+  }
+
+  /**
     * If there is an error in the Future itself (e.g. a timeout) we convert it to a
     * Left so we have a consistent error representation. Unfortunately, this means
     * the error isn't being handled properly so we're left with just the information
