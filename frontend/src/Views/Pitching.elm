@@ -8,11 +8,16 @@ import Msg exposing (Msg)
 import Views.Utils exposing (container, row, col, card, gameNav, lis, icon, ShroudContent (..))
 
 
-pitching : String -> String -> PitchStatus -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
-pitching word1 word2 pitchStatus model =
+pitching : String -> String -> PitchStatus -> Bool -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
+pitching word1 word2 pitchStatus loading model =
     let
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
         screenName = Maybe.withDefault "" ( Maybe.map .screenName model.state )
+        tapEvent =
+            if pitchStatus /= TwoCards then
+                [ onClick ( Msg.RevealCard word1 word2 pitchStatus ) ]
+            else
+                []
     in
         (
             [ button
@@ -23,13 +28,11 @@ pitching word1 word2 pitchStatus model =
                 , text "cancel pitch"
                 ]
             ]
-        , NoLoadingShroud
+        , LoadingMessage loading [ text "Finishing pitch" ]
         , div
             []
             [ div
-                [ class "container pitching"
-                , onClick ( Msg.RevealCard word1 word2 pitchStatus )
-                ]
+                ( [ class "container pitching" ] ++ tapEvent )
                 [ row
                     [ col "m6 s12"
                         [ wordDisplay word1 ( pitchStatus /= NoCards ) ]
@@ -62,8 +65,7 @@ wordDisplay word show =
 
 pitchCta : String -> String -> PitchStatus -> Html Msg
 pitchCta word1 word2 pitchStatus =
-    if ( pitchStatus == TwoCards )
-    then
+    if ( pitchStatus == TwoCards ) then
         button
             [ class "waves-effect waves-light btn btn-large blue cta__button"
             , onClick ( Msg.FinishedPitch word1 word2 )

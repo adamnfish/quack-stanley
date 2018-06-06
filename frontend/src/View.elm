@@ -43,8 +43,8 @@ view model =
         Spectating selected ->
             spectating selected model
 
-        Pitching word1 word2 pitchStatus ->
-            pitching word1 word2 pitchStatus model
+        Pitching word1 word2 pitchStatus loading ->
+            pitching word1 word2 pitchStatus loading model
 
         BecomingBuyer ->
             message "Loading role" model

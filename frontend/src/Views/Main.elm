@@ -67,7 +67,7 @@ lifecycleTheme lifecycle =
             "blue"
         Spectating _ ->
             "blue"
-        Pitching _ _ _ ->
+        Pitching _ _ _ _ ->
             "indigo"
         ChooseRole ->
             "purple"

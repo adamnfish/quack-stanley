@@ -341,7 +341,7 @@ update msg model =
                     )
 
         StartPitch word1 word2 ->
-            ( { model | lifecycle = Pitching word1 word2 NoCards }
+            ( { model | lifecycle = Pitching word1 word2 NoCards False }
             , Cmd.none
             )
         RevealCard word1 word2 pitchStatus ->
@@ -351,13 +351,14 @@ update msg model =
                     OneCard  -> TwoCards
                     TwoCards -> TwoCards
             in
-                ( { model | lifecycle = Pitching word1 word2 nextPitchStatus }
+                ( { model | lifecycle = Pitching word1 word2 nextPitchStatus False }
                 , Cmd.none
                 )
         FinishedPitch word1 word2 ->
             case keys model of
                 Just ( gameId, playerKey ) ->
-                    ( model, finishPitch gameId playerKey ( word1, word2 ) )
+                    ( { model | lifecycle = Pitching word1 word2 TwoCards True }
+                    , finishPitch gameId playerKey ( word1, word2 ) )
                 Nothing ->
                     ( model, Cmd.none )
         FinishedPitchResult ( ApiErr err ) ->

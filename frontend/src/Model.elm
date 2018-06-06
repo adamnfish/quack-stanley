@@ -20,7 +20,7 @@ type Lifecycle
     | Spectating            -- game has started, player is spectating (and can choose words)
         ( List String )
     | Pitching              -- player is pitching two cards from hand
-        String String PitchStatus
+        String String PitchStatus Bool
     | ChooseRole            -- player is given two roles to choose from
     | BecomingBuyer         -- player would like to be the buyer, asking API
     | Buying                -- player is the buyer, will have a role
