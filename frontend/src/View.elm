@@ -39,8 +39,8 @@ view model =
         Starting ->
             message "Starting game..." model
 
-        Spectating selected ->
-            spectating selected model
+        Spectating selected errors ->
+            spectating selected errors model
 
         Pitching word1 word2 pitchStatus loading ->
             pitching word1 word2 pitchStatus loading model
@@ -49,6 +49,8 @@ view model =
             message "Loading role" model
         Buying role ->
             buying role Nothing model
+        RelinquishingBuyer ->
+            message "Returning to game" model
         AwardingPoint role playerName ->
             buying role ( Just playerName ) model
 

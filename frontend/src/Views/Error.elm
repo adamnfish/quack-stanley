@@ -15,7 +15,7 @@ error errs model =
             [ class "waves-effect waves-light btn green"
             , onClick Msg.NavigateHome
             ]
-            [ icon "navigate_before" "left"
+            [ icon "home" "left"
             , text "home"
             ]
         , resumeGameIfItExists model

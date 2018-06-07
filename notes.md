@@ -1,15 +1,31 @@
 TODO:
 
 PRIORITY
-+ Fix Welcome loading
-  + skip "loading" or make it nicer
++ Rejoin doesn't work for buyer!
++ non-lifecycle errors are sticky
++ flex for past games on welome screen
 + how to play
 + Write blog posts
+  + overall design
+    + inspiration
+	+ architecture
+  + API
+    + Attempt
+	+ tests
+  + frontend
+    + elm basics
+	+ CSS framework
+  + infrastructure
+    + lambda considerations
+	+ cloudformation
++ favicon (and updated manifest etc)
 
 UI
++ onsider skipping "loading backend" message
 + screen to show full standings (with words)
 + Say on spectating page what the currently active role is?
   + and who has that role?
++ Stanley pictures on loading screens
 
 GENERAL
 + Show joined players on CreatorWaiting screen
@@ -37,6 +53,8 @@ LONG TERM
 DONE
 
 UI
+- Fix Welcome loading
+  - skip "loading" or make it nicer
 - icon on join game button
 - 2x3 grid of words on spectate page
 - breadcrumb nav

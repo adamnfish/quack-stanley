@@ -3,13 +3,13 @@ module Views.Spectating exposing (spectating)
 import Html exposing (Html, div, text, button, ul, li, h2, h3, span, p)
 import Html.Attributes exposing (class, classList, placeholder, disabled, attribute)
 import Html.Events exposing (onClick, onSubmit, onInput)
-import Model exposing (Model, PlayerSummary, Lifecycle (..))
+import Model exposing (Model, PlayerSummary, ApiError, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, plural, icon, friendlyError, ShroudContent (..))
+import Views.Utils exposing (container, row, col, card, gameNav, plural, icon, showErrors, ShroudContent (..))
 
 
-spectating : List String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
-spectating selected model =
+spectating : List String -> List ApiError -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
+spectating selected errors model =
     let
         hand = Maybe.withDefault [] ( Maybe.map .hand model.state )
         screenName = Maybe.withDefault "" ( Maybe.map .screenName model.state )
@@ -21,7 +21,7 @@ spectating selected model =
                 [ class "waves-effect waves-light btn green"
                 , onClick Msg.NavigateHome
                 ]
-                [ icon "navigate_before" "left"
+                [ icon "home" "left"
                 , text "Leave game"
                 ]
             ]
@@ -29,7 +29,7 @@ spectating selected model =
         , div
             []
             [ container "spectating"
-                [ friendlyError model
+                [ showErrors errors
                 , row
                     [ col "s12"
                         [ card

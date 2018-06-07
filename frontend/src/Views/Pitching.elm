@@ -24,8 +24,8 @@ pitching word1 word2 pitchStatus loading model =
                 [ class "waves-effect waves-light blue btn-flat"
                 , onClick Msg.NavigateSpectate
                 ]
-                [ icon "navigate_before" "left"
-                , text "cancel pitch"
+                [ icon "close" "left"
+                , text "cancel"
                 ]
             ]
         , LoadingMessage loading [ text "Finishing pitch" ]

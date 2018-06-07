@@ -57,6 +57,10 @@ case class BecomeBuyer(
   gameId: GameId,
   playerKey: PlayerKey
 ) extends ApiOperation
+case class RelinquishBuyer(
+  gameId: GameId,
+  playerKey: PlayerKey
+) extends ApiOperation
 case class StartPitch(
   gameId: GameId,
   playerKey: PlayerKey

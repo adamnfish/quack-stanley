@@ -1,6 +1,7 @@
 module Api.Requests exposing
     ( wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest
-    , becomeBuyerRequest, awardPointRequest, finishPitchRequest, pingRequest
+    , becomeBuyerRequest, relinquishBuyerRequest, awardPointRequest, finishPitchRequest
+    , pingRequest
     )
 
 import Api.Codecs exposing (apiErrsDecoder, registeredDecoder, newGameDecoder, playerStateDecoder, playerSummaryDecoder, playerInfoDecoder)
@@ -40,6 +41,13 @@ becomeBuyerRequest : String -> String -> Http.Request PlayerInfo
 becomeBuyerRequest gameId playerKey =
     let
         body = """{ "operation": "become-buyer", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
+    in
+        Http.post apiUrl ( stringBody "application/json" body ) playerInfoDecoder
+
+relinquishBuyerRequest : String -> String -> Http.Request PlayerInfo
+relinquishBuyerRequest gameId playerKey =
+    let
+        body = """{ "operation": "relinquish-buyer", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
         Http.post apiUrl ( stringBody "application/json" body ) playerInfoDecoder
 

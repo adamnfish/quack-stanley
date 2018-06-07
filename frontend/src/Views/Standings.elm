@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon, plural, ShroudContent (..))
+import Views.Utils exposing (container, row, col, card, plural, ShroudContent (..))
 
 
 standings : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
