@@ -1,6 +1,9 @@
 TODO:
 
 PRIORITY
++ Rejoin doesn't work for buyer!
++ non-lifecycle errors are sticky
++ flex for past games on welome screen
 + how to play
 + Write blog posts
   + overall design
