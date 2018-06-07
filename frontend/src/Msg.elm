@@ -1,7 +1,7 @@
 module Msg exposing (Msg (..), update, wakeServer)
 
 import Api.Api exposing (sendApiCall)
-import Api.Requests exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
+import Api.Requests exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, relinquishBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
 import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..), ApiResponse (..), ApiError)
 import Time exposing (Time)
 import Ports exposing (fetchSavedGames, saveGame, removeSavedGame)
@@ -42,6 +42,9 @@ type Msg
     | RequestBuyer
     | BecomeBuyer
         ( ApiResponse PlayerInfo )
+    | RelinquishBuyer
+    | RelinquishBuyerResult
+        ( ApiResponse PlayerInfo )
     | AwardPoint
         String String
     | AwardedPoint
@@ -79,7 +82,7 @@ update msg model =
             )
 
         NavigateSpectate ->
-            ( { model | lifecycle = Spectating [] }, Cmd.none )
+            ( { model | lifecycle = Spectating [] [] }, Cmd.none )
 
         BackendAwake _ ->
             ( { model | backendAwake = True }, Cmd.none )
@@ -216,7 +219,7 @@ update msg model =
         GameStarted ( ApiOk playerInfo ) ->
             let
                 updatedModel =
-                    { model | lifecycle = Spectating []
+                    { model | lifecycle = Spectating [] []
                             , state = Just playerInfo.state
                             , opponents = playerInfo.opponents
                     }
@@ -236,14 +239,14 @@ update msg model =
                         _ ->
                             selected
             in
-                ( { model | lifecycle = Spectating newSelected }
+                ( { model | lifecycle = Spectating newSelected [] }
                 , Cmd.none
                 )
         DeselectWord word selected ->
             let
                 newSelected = List.filter ( \w -> w /= word ) selected
             in
-                ( { model | lifecycle = Spectating newSelected }
+                ( { model | lifecycle = Spectating newSelected [] }
                 , Cmd.none
                 )
 
@@ -257,14 +260,30 @@ update msg model =
                     ( { model | lifecycle = Error [ "No player key or game ID" ] }, Cmd.none )
 
 
-        BecomeBuyer ( ApiErr err ) ->
-            ( { model | lifecycle = Spectating []
-                      , errs =  List.map .message err
-              }
+        BecomeBuyer ( ApiErr errs ) ->
+            ( { model | lifecycle = Spectating [] errs }
             , Cmd.none
             )
         BecomeBuyer ( ApiOk playerInfo ) ->
             ( { model | lifecycle = Buying ( Maybe.withDefault "Couldn't get a role" playerInfo.state.role ) }
+            , Cmd.none
+            )
+
+        RelinquishBuyer ->
+            case keys model of
+                Just (gameId, playerKey) ->
+                    ( { model | lifecycle = RelinquishingBuyer }
+                    , relinquishBuyer gameId playerKey
+                    )
+                Nothing ->
+                    ( { model | lifecycle = Error [ "No player key or game ID" ] }, Cmd.none )
+
+        RelinquishBuyerResult ( ApiErr errs ) ->
+            ( { model | lifecycle = Spectating [] errs }
+            , Cmd.none
+            )
+        RelinquishBuyerResult ( ApiOk playerInfo ) ->
+            ( { model | lifecycle = Spectating [] [] }
             , Cmd.none
             )
 
@@ -284,7 +303,7 @@ update msg model =
             , Cmd.none
             )
         AwardedPoint ( ApiOk playerInfo ) ->
-            ( { model | lifecycle = Spectating []
+            ( { model | lifecycle = Spectating [] []
                       , state = Just playerInfo.state
                       , opponents = playerInfo.opponents
               }
@@ -312,7 +331,7 @@ update msg model =
                     if playerInfo.started then
                         let
                             updatedModel =
-                                { model | lifecycle = Spectating []
+                                { model | lifecycle = Spectating [] []
                                         , state = Just playerInfo.state
                                         , opponents = playerInfo.opponents
                                 }
@@ -327,7 +346,7 @@ update msg model =
                         , Cmd.none
                         )
                 Rejoining _ ->
-                        ( { model | lifecycle = Spectating []
+                        ( { model | lifecycle = Spectating [] []
                                   , state = Just playerInfo.state
                                   , opponents = playerInfo.opponents
                           }
@@ -366,7 +385,7 @@ update msg model =
             , Cmd.none
             )
         FinishedPitchResult ( ApiOk playerInfo ) ->
-            ( { model | lifecycle = Spectating []
+            ( { model | lifecycle = Spectating [] []
                       , state = Just playerInfo.state
                       , opponents = playerInfo.opponents
               }
@@ -395,6 +414,10 @@ startGame gameId playerKey =
 becomeBuyer : String -> String -> Cmd Msg
 becomeBuyer gameId playerKey =
     sendApiCall BecomeBuyer ( becomeBuyerRequest gameId playerKey )
+
+relinquishBuyer : String -> String -> Cmd Msg
+relinquishBuyer gameId playerKey =
+    sendApiCall RelinquishBuyerResult ( relinquishBuyerRequest gameId playerKey )
 
 awardPoint : String -> String -> String -> String -> Cmd Msg
 awardPoint gameId playerKey role playerName =

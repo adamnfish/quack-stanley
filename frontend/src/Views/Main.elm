@@ -65,14 +65,19 @@ lifecycleTheme lifecycle =
             "cyan"
         Starting ->
             "blue"
-        Spectating _ ->
+        Spectating _ _ ->
             "blue"
-        Pitching _ _ _ _ ->
-            "indigo"
+        Pitching _ _ _ loading ->
+            if loading then
+                "blue"
+            else
+                "indigo"
         ChooseRole ->
             "purple"
         BecomingBuyer ->
             "purple"
+        RelinquishingBuyer ->
+            "blue"
         Buying _ ->
             "purple"
         AwardingPoint _ _ ->

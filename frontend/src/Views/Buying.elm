@@ -23,7 +23,15 @@ buying role awardingTo model =
                         , text playerName
                         ]
     in
-        ( []
+        (
+            [ button
+                [ class "waves-effect waves-light btn blue"
+                , onClick Msg.RelinquishBuyer
+                ]
+                [ icon "close" "left"
+                , text "Cancel"
+                ]
+            ]
         , shroud
         , div
             []

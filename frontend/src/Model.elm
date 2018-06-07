@@ -18,11 +18,12 @@ type Lifecycle
         SavedGame
     | Starting              -- triggered game start, waiting for API to complete
     | Spectating            -- game has started, player is spectating (and can choose words)
-        ( List String )
+        ( List String ) ( List ApiError )
     | Pitching              -- player is pitching two cards from hand
         String String PitchStatus Bool
     | ChooseRole            -- player is given two roles to choose from
     | BecomingBuyer         -- player would like to be the buyer, asking API
+    | RelinquishingBuyer    -- player does not want to be the buyer, asking API
     | Buying                -- player is the buyer, will have a role
         String
     | AwardingPoint         -- telling API to award role to named player

@@ -16,7 +16,7 @@ subscriptions model =
                 ]
         Waiting ->
             Time.every ( 5 * Time.second ) PingEvent
-        Spectating _ ->
+        Spectating _ _ ->
             Time.every ( 15 * Time.second ) PingEvent
         _ ->
             Sub.none
