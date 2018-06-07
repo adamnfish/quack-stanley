@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, classList, placeholder, disabled, attrib
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, ApiError, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, plural, icon, friendlyError, showErrors, ShroudContent (..))
+import Views.Utils exposing (container, row, col, card, gameNav, plural, icon, showErrors, ShroudContent (..))
 
 
 spectating : List String -> List ApiError -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )

@@ -1,7 +1,6 @@
 module Views.Rejoining exposing (rejoining)
 
 import Html exposing (Html, div, p, strong, span, text)
-import Html.Attributes exposing (class, id, placeholder, value, type_, disabled, for)
 import Model exposing (Model, SavedGame, Lifecycle (..))
 import Msg exposing (Msg)
 import Views.Utils exposing (container, gameNav, row, col, card, icon, ShroudContent (..))

@@ -1,5 +1,5 @@
 module Views.Utils exposing
-    ( lis, icon, plural, friendlyError, resumeGameIfItExists
+    ( lis, icon, plural, resumeGameIfItExists
     , container, row, col, card, gameNav, stripMargin, multiLineText
     , textInput, shroud, empty, ShroudContent (..)
     , errorsForField, errorsExcludingField, nonFieldErrors, showErrors
@@ -15,16 +15,6 @@ import Model exposing (Model, ApiError)
 empty : Html Msg
 empty =
     text ""
-
-friendlyError : Model -> Html Msg
-friendlyError model =
-    if List.length model.errs > 0
-    then
-        div
-            [ class "card-panel red lighten-4" ]
-            ( List.map text model.errs )
-    else
-        text ""
 
 resumeGameIfItExists : Model -> Html Msg
 resumeGameIfItExists model =

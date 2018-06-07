@@ -50,7 +50,6 @@ type alias Model =
     , playerKey : Maybe String
     , isCreator : Bool
     , opponents : List PlayerSummary
-    , errs : List String
     }
 
 -- Lifecycles
