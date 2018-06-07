@@ -346,7 +346,15 @@ update msg model =
                         , Cmd.none
                         )
                 Rejoining _ ->
-                        ( { model | lifecycle = Spectating [] []
+                    let
+                        prevLifecycle =
+                            case playerInfo.state.role of
+                                Just role ->
+                                    Buying role
+                                Nothing ->
+                                    Spectating [] []
+                    in
+                        ( { model | lifecycle = prevLifecycle
                                   , state = Just playerInfo.state
                                   , opponents = playerInfo.opponents
                           }

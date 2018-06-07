@@ -1,9 +1,10 @@
 TODO:
 
 PRIORITY
-+ Rejoin doesn't work for buyer!
-+ non-lifecycle errors are sticky
 + flex for past games on welome screen
++ minimum display time for shroud
+  - quite glitchy now when the server is fast
+  - write a par map2 and do the API call with a delay? <- blog
 + how to play
 + Write blog posts
   + overall design
@@ -21,7 +22,7 @@ PRIORITY
 + favicon (and updated manifest etc)
 
 UI
-+ onsider skipping "loading backend" message
++ consider skipping "loading backend" message
 + screen to show full standings (with words)
 + Say on spectating page what the currently active role is?
   + and who has that role?
@@ -32,6 +33,10 @@ GENERAL
 + better asset versioning (cache headers) so updates manifest?
 * error handling (minimise usage of generic error view)
 + UI tests that ensure user journey
++ manage game screen for creator
+  - manage buyer
+  - kick players
+  - allow player to join after start
 + use flags for api endpoint config
 + stop being buyer without awarding point?
 * display fixes
@@ -74,6 +79,8 @@ BUILD
 
 
 GENERAL
+- Rejoin doesn't work for buyer!
+- non-lifecycle errors are sticky
 - additional navigation (e.g. leave game / rejoin from welcome)
   * (see also "breadcrumbs, above)
 * improve error messages for users
