@@ -24,7 +24,7 @@ resumeGameIfItExists model =
                [ class "waves-effect waves-light btn-flat"
                , onClick Msg.NavigateSpectate
                ]
-               [ icon "navigate_next" "right"
+               [ icon "gamepad" "left"
                , text "back to game"
                ]
         Nothing ->
