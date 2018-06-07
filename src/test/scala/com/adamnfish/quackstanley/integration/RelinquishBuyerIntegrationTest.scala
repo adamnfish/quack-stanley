@@ -3,16 +3,16 @@ package com.adamnfish.quackstanley.integration
 import java.util.UUID
 
 import com.adamnfish.quackstanley.QuackStanley._
-import com.adamnfish.quackstanley.{AttemptValues, Config, TestPersistence}
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
+import com.adamnfish.quackstanley.{AttemptValues, Config, TestPersistence}
 import org.joda.time.DateTime
 import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class BecomeBuyerIntegrationTest extends FreeSpec with Matchers
+class RelinquishBuyerIntegrationTest extends FreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues {
 
   val persistence = new TestPersistence
@@ -30,7 +30,7 @@ class BecomeBuyerIntegrationTest extends FreeSpec with Matchers
     "Ensuring random UUID test data is distinct"
   )
 
-  "becomeBuyer" - {
+  "relinquishBuyer" - {
     "if the game exists" - {
       val creator = PlayerKey(creatorUUID)
       val gameId = GameId(gameIdUUID)
@@ -39,67 +39,67 @@ class BecomeBuyerIntegrationTest extends FreeSpec with Matchers
       "and this player is registered" - {
         val screenName = "player name"
         val playerKey = PlayerKey(playerKeyUUID)
-        val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, None, Nil)
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
+        val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, Some(Role("role")), Nil)
+        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(playerKey),
           Map(creator -> PlayerSummary("Creator", Nil), playerKey -> PlayerSummary(screenName, Nil))
         )
         GameIO.writeGameState(gameState, testConfig)
         GameIO.writePlayerState(playerState, playerKey, testConfig)
 
-        "returns role in player info" in {
-          val request = BecomeBuyer(gameId, playerKey)
-          val playerInfo = becomeBuyer(request, testConfig).value()
-          playerInfo.state.role.isDefined shouldEqual true
+        "returns no role in player info" in {
+          val request = RelinquishBuyer(gameId, playerKey)
+          val playerInfo = relinquishBuyer(request, testConfig).value()
+          playerInfo.state.role.isEmpty shouldEqual true
         }
 
-        "persists role in player state" in {
-          val request = BecomeBuyer(gameId, playerKey)
-          val playerInfo = becomeBuyer(request, testConfig).value()
+        "persists no role in player state" in {
+          val request = RelinquishBuyer(gameId, playerKey)
+          val playerInfo = relinquishBuyer(request, testConfig).value()
           val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
-          persistedPlayerState.role.isDefined shouldEqual true
+          persistedPlayerState.role.isEmpty shouldEqual true
         }
 
-        "persists buyer in game state" in {
-          val request = BecomeBuyer(gameId, playerKey)
-          val playerInfo = becomeBuyer(request, testConfig).value()
+        "persists no buyer in game state" in {
+          val request = RelinquishBuyer(gameId, playerKey)
+          val playerInfo = relinquishBuyer(request, testConfig).value()
           val persistedState = GameIO.getGameState(gameId, testConfig).value()
-          persistedState.buyer.isDefined shouldEqual true
+          persistedState.buyer.isEmpty shouldEqual true
         }
 
         "excludes current player from otherPlayers" in {
-          val request = BecomeBuyer(gameId, playerKey)
-          val playerInfo = becomeBuyer(request, testConfig).value()
+          val request = RelinquishBuyer(gameId, playerKey)
+          val playerInfo = relinquishBuyer(request, testConfig).value()
           playerInfo.opponents should not contain screenName
         }
 
         "validates user input," - {
           "flags empty game id" in {
-            val request = BecomeBuyer(GameId(""), playerKey)
-            val failure = becomeBuyer(request, testConfig).leftValue()
+            val request = RelinquishBuyer(GameId(""), playerKey)
+            val failure = relinquishBuyer(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "game ID"
           }
 
           "ensures GameID is the correct format" in {
-            val request = BecomeBuyer(GameId("not uuid"), playerKey)
-            val failure = becomeBuyer(request, testConfig).leftValue()
+            val request = RelinquishBuyer(GameId("not uuid"), playerKey)
+            val failure = relinquishBuyer(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "game ID"
           }
 
           "flags empty player key" in {
-            val request = BecomeBuyer(gameId, PlayerKey(""))
-            val failure = becomeBuyer(request, testConfig).leftValue()
+            val request = RelinquishBuyer(gameId, PlayerKey(""))
+            val failure = relinquishBuyer(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "player key"
           }
 
           "ensures player key is the correct format" in {
-            val request = BecomeBuyer(gameId, PlayerKey("not uuid"))
-            val failure = becomeBuyer(request, testConfig).leftValue()
+            val request = RelinquishBuyer(gameId, PlayerKey("not uuid"))
+            val failure = relinquishBuyer(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "player key"
           }
 
           "gives all errors if multiple fields fail validation" in {
-            val request = BecomeBuyer(GameId(""), PlayerKey(""))
-            val failure = becomeBuyer(request, testConfig).leftValue()
+            val request = RelinquishBuyer(GameId(""), PlayerKey(""))
+            val failure = relinquishBuyer(request, testConfig).leftValue()
             failure.failures should have length 2
           }
         }
@@ -110,18 +110,18 @@ class BecomeBuyerIntegrationTest extends FreeSpec with Matchers
           Map(creator -> PlayerSummary("Creator", Nil))
         )
         GameIO.writeGameState(gameState, testConfig)
-        val request = BecomeBuyer(gameId, PlayerKey(playerDoesNotExistUUID))
-        becomeBuyer(request, testConfig).isFailedAttempt() shouldEqual true
+        val request = RelinquishBuyer(gameId, PlayerKey(playerDoesNotExistUUID))
+        relinquishBuyer(request, testConfig).isFailedAttempt() shouldEqual true
       }
 
-      "and this player is already the buyer, fails to become buyer" ignore {
+      "and this player is not the buyer, fails to relinquish buyer" ignore {
         // TODO
       }
     }
 
     "if the game does not exist, fails to auth the player" in {
-      val request = BecomeBuyer(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID))
-      becomeBuyer(request, testConfig).isFailedAttempt() shouldEqual true
+      val request = RelinquishBuyer(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID))
+      relinquishBuyer(request, testConfig).isFailedAttempt() shouldEqual true
     }
   }
 }

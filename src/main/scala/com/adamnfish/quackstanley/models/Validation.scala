@@ -87,6 +87,11 @@ object Validation {
       validate(becomeBuyer.playerKey.value, "player key", isUUID)
   }
 
+  def validate(relinquishBuyer: RelinquishBuyer)(implicit ec: ExecutionContext): Attempt[Unit] = {
+    validate(relinquishBuyer.gameId.value, "game ID", isUUID) |@|
+      validate(relinquishBuyer.playerKey.value, "player key", isUUID)
+  }
+
   def validate(startPitch: StartPitch)(implicit ec: ExecutionContext): Attempt[Unit] = {
     validate(startPitch.gameId.value, "game ID", isUUID) |@|
       validate(startPitch.playerKey.value, "player key", isUUID)

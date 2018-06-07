@@ -94,6 +94,23 @@ object QuackStanley {
   }
 
   /**
+    * Allows player to stop being the game's "buyer" without granting a point to another player.
+    */
+  def relinquishBuyer(data: RelinquishBuyer, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+    for {
+      _ <- validate(data)
+      gameState <- getGameState(data.gameId, config)
+      _ <- authenticate(data.playerKey, gameState)
+      _ <- authenticateBuyer(data.playerKey, gameState)
+      player <- getPlayerState(data.playerKey, data.gameId, config)
+      gameWithoutBuyer = gameState.copy(buyer = None)
+      playerWithoutBuyer = player.copy(role = None)
+      _ <- writeGameState(gameWithoutBuyer, config)
+      _ <- writePlayerState(playerWithoutBuyer, data.playerKey, config)
+    } yield playerInfo(data.playerKey, playerWithoutBuyer, gameWithoutBuyer)
+  }
+
+  /**
    * Marks this player as "pitching" so that other clients can see that.
     *
     * Is this necessary?
