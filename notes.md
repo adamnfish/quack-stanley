@@ -27,6 +27,7 @@ UI
 + Say on spectating page what the currently active role is?
   + and who has that role?
 + Desktop display on Buyer screen (flex up to multiple columns)
++ Error screen header margin (and generally fix that screen's display)
 + Stanley pictures on loading screens
 
 GENERAL
