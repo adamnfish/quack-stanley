@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, placeholder, href)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon, empty, ShroudContent (..))
+import Views.Utils exposing (container, gameNav, row, col, card, helpText, icon, empty, ShroudContent (..))
 
 
 buying : String -> Maybe String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
@@ -42,7 +42,29 @@ buying role awardingTo model =
                             [ h2
                                 []
                                 [ text role ]
-                            , ul
+                            ]
+                        ]
+                    ]
+                , row
+                    [ col "s12"
+                        [ card
+                            [ helpText
+                                """|Show the rest of the players this role.
+                                   |
+                                   |The other players will each try to *pitch* a product to
+                                   |you as that role.
+                                   |
+                                   |After they've all had a turn pitching their product,
+                                   |choose the player who's sales pitch & end product you
+                                   |most liked from the list above.
+                                   |"""
+                           ]
+                        ]
+                    ]
+                , row
+                    [ col "s12"
+                        [ card
+                            [ ul
                                 []
                                 ( List.map ( otherPlayer role ) model.opponents )
                             ]
@@ -63,5 +85,4 @@ otherPlayer role playerSummary =
             [ text playerSummary.screenName
             , icon "done" "right"
             ]
-
         ]

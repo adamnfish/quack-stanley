@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, classList, placeholder, disabled, attrib
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, ApiError, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, empty, plural, icon, showErrors, ShroudContent (..))
+import Views.Utils exposing (container, row, col, card, empty, plural, icon, showErrors, helpText, ShroudContent (..))
 
 
 spectating : List String -> List ApiError -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
@@ -36,6 +36,20 @@ spectating selected errors model =
             []
             [ container "spectating"
                 [ showErrors errors
+                , row
+                    [ col "s12"
+                        [ card
+                            [ helpText
+                                """|You can take a turn as the *buyer* (below) or choose 2 words
+                                   |that together represent a product you will pitch to the *buyer*.
+                                   |
+                                   |When it is your turn to *pitch* select "start pitch". You'll
+                                   |be able to reveal your words individually or at once as you
+                                   |try and sell your product.
+                                   |"""
+                            ]
+                        ]
+                    ]
                 , row
                     [ col "s12"
                         [ card

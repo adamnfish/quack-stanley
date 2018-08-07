@@ -5,7 +5,7 @@ import Html.Attributes exposing (id, class, classList, placeholder, for)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, ApiError, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput, shroud, ShroudContent (..), errorsForField, errorsExcludingField, nonFieldErrors, showErrors)
+import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput, helpText, shroud, ShroudContent (..), errorsForField, errorsExcludingField, nonFieldErrors, showErrors)
 
 
 create : Bool -> String -> String -> List ApiError -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
@@ -24,7 +24,7 @@ create loading gameName screenName errors model =
         []
         [ container "create"
             [ row
-                [ col "col s12"
+                [ col "s12"
                     [ card
                         [ showErrors ( nonFieldErrors [ "game name", "screen name" ] errors )
                         , form
@@ -40,6 +40,16 @@ create loading gameName screenName errors model =
                                 ]
                             ]
                         ]
+                    ]
+                ]
+            , row
+                [ col "s12"
+                    [ card
+                        [ helpText
+                            """|Creates a new game that others can join.
+                               |You will be able to start the game when player's have joined.
+                               |"""
+                       ]
                     ]
                 ]
             ]

@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, id, placeholder, value, type_, disabled,
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon, ShroudContent (..))
+import Views.Utils exposing (container, gameNav, row, col, card, icon, helpText, ShroudContent (..))
 
 
 creatorWaiting : String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
@@ -76,6 +76,23 @@ creatorWaiting gameCode model =
                                     ]
                                 ]
                             ]
+                        ]
+                    ]
+                ]
+            , row
+                [ col "s12"
+                    [ card
+                        [ helpText
+                            """|You have created a new game of Quack Stanley.
+                               |
+                               |Other players can join this game using the game's
+                               |code.
+                               |
+                               |Give the other players time to join and then you
+                               |can start the game using the button above.
+                               |Note that once the game has started additional
+                               |players cannot be added.
+                               |"""
                         ]
                     ]
                 ]

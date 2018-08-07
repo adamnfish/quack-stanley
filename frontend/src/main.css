@@ -236,3 +236,8 @@ p.card-header {
     text-align: left;
     margin-bottom: 10px;
 }
+
+.text--help p, .text--help li {
+    color: #757575;
+    font-size: 90%;
+}

@@ -6,7 +6,7 @@ import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, SavedGame, Lifecycle (..))
 import Msg exposing (Msg)
 import Time exposing (Time)
-import Views.Utils exposing (container, row, col, card, icon, gameNav, shroud, ShroudContent (..))
+import Views.Utils exposing (container, row, col, card, icon, empty, gameNav, shroud, helpText, ShroudContent (..))
 
 
 welcome : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
@@ -45,6 +45,10 @@ awake now savedGames isAwake =
                         ]
                     ]
                 ]
+            , if List.isEmpty savedGames then
+                welcomeHelp
+              else
+                empty
             ]
         ]
     )
@@ -52,7 +56,7 @@ awake now savedGames isAwake =
 savedGamesBlock : Time -> List SavedGame -> Html Msg
 savedGamesBlock now savedGames =
     if List.isEmpty savedGames then
-        text ""
+        empty
     else
         row ( List.map ( savedGameBlock now ) savedGames )
 
@@ -116,3 +120,15 @@ savedGameBlock now game =
                     ]
                 ]
             ]
+
+welcomeHelp : Html Msg
+welcomeHelp =
+    row
+        [ col "s12"
+            [ card
+                [ helpText
+                    """|Start a new game or join someone else's game.
+                       |"""
+                ]
+            ]
+        ]
