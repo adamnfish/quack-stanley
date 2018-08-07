@@ -26,6 +26,7 @@ UI
 + screen to show full standings (with words)
 + Say on spectating page what the currently active role is?
   + and who has that role?
++ Desktop display on Buyer screen (flex up to multiple columns)
 + Stanley pictures on loading screens
 
 GENERAL

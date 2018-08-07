@@ -1,7 +1,7 @@
 module Views.Buying exposing (buying)
 
-import Html exposing (Html, div, text, button, ul, li, h2)
-import Html.Attributes exposing (class, placeholder)
+import Html exposing (Html, div, text, button, ul, li, h2, a)
+import Html.Attributes exposing (class, placeholder, href)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
@@ -57,7 +57,7 @@ otherPlayer role playerSummary =
     li
         []
         [ button
-            [ class "waves-effect waves-light btn purple btn-large"
+            [ class "pitch-winner__button waves-effect waves-light btn purple btn-large"
             , onClick ( Msg.AwardPoint role playerSummary.screenName )
             ]
             [ text playerSummary.screenName
