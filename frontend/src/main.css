@@ -216,8 +216,15 @@ p.card-header {
 
 .pitch--text {
     font-weight: 400;
-    font-size: 90px;
+    font-size: 80px;
+    font-size: 13vw;
     text-shadow: 1px 1px #888888;
+}
+
+@media only screen and (min-width: 601px) {
+    .pitch--text {
+        font-size: 5vw;
+    }
 }
 
 .pitch__card--hidden {
