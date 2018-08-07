@@ -230,3 +230,9 @@ p.card-header {
 .pitch__card--hidden {
     visibility: hidden;
 }
+
+.pitch-winner__button {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 10px;
+}

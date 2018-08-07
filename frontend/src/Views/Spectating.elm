@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, classList, placeholder, disabled, attrib
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, ApiError, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, plural, icon, showErrors, ShroudContent (..))
+import Views.Utils exposing (container, row, col, card, empty, plural, icon, showErrors, ShroudContent (..))
 
 
 spectating : List String -> List ApiError -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
@@ -15,6 +15,12 @@ spectating selected errors model =
         screenName = Maybe.withDefault "" ( Maybe.map .screenName model.state )
         gameName = Maybe.withDefault "" ( Maybe.map .gameName model.state )
         points = Maybe.withDefault [] ( Maybe.map .points model.state )
+        playerScore = List.length points
+        opponentScores = List.map ( .points >> List.length ) model.opponents
+        leadingScore =
+            max
+                playerScore
+                ( Maybe.withDefault 0 ( List.maximum ( opponentScores ) ) )
     in
         (
             [ button
@@ -84,14 +90,19 @@ spectating selected errors model =
                             (
                                 [ li
                                     [ class "collection-item" ]
-                                    [ text "You"
-                                    , span
-                                        [ class "badge"
-                                        , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
+                                    [ div []
+                                        [ text "You"
+                                        , span
+                                            [ classList
+                                                [ ("badge", True)
+                                                , ("new amber black-text", leadingScore == playerScore && playerScore > 0)
+                                                ]
+                                            , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
+                                            ]
+                                            [ text ( toString playerScore ) ]
                                         ]
-                                        [ text ( toString ( List.length points ) ) ]
                                     ]
-                                ] ++ List.map playerListEntry model.opponents
+                                ] ++ List.map ( playerListEntry leadingScore ) model.opponents
                             )
                         ]
                     ]
@@ -99,17 +110,25 @@ spectating selected errors model =
             ]
         )
 
-playerListEntry : PlayerSummary -> Html Msg
-playerListEntry playerSummary =
-    li
-        [ class "collection-item" ]
-        [ span
-            [ class "badge"
-            , attribute "data-badge-caption" ( plural "point" ( List.length playerSummary.points ) )
+playerListEntry : Int -> PlayerSummary -> Html Msg
+playerListEntry leadingScore playerSummary =
+    let
+        score = List.length playerSummary.points
+    in
+        li
+            [ class "collection-item" ]
+            [ div []
+                [ text playerSummary.screenName
+                , span
+                    [ classList
+                        [ ("badge", True)
+                        , ("amber black-text", leadingScore == score && score > 0)
+                        ]
+                    , attribute "data-badge-caption" ( plural "point" ( List.length playerSummary.points ) )
+                    ]
+                    [ text ( toString score ) ]
+                ]
             ]
-            [ text ( toString ( List.length playerSummary.points ) ) ]
-        , text playerSummary.screenName
-        ]
 
 handEntry : List String -> String -> Html Msg
 handEntry selected word =
