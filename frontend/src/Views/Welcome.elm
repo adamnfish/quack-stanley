@@ -45,10 +45,7 @@ awake now savedGames isAwake =
                         ]
                     ]
                 ]
-            , if List.isEmpty savedGames then
-                welcomeHelp
-              else
-                empty
+            , welcomeHelp
             ]
         ]
     )
@@ -126,8 +123,28 @@ welcomeHelp =
     row
         [ col "s12"
             [ card
-                [ helpText
-                    """|Create a new game or join a game someone else has created.
+                [ p []
+                    [ text "Quack Stanley is a party game for 3+ players that rewards quick thinking, wit and comedy. It is best played in person."
+                    ]
+                , p []
+                    [ text "How to play:" ]
+                , helpText
+                    """|Players take turns to take on the a role as **buyer**.
+                       |Each of the other players then takes a bit of time to choose
+                       |2 words from their hand that together represent a **product**
+                       |they think the buyer would like.
+                       |One at a time, they use those words to **pitch** their
+                       |product to the buyer.
+                       |
+                       |After each player has pitched their product the buyer chooses
+                       |the player with their favourite idea & delivery. This player
+                       |wins the round and receives 1 point.
+                       |
+                       |Now another player can have a turn as buyer and the same
+                       |thing happens again.
+                       |
+                       |The game goes on as long as you are all enjoying yourselves.
+                       |Good luck, have fun!
                        |"""
                 ]
             ]

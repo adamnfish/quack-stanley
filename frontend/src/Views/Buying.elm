@@ -51,7 +51,7 @@ buying role awardingTo model =
                             [ helpText
                                 """|Show the rest of the players this role.
                                    |
-                                   |The other players will each try to *pitch* a product to
+                                   |The other players will each try to **pitch** a product to
                                    |you as that role.
                                    |
                                    |After they've all had a turn pitching their product,

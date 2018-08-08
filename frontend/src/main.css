@@ -69,6 +69,10 @@ h1, h2 {
     margin-top: 1rem;
 }
 
+strong {
+    font-weight: bold;
+}
+
 .row {
     margin-bottom: 0px;
 }
