@@ -127,7 +127,7 @@ welcomeHelp =
         [ col "s12"
             [ card
                 [ helpText
-                    """|Start a new game or join someone else's game.
+                    """|Create a new game or join a game someone else has created.
                        |"""
                 ]
             ]

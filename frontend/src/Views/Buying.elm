@@ -1,6 +1,6 @@
 module Views.Buying exposing (buying)
 
-import Html exposing (Html, div, text, button, ul, li, h2, a)
+import Html exposing (Html, div, p, span, text, button, ul, li, h2, a)
 import Html.Attributes exposing (class, placeholder, href)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
@@ -39,8 +39,8 @@ buying role awardingTo model =
                 [ row
                     [ col "s12"
                         [ card
-                            [ h2
-                                []
+                            [ span
+                                [ class "buyer-role__text" ]
                                 [ text role ]
                             ]
                         ]
@@ -64,15 +64,36 @@ buying role awardingTo model =
                 , row
                     [ col "s12"
                         [ card
-                            [ ul
-                                []
-                                ( List.map ( otherPlayer role ) model.opponents )
-                            ]
+                            [ otherPlayers model.opponents role ]
                         ]
                     ]
                 ]
             ]
         )
+
+otherPlayers : List PlayerSummary -> String -> Html Msg
+otherPlayers opponents role =
+    if List.isEmpty opponents then
+        div
+            []
+            [ helpText
+                """|There are no other players in this game
+                   |so there's no one to award the point to.
+                   |"""
+            , p []
+                [ button
+                    [ class "waves-effect waves-light btn blue"
+                    , onClick Msg.RelinquishBuyer
+                    ]
+                    [ icon "close" "left"
+                    , text "Cancel"
+                    ]
+                ]
+            ]
+    else
+        ul
+            []
+            ( List.map ( otherPlayer role ) opponents )
 
 otherPlayer : String ->  PlayerSummary -> Html Msg
 otherPlayer role playerSummary =

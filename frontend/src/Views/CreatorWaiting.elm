@@ -84,14 +84,12 @@ creatorWaiting gameCode model =
                     [ card
                         [ helpText
                             """|You have created a new game of Quack Stanley.
-                               |
                                |Other players can join this game using the game's
                                |code.
                                |
-                               |Give the other players time to join and then you
-                               |can start the game using the button above.
-                               |Note that once the game has started additional
-                               |players cannot be added.
+                               |Give the other players time to join and then start
+                               |the game using the button above.
+                               |Once the game has started additional players cannot be added.
                                |"""
                         ]
                     ]

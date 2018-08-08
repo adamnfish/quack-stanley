@@ -29,7 +29,7 @@ error errs model =
                     [ card
                         [ h1
                             []
-                            [ text "Error!" ]
+                            [ text "Error" ]
                         , ul
                             []
                             ( lis errs )

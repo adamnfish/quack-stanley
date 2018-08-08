@@ -25,8 +25,8 @@ handleApiResponse result =
         Err ( Http.BadUrl message ) ->
             ApiErr [ { message = message, context = Nothing } ]
         Err Http.Timeout ->
-            ApiErr [ { message = "Request timed out", context = Nothing } ]
+            ApiErr [ { message = "Request to server timed out, please check your internet connection.", context = Nothing } ]
         Err Http.NetworkError ->
-            ApiErr [ { message = "Connection error", context = Nothing } ]
+            ApiErr [ { message = "Unable to connect to server, please check your internet connection.", context = Nothing } ]
         Err ( Http.BadPayload message response ) ->
             ApiErr [ { message = message, context = Nothing } ]

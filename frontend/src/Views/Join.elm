@@ -47,7 +47,7 @@ join loading gameCode screenName errors model =
                     [ card
                         [ helpText
                             """|Join an existing game and set your player name.
-                               |The game's creator can tell you the game's code.
+                               |The game's creator can tell you the game code.
                                |"""
                        ]
                     ]
