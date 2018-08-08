@@ -143,7 +143,7 @@ welcomeHelp =
                        |Now another player can have a turn as buyer and the same
                        |thing happens again.
                        |
-                       |The game goes on as long as you are all enjoying yourselves.
+                       |The game goes on for as long as you are all enjoying yourselves.
                        |Good luck, have fun!
                        |"""
                 ]
