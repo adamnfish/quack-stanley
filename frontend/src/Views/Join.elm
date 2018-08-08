@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, placeholder)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, Lifecycle (..), ApiError)
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput, ShroudContent (..), errorsForField, showErrors, nonFieldErrors, errorsExcludingField)
+import Views.Utils exposing (container, row, col, card, gameNav, icon, textInput, helpText, ShroudContent (..), errorsForField, showErrors, nonFieldErrors, errorsExcludingField)
 
 
 join : Bool -> String -> String -> List ApiError -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
@@ -40,6 +40,16 @@ join loading gameCode screenName errors model =
                                 ]
                             ]
                         ]
+                    ]
+                ]
+            , row
+                [ col "s12"
+                    [ card
+                        [ helpText
+                            """|Join an existing game and set your player name.
+                               |The game's creator can tell you the game code.
+                               |"""
+                       ]
                     ]
                 ]
             ]

@@ -65,6 +65,14 @@ nav, .footer-color, #logo-container {
 
 /* FRAMEWORK ADJUSTMENTS */
 
+h1, h2 {
+    margin-top: 1rem;
+}
+
+strong {
+    font-weight: bold;
+}
+
 .row {
     margin-bottom: 0px;
 }
@@ -201,7 +209,7 @@ p.card-header {
 }
 
 .hand__card {
-    flex: 1 1 130px;
+    flex: 1 1 135px;
     min-width: 50%;
     padding: 3px;
 }
@@ -235,4 +243,13 @@ p.card-header {
     width: 100%;
     text-align: left;
     margin-bottom: 10px;
+}
+
+.buyer-role__text {
+    font-size: 10vw;
+}
+
+.text--help p, .text--help li {
+    color: #757575;
+    font-size: 90%;
 }

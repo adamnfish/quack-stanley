@@ -6,7 +6,7 @@ import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, SavedGame, Lifecycle (..))
 import Msg exposing (Msg)
 import Time exposing (Time)
-import Views.Utils exposing (container, row, col, card, icon, gameNav, shroud, ShroudContent (..))
+import Views.Utils exposing (container, row, col, card, icon, empty, gameNav, shroud, helpText, ShroudContent (..))
 
 
 welcome : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
@@ -45,6 +45,7 @@ awake now savedGames isAwake =
                         ]
                     ]
                 ]
+            , welcomeHelp
             ]
         ]
     )
@@ -52,7 +53,7 @@ awake now savedGames isAwake =
 savedGamesBlock : Time -> List SavedGame -> Html Msg
 savedGamesBlock now savedGames =
     if List.isEmpty savedGames then
-        text ""
+        empty
     else
         row ( List.map ( savedGameBlock now ) savedGames )
 
@@ -116,3 +117,35 @@ savedGameBlock now game =
                     ]
                 ]
             ]
+
+welcomeHelp : Html Msg
+welcomeHelp =
+    row
+        [ col "s12"
+            [ card
+                [ p []
+                    [ text "Quack Stanley is a party game for 3+ players that rewards quick thinking, wit and comedy. It is best played in person."
+                    ]
+                , p []
+                    [ text "How to play:" ]
+                , helpText
+                    """|Players take turns to take on the a role as **buyer**.
+                       |Each of the other players then takes a bit of time to choose
+                       |2 words from their hand that together represent a **product**
+                       |they think the buyer would like.
+                       |One at a time, they use those words to **pitch** their
+                       |product to the buyer.
+                       |
+                       |After each player has pitched their product the buyer chooses
+                       |the player with their favourite idea & delivery. This player
+                       |wins the round and receives 1 point.
+                       |
+                       |Now another player can have a turn as buyer and the same
+                       |thing happens again.
+                       |
+                       |The game goes on as long as you are all enjoying yourselves.
+                       |Good luck, have fun!
+                       |"""
+                ]
+            ]
+        ]

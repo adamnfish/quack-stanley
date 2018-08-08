@@ -3,11 +3,13 @@ module Views.Utils exposing
     , container, row, col, card, gameNav, stripMargin, multiLineText
     , textInput, shroud, empty, ShroudContent (..)
     , errorsForField, errorsExcludingField, nonFieldErrors, showErrors
+    , helpText
     )
 
 import Html exposing (Html, Attribute, div, text, button, input, label, li, i, span)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
+import Markdown exposing (toHtml)
 import Msg exposing (Msg)
 import Model exposing (Model, ApiError)
 
@@ -197,3 +199,9 @@ showErrors errors =
         div
             [ class "card-panel red lighten-4" ]
             [ text ( String.concat ( List.intersperse ", " ( List.map .message errors ) ) ) ]
+
+helpText : String -> Html Msg
+helpText message =
+    toHtml
+        [ class "text--help" ]
+        ( stripMargin message )
