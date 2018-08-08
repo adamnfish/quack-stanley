@@ -162,6 +162,26 @@ class StartGameIntegrationTest extends FreeSpec with Matchers
       }
     }
 
+    "with only one player " - {
+      val soloGameIdUUID = UUID.randomUUID().toString
+
+      val gameId = GameId(soloGameIdUUID)
+      val gameName = "game-name"
+      val creatorScreenName = "creator"
+      val creatorKey = PlayerKey(creatorUUID)
+      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
+      val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
+        Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
+      )
+      GameIO.writeGameState(gameState, testConfig).value()
+      GameIO.writePlayerState(creatorState, creatorKey, testConfig).value()
+
+      "fails to start the game (requires higher player count)" in {
+        val request = StartGame(gameId, creatorKey)
+        startGame(request, testConfig).isFailedAttempt() shouldEqual true
+      }
+    }
+
     "if the game does not exist, fails to auth the player" in {
       val request = StartGame(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID))
       startGame(request, testConfig).isFailedAttempt() shouldEqual true

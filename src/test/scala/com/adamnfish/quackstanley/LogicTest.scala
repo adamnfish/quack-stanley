@@ -234,6 +234,20 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
   }
 
+  "validatePlayerCount" - {
+    "succeeds if there are enough players" in {
+      validatePlayerCount(3).isSuccessfulAttempt() shouldEqual true
+    }
+
+    "fails if there are too few players" in {
+      validatePlayerCount(1).isFailedAttempt() shouldEqual true
+    }
+
+    "we'll allow 2 players because it's useful for quick testing" in {
+      validatePlayerCount(2).isSuccessfulAttempt() shouldEqual true
+    }
+  }
+
   "updateGameWithAwardedPoint" - {
     val game = newGame("game name", "creator")
     val playerKey = PlayerKey("player")

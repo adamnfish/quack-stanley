@@ -151,18 +151,20 @@ object Attempt {
     * Create an Attempt instance from a "good" value.
     */
   def Right[A](a: A): Attempt[A] =
-  Attempt(Future.successful(scala.Right(a)))
+    Attempt(Future.successful(scala.Right(a)))
 
   /**
     * Create an Attempt failure from an Failure instance, representing the possibility of multiple failures.
     */
   def Left[A](errs: FailedAttempt): Attempt[A] =
-  Attempt(Future.successful(scala.Left(errs)))
+    Attempt(Future.successful(scala.Left(errs)))
   /**
     * Syntax sugar to create an Attempt failure if there's only a single error.
     */
   def Left[A](err: Failure): Attempt[A] =
-  Attempt(Future.successful(scala.Left(FailedAttempt(err))))
+    Attempt(Future.successful(scala.Left(FailedAttempt(err))))
+
+  def unit: Attempt[Unit] = Attempt.Right(())
 
   /**
     * Asyncronous versions of the Attempt Right/Left helpers for when you have
