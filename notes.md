@@ -31,6 +31,9 @@ UI
 + Stanley pictures on loading screens
 
 GENERAL
++ enforce at least one other player on game start
++ track "product" to help buyer choose and for standings
++ change screen name to player name in API so error messages match UI
 + Show joined players on CreatorWaiting screen
 + better asset versioning (cache headers) so updates manifest?
 * error handling (minimise usage of generic error view)
