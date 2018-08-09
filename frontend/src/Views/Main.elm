@@ -55,7 +55,7 @@ lifecycleTheme lifecycle =
             "green"
         Create _ ->
             "teal"
-        CreatorWaiting _ ->
+        CreatorWaiting _ _ ->
             "teal"
         Join _ ->
             "cyan"

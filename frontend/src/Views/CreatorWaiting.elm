@@ -3,13 +3,13 @@ module Views.CreatorWaiting exposing (creatorWaiting)
 import Html exposing (Html, div, text, button, input, label, span, br)
 import Html.Attributes exposing (class, id, placeholder, value, type_, disabled, for)
 import Html.Events exposing (onClick, onSubmit, onInput)
-import Model exposing (Model, Lifecycle (..))
+import Model exposing (Model, Lifecycle (..), ApiError)
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon, helpText, ShroudContent (..))
+import Views.Utils exposing (container, gameNav, row, col, card, icon, helpText, showErrors, ShroudContent (..))
 
 
-creatorWaiting : String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
-creatorWaiting gameCode model =
+creatorWaiting : String -> List ApiError -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
+creatorWaiting gameCode errors model =
     ( []
     , NoLoadingShroud
     , div
@@ -17,7 +17,8 @@ creatorWaiting gameCode model =
         [ container "creator-waiting"
             [ row
                 [ col "s12"
-                    [ card
+                    [ showErrors errors
+                    , card
                         [ row
                             [ col "s12 m6"
                                 [ div
@@ -54,7 +55,7 @@ creatorWaiting gameCode model =
                             [ col "s12 m6 push-m6"
                                 [ button
                                     [ class "waves-effect waves-light blue btn btn-large cta__button"
-                                    , onClick Msg.StartingGame
+                                    , onClick ( Msg.StartingGame gameCode )
                                     ]
                                     [ text "Start game"
                                     , icon "play_arrow" "right"

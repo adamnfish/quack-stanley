@@ -34,8 +34,8 @@ view model =
             waiting model
         Rejoining savedGame ->
             rejoining savedGame model
-        CreatorWaiting gameCode ->
-            creatorWaiting gameCode model
+        CreatorWaiting gameCode errors ->
+            creatorWaiting gameCode errors model
         Starting ->
             message "Starting game..." model
 

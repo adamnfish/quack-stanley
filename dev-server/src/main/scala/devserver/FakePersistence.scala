@@ -13,7 +13,7 @@ class FakePersistence extends Persistence {
 
   override def getJson(path: String, config: Config): Attempt[Json] = {
     Attempt.fromOption(data.get(path),
-      Failure("Game data not found", "Failed to look up game data", 500, Some(path), None).asAttempt
+      Failure("Game data not found", "Couldn't find your game", 500, Some(path), None).asAttempt
     )
   }
 

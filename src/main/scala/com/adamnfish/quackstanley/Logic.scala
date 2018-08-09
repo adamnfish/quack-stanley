@@ -81,7 +81,7 @@ object Logic {
 
   def lookupPlayer(states: Map[PlayerKey, PlayerState], playerKey: PlayerKey): Attempt[PlayerState] = {
     Attempt.fromOption(states.get(playerKey),
-      Failure("Couldn't lookup creator's state", "Failed to lookup player", 500, None).asAttempt
+      Failure("Couldn't lookup creator's state", "Couldn't find the player", 500, None).asAttempt
     )
   }
 
@@ -121,7 +121,7 @@ object Logic {
       Attempt.Left(
         Failure(
           "Insufficient player count",
-          "Quack Stanley requires at least 3 players to work properly. Make sure you wait for other players to join before starting the game.",
+          "Quack Stanley requires at least 3 players to play properly. Make sure you wait for other players to join before starting the game.",
           400
         )
       )

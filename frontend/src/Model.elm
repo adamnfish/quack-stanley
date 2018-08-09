@@ -10,7 +10,7 @@ type Lifecycle
     | Create                -- create new game (gameName, screenName, loading)
         CreateState
     | CreatorWaiting        -- waiting for game to start (will have game and screen name)
-        String
+        String ( List ApiError )
     | Join                  -- join existing game (gameId, screenName)
         JoinState
     | Waiting               -- waiting for game to start (will have game and screen name)
