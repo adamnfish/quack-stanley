@@ -1,6 +1,7 @@
 TODO:
 
 PRIORITY
++ Show current games when nav back home
 + flex for past games on welome screen
 + minimum display time for shroud
   - quite glitchy now when the server is fast
@@ -31,7 +32,6 @@ UI
 + Stanley pictures on loading screens
 
 GENERAL
-+ enforce at least one other player on game start
 + track "product" to help buyer choose and for standings
 + change screen name to player name in API so error messages match UI
 + Show joined players on CreatorWaiting screen
@@ -84,6 +84,7 @@ BUILD
 
 
 GENERAL
++ enforce at least one other player on game start
 - Rejoin doesn't work for buyer!
 - non-lifecycle errors are sticky
 - additional navigation (e.g. leave game / rejoin from welcome)
