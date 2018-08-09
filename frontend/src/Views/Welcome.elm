@@ -136,6 +136,16 @@ welcomeHelp =
                        |One at a time, they use those words to **pitch** their
                        |product to the buyer.
                        |
+                       |Consider the buyer's **role** when you choose and pitch your
+                       |product. For example, let's say the buyer is an `Astronaut` and your
+                       |hand contains `hoodie`, `gravity`, `barricade`, `pyjamas`,
+                       |`oven`, `cone`.
+                       |You might choose `gravity` and `pyjamas` and then pitch
+                       |gravity-pyjamas to the buyer by talking about how hard it is
+                       |to get a good night's sleep when you're floating in space.
+                       |Be creative!
+                       |
+                       |
                        |After each player has pitched their product the buyer chooses
                        |the player with their favourite idea & delivery. This player
                        |wins the round and receives 1 point.

@@ -3,7 +3,7 @@
   "name": "Quack Stanley",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "/images/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     }
