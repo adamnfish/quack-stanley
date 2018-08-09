@@ -61,6 +61,7 @@ object QuackStanley {
       _ <- authenticateCreator(data.playerKey, gameState)
       _ <- verifyNotStarted(gameState)
       playerStates <- getRegisteredPlayers(data.gameId, config)
+      _ <- validatePlayerCount(playerStates.size)
       allWords <- Resources.words()
       words <- nextWords(handSize * playerStates.size, allWords, Set.empty)
       players = playerSummaries(playerStates)

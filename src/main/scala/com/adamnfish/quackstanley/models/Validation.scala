@@ -60,7 +60,7 @@ object Validation {
 
   private[models] def validate[A](a: A, context: String, validator: Validator[A]): Attempt[Unit] = {
     val failures = validator(a, context)
-    if (failures.isEmpty) Attempt.Right(())
+    if (failures.isEmpty) Attempt.unit
     else Attempt.Left(FailedAttempt(failures))
   }
 

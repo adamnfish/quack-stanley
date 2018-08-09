@@ -4,7 +4,7 @@ import Html exposing (Html, div, p, strong, span, text)
 import Html.Attributes exposing (class, id, placeholder, value, type_, disabled, for)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon, ShroudContent (..))
+import Views.Utils exposing (container, gameNav, row, col, card, icon, helpText, ShroudContent (..))
 
 
 waiting : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
@@ -19,7 +19,7 @@ waiting model =
             []
             [ container "waiting"
                 [ row
-                    [ col "s12"
+                    [ col "s12 m6"
                         [ card
                             [ p
                                 [ class "card-header valign-wrapper" ]
@@ -36,6 +36,13 @@ waiting model =
                             , p
                                 [ class "flow-text" ]
                                 [ text "Waiting for the game to start" ]
+                            ]
+                        ]
+                    , col "s12 m6"
+                        [ card
+                            [ helpText
+                                """|When all players have joined the creator can start the game.
+                                   |"""
                             ]
                         ]
                     ]

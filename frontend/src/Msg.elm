@@ -33,8 +33,9 @@ type Msg
     | RemoveSavedGame
         SavedGame
     | StartingGame
+        String
     | GameStarted
-        ( ApiResponse PlayerInfo )
+        String ( ApiResponse PlayerInfo )
     | SelectWord
         String ( List String )
     | DeselectWord
@@ -153,7 +154,7 @@ update msg model =
                 , Cmd.none
                 )
         CreatedGame _ _ ( ApiOk newGame ) ->
-            ( { model | lifecycle = CreatorWaiting newGame.gameCode
+            ( { model | lifecycle = CreatorWaiting newGame.gameCode []
                       , playerKey = Just newGame.playerKey
                       , state = Just newGame.state
                       , isCreator = True
@@ -205,18 +206,21 @@ update msg model =
             , removeSavedGame savedGame
             )
 
-        StartingGame ->
+        StartingGame gameCode ->
             case keys model of
                 Just ( gameId, playerKey ) ->
                     ( { model | lifecycle = Starting }
-                    , startGame gameId playerKey
+                    , startGame gameCode gameId playerKey
                     )
                 Nothing ->
-                    ( { model | lifecycle = Error [ "Could not start game" ] }, Cmd.none )
+                    let
+                        errors = [ { message = "Could not start game", context = Nothing } ]
+                    in
+                        ( { model | lifecycle = CreatorWaiting gameCode errors }, Cmd.none )
 
-        GameStarted ( ApiErr err ) ->
-            ( { model | lifecycle = Error ( List.map .message err ) }, Cmd.none )
-        GameStarted ( ApiOk playerInfo ) ->
+        GameStarted gameCode ( ApiErr errs ) ->
+            ( { model | lifecycle = CreatorWaiting gameCode errs }, Cmd.none )
+        GameStarted gameCode ( ApiOk playerInfo ) ->
             let
                 updatedModel =
                     { model | lifecycle = Spectating [] []
@@ -415,9 +419,9 @@ joinGame : String -> String -> Cmd Msg
 joinGame gameCode screenName =
     sendApiCall ( JoinedGame gameCode screenName ) ( joinGameRequest gameCode screenName )
 
-startGame : String -> String -> Cmd Msg
-startGame gameId playerKey =
-    sendApiCall GameStarted ( startGameRequest gameId playerKey )
+startGame : String -> String -> String -> Cmd Msg
+startGame gameCode gameId playerKey =
+    sendApiCall ( GameStarted gameCode ) ( startGameRequest gameId playerKey )
 
 becomeBuyer : String -> String -> Cmd Msg
 becomeBuyer gameId playerKey =

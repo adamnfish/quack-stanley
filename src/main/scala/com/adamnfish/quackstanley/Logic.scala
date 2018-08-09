@@ -81,7 +81,7 @@ object Logic {
 
   def lookupPlayer(states: Map[PlayerKey, PlayerState], playerKey: PlayerKey): Attempt[PlayerState] = {
     Attempt.fromOption(states.get(playerKey),
-      Failure("Couldn't lookup creator's state", "Failed to lookup player", 500, None).asAttempt
+      Failure("Couldn't lookup creator's state", "Couldn't find the player", 500, None).asAttempt
     )
   }
 
@@ -101,7 +101,7 @@ object Logic {
   def verifyNoBuyer(gameState: GameState): Attempt[Unit] = {
     gameState.buyer match {
       case None =>
-        Attempt.Right(())
+        Attempt.unit
       case Some(buyerKey) =>
         val playerName = gameState.players.mapValues(_.screenName).getOrElse(buyerKey, "another player")
         Attempt.Left(Failure(s"Buyer already exists: $playerName", s"$playerName is already the buyer", 400))
@@ -112,7 +112,21 @@ object Logic {
     if (gameState.started) {
       Attempt.Left(Failure("Game has already started", "The game has already started", 400))
     } else {
-      Attempt.Right(())
+      Attempt.unit
+    }
+  }
+
+  def validatePlayerCount(playerCount: Int): Attempt[Unit] = {
+    if (playerCount < 2) {
+      Attempt.Left(
+        Failure(
+          "Insufficient player count",
+          "Quack Stanley requires at least 3 players to play properly. Make sure you wait for other players to join before starting the game.",
+          400
+        )
+      )
+    } else {
+      Attempt.unit
     }
   }
 
