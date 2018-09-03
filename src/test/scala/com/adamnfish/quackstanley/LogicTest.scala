@@ -129,7 +129,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
 
   "authenticateBuyer" - {
     val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"),
-      buyer = Some(PlayerKey("foo")),
+      buyer = Some(Buyer(PlayerKey("foo"))),
       Map(
         PlayerKey("player") -> PlayerSummary("player-name", Nil),
         PlayerKey("foo") -> PlayerSummary("another-player", Nil)
@@ -208,14 +208,14 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
 
     "returns failed attempt if there is already a buyer" in {
-      val game = newGame("game name", "creator").copy(buyer = Some(PlayerKey("player")))
+      val game = newGame("game name", "creator").copy(buyer = Some(Buyer(PlayerKey("player"))))
       verifyNoBuyer(game).isFailedAttempt() shouldEqual true
     }
 
     "failure includes current buyer's name" in {
       val game = newGame("game name", "creator")
       val gameWithBuyer = game.copy(
-        buyer = Some(PlayerKey("player")),
+        buyer = Some(Buyer(PlayerKey("player"))),
         players = game.players + (PlayerKey("player") -> PlayerSummary("player name", Nil))
       )
       verifyNoBuyer(gameWithBuyer).leftValue().failures.head.friendlyMessage should include("player name")
@@ -252,7 +252,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     val game = newGame("game name", "creator")
     val playerKey = PlayerKey("player")
     val gameWithBuyer = game.copy(
-      buyer = Some(PlayerKey("buyer")),
+      buyer = Some(Buyer(PlayerKey("buyer"))),
       players = game.players + (playerKey -> PlayerSummary("player name", Nil))
     )
     val role = Role("role")

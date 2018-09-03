@@ -40,7 +40,7 @@ class RelinquishBuyerIntegrationTest extends FreeSpec with Matchers
         val screenName = "player name"
         val playerKey = PlayerKey(playerKeyUUID)
         val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, Some(Role("role")), Nil)
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(playerKey),
+        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Buyer(playerKey)),
           Map(creator -> PlayerSummary("Creator", Nil), playerKey -> PlayerSummary(screenName, Nil))
         )
         GameIO.writeGameState(gameState, testConfig)

@@ -43,7 +43,7 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
         val winningPlayerKey = PlayerKey(winningPlayerKeyUUID)
         val winnerScreenName = "winner"
         val winningPlayerState = PlayerState(gameId, gameName, winnerScreenName, Nil, Nil, None, Nil)
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(playerKey),
+        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Buyer(playerKey)),
           Map(
             creator -> PlayerSummary("Creator", Nil),
             playerKey -> PlayerSummary(screenName, Nil),

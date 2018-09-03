@@ -88,7 +88,7 @@ object QuackStanley {
       allRoles <- Resources.roles()
       role <- nextRole(allRoles, usedRoles(players.values.toList))
       playerWithRole = player.copy(role = Some(role))
-      gameWithBuyer = gameState.copy(buyer = Some(data.playerKey))
+      gameWithBuyer = gameState.copy(buyer = Some(Buyer(data.playerKey)))
       _ <- writeGameState(gameWithBuyer, config)
       _ <- writePlayerState(playerWithRole, data.playerKey, config)
     } yield playerInfo(data.playerKey, playerWithRole, gameWithBuyer)

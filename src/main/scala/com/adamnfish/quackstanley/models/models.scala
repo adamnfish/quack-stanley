@@ -27,6 +27,10 @@ case class PlayerSummary(
   points: List[Role]
 )
 
+case class Buyer(
+  playerKey: PlayerKey
+)
+
 // private global gamestate
 case class GameState(
   gameId: GameId,
@@ -34,7 +38,7 @@ case class GameState(
   startTime: DateTime,
   started: Boolean, // once game has started players cannot be added
   creator: PlayerKey,
-  buyer: Option[PlayerKey],
+  buyer: Option[Buyer],
   players: Map[PlayerKey, PlayerSummary]
   // pitching: Option[PlayerKey]  <- required?
 )

@@ -60,9 +60,7 @@ object Logic {
 
   def authenticateBuyer(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[PlayerKey] = {
     Attempt.fromOption(
-      gameState.buyer.flatMap { buyerKey =>
-        gameState.buyer.find(_ == playerKey)
-      },
+      gameState.buyer.find(_.playerKey == playerKey).map(_.playerKey),
       Failure("Player is not buyer", "Another player is already the buyer", 404).asAttempt
     )
   }
@@ -102,8 +100,8 @@ object Logic {
     gameState.buyer match {
       case None =>
         Attempt.unit
-      case Some(buyerKey) =>
-        val playerName = gameState.players.mapValues(_.screenName).getOrElse(buyerKey, "another player")
+      case Some(buyer) =>
+        val playerName = gameState.players.mapValues(_.screenName).getOrElse(buyer.playerKey, "another player")
         Attempt.Left(Failure(s"Buyer already exists: $playerName", s"$playerName is already the buyer", 400))
     }
   }
