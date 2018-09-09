@@ -21,7 +21,7 @@ phases:
     - mkdir -p $NPM_ROOT
     - npm config set prefix $NPM_ROOT
 
-    - npm install -g create-elm-app --unsafe-perm=true --allow-root
+    - npm install -g create-elm-app@1.10.4 --unsafe-perm=true --allow-root
 
   build:
     commands:
