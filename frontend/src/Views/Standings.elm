@@ -15,27 +15,23 @@ standings model =
     in
         ( []
         , NoLoadingShroud
-        , div
-            []
-            [ container "standings"
-                [ row
-                    [ col "s12"
-                        [ ul
-                            [ class "collection z-depth-1" ]
-                            (
-                                [ li
-                                    [ class "collection-item" ]
-                                    [ text "You"
-                                    , span
-                                        [ class "badge"
-                                        , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
-                                        ]
-                                        [ text ( toString ( List.length points ) ) ]
+        , container "standings"
+            [ row
+                [ col "s12"
+                    [ ul
+                        [ class "collection z-depth-1" ]
+                        (
+                            [ li
+                                [ class "collection-item" ]
+                                [ text "You"
+                                , span
+                                    [ class "badge"
+                                    , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
                                     ]
-                                ] ++ List.map playerListEntry model.opponents
-                            )
-                        ]
-
+                                    [ text ( toString ( List.length points ) ) ]
+                                ]
+                            ] ++ List.map playerListEntry model.opponents
+                        )
                     ]
                 ]
             ]

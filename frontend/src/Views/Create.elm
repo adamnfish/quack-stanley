@@ -20,37 +20,34 @@ create loading gameName screenName errors model =
             ]
         ]
     , LoadingMessage loading ( [ text "Creating game" ] )
-    , div
-        []
-        [ container "create"
-            [ row
-                [ col "s12"
-                    [ card
-                        [ showErrors ( nonFieldErrors [ "game name", "screen name" ] errors )
-                        , form
-                            [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
-                            [ textInput "Game name" "create-game" gameName ( errorsForField "game name" errors )
-                                [ onInput ( \val -> Msg.CreatingNewGame val screenName ( errorsExcludingField "game name" errors ) ) ]
-                            , textInput "Player name" "player-name" screenName ( errorsForField "screen name" errors )
-                                [ onInput ( \val -> Msg.CreatingNewGame gameName val ( errorsExcludingField "screen name" errors ) ) ]
-                            , button
-                                [ class "waves-effect waves-light teal btn btn-large" ]
-                                [ text "Create game"
-                                , icon "gamepad" "right"
-                                ]
+    , container "create"
+        [ row
+            [ col "s12"
+                [ card
+                    [ showErrors ( nonFieldErrors [ "game name", "screen name" ] errors )
+                    , form
+                        [ onSubmit ( Msg.CreateNewGame gameName screenName ) ]
+                        [ textInput "Game name" "create-game" gameName ( errorsForField "game name" errors )
+                            [ onInput ( \val -> Msg.CreatingNewGame val screenName ( errorsExcludingField "game name" errors ) ) ]
+                        , textInput "Player name" "player-name" screenName ( errorsForField "screen name" errors )
+                            [ onInput ( \val -> Msg.CreatingNewGame gameName val ( errorsExcludingField "screen name" errors ) ) ]
+                        , button
+                            [ class "waves-effect waves-light teal btn btn-large" ]
+                            [ text "Create game"
+                            , icon "gamepad" "right"
                             ]
                         ]
                     ]
                 ]
-            , row
-                [ col "s12"
-                    [ card
-                        [ helpText
-                            """|Creates a new game that others can join.
-                               |You will be able to start the game when player's have joined.
-                               |"""
-                       ]
-                    ]
+            ]
+        , row
+            [ col "s12"
+                [ card
+                    [ helpText
+                        """|Creates a new game that others can join.
+                           |You will be able to start the game when player's have joined.
+                           |"""
+                   ]
                 ]
             ]
         ]

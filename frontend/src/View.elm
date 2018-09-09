@@ -37,7 +37,7 @@ view model =
         CreatorWaiting gameCode errors ->
             creatorWaiting gameCode errors model
         Starting ->
-            message "Starting game..." model
+            message "Starting game" model
 
         Spectating selected errors ->
             spectating selected errors model

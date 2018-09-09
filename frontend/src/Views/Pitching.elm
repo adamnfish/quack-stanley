@@ -24,40 +24,36 @@ pitching word1 word2 loading model =
                 ]
             ]
         , LoadingMessage loading [ text "Finishing pitch" ]
-        , div
-            []
-            [ div
-                [ class "container pitching" ]
-                [ row
-                    [ col "s12"
-                        [ card
-                            [ div
-                                [ class "pitch__container" ]
-                                [ span
-                                    [ class "pitch--word" ]
-                                    [ text word1 ]
-                                , text " "
-                                , span
-                                    [ class "pitch__divider grey-text text-lighten-1" ]
-                                    [ text " " ]
-                                , text " "
-                                , span
-                                    [ class "pitch--word" ]
-                                    [ text word2 ]
-                                ]
+        , container "pitching"
+            [ row
+                [ col "s12"
+                    [ card
+                        [ div
+                            [ class "pitch__container" ]
+                            [ span
+                                [ class "pitch--word" ]
+                                [ text word1 ]
+                            , text " "
+                            , span
+                                [ class "pitch__divider grey-text text-lighten-1" ]
+                                [ text " " ]
+                            , text " "
+                            , span
+                                [ class "pitch--word" ]
+                                [ text word2 ]
                             ]
                         ]
                     ]
-                , row
-                    [ col "m6 s12 push-m6"
-                        [ card
-                            [ button
-                                [ class "waves-effect waves-light btn btn-large blue cta__button"
-                                , onClick ( Msg.FinishedPitch word1 word2 )
-                                ]
-                                [ text "Finish pitch"
-                                , icon "done" "right"
-                                ]
+                ]
+            , row
+                [ col "m6 s12 push-m6"
+                    [ card
+                        [ button
+                            [ class "waves-effect waves-light btn btn-large blue cta__button"
+                            , onClick ( Msg.FinishedPitch word1 word2 )
+                            ]
+                            [ text "Finish pitch"
+                            , icon "done" "right"
                             ]
                         ]
                     ]

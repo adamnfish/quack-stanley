@@ -16,37 +16,34 @@ welcome model =
 awake : Time -> List SavedGame -> Bool -> ( List ( Html Msg ), ShroudContent, Html Msg )
 awake now savedGames isAwake =
     ( []
-    , LoadingMessage ( not isAwake ) [ text "Loading..." ]
-    , div
-        []
-        [ container "welcome"
-            [ savedGamesBlock now savedGames
-            , row
-                [ col "s12 m6 center-align"
-                    [ card
-                        [ button
-                            [ class "waves-effect waves-light btn btn-large teal cta__button"
-                            , onClick ( Msg.CreatingNewGame "" "" [] )
-                            ]
-                            [ text "Create game"
-                            , icon "gamepad" "right"
-                            ]
+    , LoadingMessage ( not isAwake ) [ text "Loading" ]
+    , container "welcome"
+        [ savedGamesBlock now savedGames
+        , row
+            [ col "s12 m6 center-align"
+                [ card
+                    [ button
+                        [ class "waves-effect waves-light btn btn-large teal cta__button"
+                        , onClick ( Msg.CreatingNewGame "" "" [] )
                         ]
-                    ]
-                , col "s12 m6 center-align"
-                    [  card
-                        [ button
-                            [ class "waves-effect waves-light btn btn-large cyan cta__button"
-                            , onClick ( Msg.JoiningGame "" "" [] )
-                            ]
-                            [ text "Join game"
-                            , icon "person_add" "right"
-                            ]
+                        [ text "Create game"
+                        , icon "gamepad" "right"
                         ]
                     ]
                 ]
-            , welcomeHelp
+            , col "s12 m6 center-align"
+                [  card
+                    [ button
+                        [ class "waves-effect waves-light btn btn-large cyan cta__button"
+                        , onClick ( Msg.JoiningGame "" "" [] )
+                        ]
+                        [ text "Join game"
+                        , icon "person_add" "right"
+                        ]
+                    ]
+                ]
             ]
+        , welcomeHelp
         ]
     )
 

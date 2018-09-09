@@ -35,39 +35,36 @@ buying role awardingTo model =
                 ]
             ]
         , shroud
-        , div
-            []
-            [ container "buying"
-                [ row
-                    [ col "s12"
-                        [ card
-                            [ span
-                                [ class "buyer-role__text" ]
-                                [ text role ]
-                            ]
+        , container "buying"
+            [ row
+                [ col "s12"
+                    [ card
+                        [ span
+                            [ class "buyer-role__text" ]
+                            [ text role ]
                         ]
                     ]
-                , row
-                    [ col "s12"
-                        [ card
-                            [ helpText
-                                """|Show the rest of the players this role.
-                                   |
-                                   |The other players will each try to **pitch** a product to
-                                   |you as that role.
-                                   |
-                                   |After they've each had a turn pitching their product,
-                                   |choose the player who's sales pitch & end product you
-                                   |most liked from the list below.
-                                   |"""
-                           ]
-                        ]
+                ]
+            , row
+                [ col "s12"
+                    [ card
+                        [ helpText
+                            """|Show the rest of the players this role.
+                               |
+                               |The other players will each try to **pitch** a product to
+                               |you as that role.
+                               |
+                               |After they've each had a turn pitching their product,
+                               |choose the player who's sales pitch & end product you
+                               |most liked from the list below.
+                               |"""
+                       ]
                     ]
-                , row
-                    [ col "s12"
-                        [ card
-                            [ otherPlayers model.opponents products role ]
-                        ]
+                ]
+            , row
+                [ col "s12"
+                    [ card
+                        [ otherPlayers model.opponents products role ]
                     ]
                 ]
             ]

@@ -21,19 +21,16 @@ error errs model =
         , resumeGameIfItExists model
         ]
     , NoLoadingShroud
-    , div
-        []
-        [ container "error"
-            [ row
-                [ col "s12"
-                    [ card
-                        [ h1
-                            []
-                            [ text "Error" ]
-                        , ul
-                            []
-                            ( lis errs )
-                        ]
+    , container "error"
+        [ row
+            [ col "s12"
+                [ card
+                    [ h1
+                        []
+                        [ text "Error" ]
+                    , ul
+                        []
+                        ( lis errs )
                     ]
                 ]
             ]
