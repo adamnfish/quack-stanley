@@ -37,13 +37,13 @@ view model =
         CreatorWaiting gameCode errors ->
             creatorWaiting gameCode errors model
         Starting ->
-            message "Starting game..." model
+            message "Starting game" model
 
         Spectating selected errors ->
             spectating selected errors model
 
-        Pitching word1 word2 pitchStatus loading ->
-            pitching word1 word2 pitchStatus loading model
+        Pitching word1 word2 loading ->
+            pitching word1 word2 loading model
 
         BecomingBuyer ->
             message "Loading role" model

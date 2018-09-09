@@ -19,9 +19,5 @@ rejoining savedGame model =
                 , text savedGame.gameName
                 ]
             ]
-        , div
-            []
-            [ container "rejoining"
-                []
-            ]
+        , container "rejoining" []
         )

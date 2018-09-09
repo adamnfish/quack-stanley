@@ -2,7 +2,7 @@ module Msg exposing (Msg (..), update, wakeServer)
 
 import Api.Api exposing (sendApiCall)
 import Api.Requests exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, relinquishBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
-import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), PitchStatus (..), ApiResponse (..), ApiError)
+import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), ApiResponse (..), ApiError)
 import Time exposing (Time)
 import Ports exposing (fetchSavedGames, saveGame, removeSavedGame)
 
@@ -56,8 +56,6 @@ type Msg
         Time.Time
     | StartPitch
         String String
-    | RevealCard
-        String String PitchStatus
     | FinishedPitch
         String String
     | FinishedPitchResult
@@ -386,23 +384,13 @@ update msg model =
                     )
 
         StartPitch word1 word2 ->
-            ( { model | lifecycle = Pitching word1 word2 NoCards False }
+            ( { model | lifecycle = Pitching word1 word2 False }
             , Cmd.none
             )
-        RevealCard word1 word2 pitchStatus ->
-            let
-                nextPitchStatus = case pitchStatus of
-                    NoCards  -> OneCard
-                    OneCard  -> TwoCards
-                    TwoCards -> TwoCards
-            in
-                ( { model | lifecycle = Pitching word1 word2 nextPitchStatus False }
-                , Cmd.none
-                )
         FinishedPitch word1 word2 ->
             case keys model of
                 Just ( gameId, playerKey ) ->
-                    ( { model | lifecycle = Pitching word1 word2 TwoCards True }
+                    ( { model | lifecycle = Pitching word1 word2 True }
                     , finishPitch gameId playerKey ( word1, word2 ) )
                 Nothing ->
                     ( model, Cmd.none )

@@ -16,37 +16,34 @@ welcome model =
 awake : Time -> List SavedGame -> Bool -> ( List ( Html Msg ), ShroudContent, Html Msg )
 awake now savedGames isAwake =
     ( []
-    , LoadingMessage ( not isAwake ) [ text "Loading..." ]
-    , div
-        []
-        [ container "welcome"
-            [ savedGamesBlock now savedGames
-            , row
-                [ col "s12 m6 center-align"
-                    [ card
-                        [ button
-                            [ class "waves-effect waves-light btn btn-large teal cta__button"
-                            , onClick ( Msg.CreatingNewGame "" "" [] )
-                            ]
-                            [ text "Create game"
-                            , icon "gamepad" "right"
-                            ]
+    , LoadingMessage ( not isAwake ) [ text "Loading" ]
+    , container "welcome"
+        [ savedGamesBlock now savedGames
+        , row
+            [ col "s12 m6 center-align"
+                [ card
+                    [ button
+                        [ class "waves-effect waves-light btn btn-large teal cta__button"
+                        , onClick ( Msg.CreatingNewGame "" "" [] )
                         ]
-                    ]
-                , col "s12 m6 center-align"
-                    [  card
-                        [ button
-                            [ class "waves-effect waves-light btn btn-large cyan cta__button"
-                            , onClick ( Msg.JoiningGame "" "" [] )
-                            ]
-                            [ text "Join game"
-                            , icon "person_add" "right"
-                            ]
+                        [ text "Create game"
+                        , icon "gamepad" "right"
                         ]
                     ]
                 ]
-            , welcomeHelp
+            , col "s12 m6 center-align"
+                [  card
+                    [ button
+                        [ class "waves-effect waves-light btn btn-large cyan cta__button"
+                        , onClick ( Msg.JoiningGame "" "" [] )
+                        ]
+                        [ text "Join game"
+                        , icon "person_add" "right"
+                        ]
+                    ]
+                ]
             ]
+        , welcomeHelp
         ]
     )
 
@@ -124,27 +121,25 @@ welcomeHelp =
         [ col "s12"
             [ card
                 [ p []
-                    [ text "Quack Stanley is a party game for 3+ players that rewards quick thinking, wit and comedy. It is best played in person."
+                    [ text "Quack Stanley is a party game for 3+ players that rewards quick thinking, wit and comedy."
                     ]
                 , p []
                     [ text "How to play:" ]
                 , helpText
-                    """|Players take turns to take on the a role as **buyer**.
-                       |Each of the other players then takes a bit of time to choose
+                    """|Players take turns to assume a **role** as **buyer**.
+                       |Each of the other players chooses
                        |2 words from their hand that together represent a **product**
                        |they think the buyer would like.
                        |One at a time, they use those words to **pitch** their
                        |product to the buyer.
                        |
-                       |Consider the buyer's **role** when you choose and pitch your
-                       |product. For example, let's say the buyer is an `Astronaut` and your
-                       |hand contains `hoodie`, `gravity`, `barricade`, `pyjamas`,
-                       |`oven`, `cone`.
-                       |You might choose `gravity` and `pyjamas` and then pitch
-                       |gravity-pyjamas to the buyer by talking about how hard it is
-                       |to get a good night's sleep when you're floating in space.
-                       |Be creative!
-                       |
+                       |Consider the buyer's role when you choose and pitch your
+                       |product. For example, if buyer is an *Astronaut* and your
+                       |hand contains *hoodie*, *gravity*, *barricade*, *pyjamas*,
+                       |*oven* and *cone* you might choose *gravity* and *pyjamas*.
+                       |You could pitch gravity-pyjamas to the buyer by talking about
+                       |how hard it is to get a good night's sleep when you're floating
+                       |in space. Be creative!
                        |
                        |After each player has pitched their product the buyer chooses
                        |the player with their favourite idea & delivery. This player

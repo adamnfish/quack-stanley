@@ -1,6 +1,6 @@
 module Model exposing
     ( Model, PlayerState, Round, PlayerInfo, PlayerSummary, Registered, NewGame, SavedGame
-    , ApiResponse (..), ApiError, Lifecycle(..), PitchStatus (..))
+    , ApiResponse (..), ApiError, Lifecycle(..) )
 
 import Time exposing (Time)
 import Dict exposing (Dict)
@@ -21,7 +21,7 @@ type Lifecycle
     | Spectating            -- game has started, player is spectating (and can choose words)
         ( List String ) ( List ApiError )
     | Pitching              -- player is pitching two cards from hand
-        String String PitchStatus Bool
+        String String Bool
     | ChooseRole            -- player is given two roles to choose from
     | BecomingBuyer         -- player would like to be the buyer, asking API
     | RelinquishingBuyer    -- player does not want to be the buyer, asking API
@@ -55,11 +55,6 @@ type alias Model =
     }
 
 -- Lifecycles
-
-type PitchStatus
-    = NoCards
-    | OneCard
-    | TwoCards
 
 type alias CreateState =
     { gameName : String
