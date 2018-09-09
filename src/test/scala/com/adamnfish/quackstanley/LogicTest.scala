@@ -26,7 +26,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
 
     "sets buyer to None" in {
-      newGame("test-game", "test-player").buyer shouldEqual None
+      newGame("test-game", "test-player").round shouldEqual None
     }
 
     "submitting player is in players " in {
@@ -74,6 +74,52 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
 
     "includes other players" in {
       playerInfo(playerKey1, playerState1, gameStateWithPlayers).opponents.map(_.screenName) should contain only("Player 2", "Creator")
+    }
+  }
+
+  "roundToRoundInfo" - {
+    val gameState = newGame("game name", "Creator")
+    val playerState1 = newPlayer(gameState.gameId, gameState.gameName, "Player 1")
+    val playerKey1 = generatePlayerKey()
+    val playerState2 = newPlayer(gameState.gameId, gameState.gameName, "Player 2")
+    val playerKey2 = generatePlayerKey()
+    val allPlayers = gameState.players +
+      (playerKey1 -> PlayerSummary(playerState1.screenName, Nil)) +
+      (playerKey2 -> PlayerSummary(playerState2.screenName, Nil))
+    val gameStateWithPlayers = gameState.copy(players = allPlayers)
+    val round = Round(playerKey1, Role("role"), Map.empty)
+
+    "includes buyer's screen name" in {
+      val roundInfo = roundToRoundInfo(round, gameStateWithPlayers)
+      roundInfo.buyer shouldEqual "Player 1"
+    }
+
+    "includes correct role" in {
+      val roundInfo = roundToRoundInfo(round, gameStateWithPlayers)
+      roundInfo.role shouldEqual Role("role")
+    }
+
+    "no players in round before any pitching" in {
+      val roundInfo = roundToRoundInfo(round, gameStateWithPlayers)
+      roundInfo.products shouldBe empty
+    }
+
+    "if a pitch has been completed" - {
+      val pitchedRound = round.copy(products = Map(playerKey2 -> (Word("word1"), Word("word2"))))
+      val pitchedGameState = gameStateWithPlayers.copy(round = Some(pitchedRound))
+
+      "includes its words" in {
+        val roundInfo = roundToRoundInfo(pitchedRound, pitchedGameState)
+        val (_, (word1, word2)) = roundInfo.products.head
+        word1 shouldEqual Word("word1")
+        word2 shouldEqual Word("word2")
+      }
+
+      "uses pitching player's screen name" in {
+        val roundInfo = roundToRoundInfo(pitchedRound, pitchedGameState)
+        val (pitchedPlayerName, _) = roundInfo.products.head
+        pitchedPlayerName shouldEqual "Player 2"
+      }
     }
   }
 
@@ -129,7 +175,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
 
   "authenticateBuyer" - {
     val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"),
-      buyer = Some(Buyer(PlayerKey("foo"))),
+      round = Some(Round(PlayerKey("foo"), Role("role"), Map.empty)),
       Map(
         PlayerKey("player") -> PlayerSummary("player-name", Nil),
         PlayerKey("foo") -> PlayerSummary("another-player", Nil)
@@ -203,19 +249,19 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
 
   "verifyNoBuyer" - {
     "returns sucessful attempt if there is no buyer" in {
-      val game = newGame("game name", "creator").copy(buyer = None)
+      val game = newGame("game name", "creator").copy(round = None)
       verifyNoBuyer(game).isFailedAttempt() shouldEqual false
     }
 
     "returns failed attempt if there is already a buyer" in {
-      val game = newGame("game name", "creator").copy(buyer = Some(Buyer(PlayerKey("player"))))
+      val game = newGame("game name", "creator").copy(round = Some(Round(PlayerKey("player"), Role("role"), Map.empty)))
       verifyNoBuyer(game).isFailedAttempt() shouldEqual true
     }
 
     "failure includes current buyer's name" in {
       val game = newGame("game name", "creator")
       val gameWithBuyer = game.copy(
-        buyer = Some(Buyer(PlayerKey("player"))),
+        round = Some(Round(PlayerKey("player"), Role("role"), Map.empty)),
         players = game.players + (PlayerKey("player") -> PlayerSummary("player name", Nil))
       )
       verifyNoBuyer(gameWithBuyer).leftValue().failures.head.friendlyMessage should include("player name")
@@ -248,11 +294,33 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
   }
 
+  "updateGameWithPitch" - {
+    val game = newGame("game name", "creator")
+    val playerKey = game.creator
+    val buyerKey = PlayerKey("buyer")
+    val role = Role("role")
+    val gameWithBuyer = game.copy(
+      round = Some(Round(buyerKey, role, Map.empty)),
+      players = game.players + (buyerKey -> PlayerSummary("buyer name", Nil))
+    )
+
+    "fails if there is no round in progress" in {
+      val gameWithNoRound = gameWithBuyer.copy(round = None)
+      updateGameWithPitch(gameWithNoRound, playerKey, (Word("word1"), Word("word2"))).isFailedAttempt() shouldEqual true
+    }
+
+    "adds the pitch to the round" in {
+      val gameState = updateGameWithPitch(gameWithBuyer, playerKey, (Word("word1"), Word("word2"))).value()
+      val round = gameState.round.value
+      round.products.get(playerKey).value shouldEqual (Word("word1"), Word("word2"))
+    }
+  }
+
   "updateGameWithAwardedPoint" - {
     val game = newGame("game name", "creator")
     val playerKey = PlayerKey("player")
     val gameWithBuyer = game.copy(
-      buyer = Some(Buyer(PlayerKey("buyer"))),
+      round = Some(Round(PlayerKey("buyer"), Role("role"), Map.empty)),
       players = game.players + (playerKey -> PlayerSummary("player name", Nil))
     )
     val role = Role("role")
@@ -263,7 +331,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
 
     "removes current buyer" in {
-      updateGameWithAwardedPoint(gameWithBuyer, playerKey, role).value().buyer shouldBe None
+      updateGameWithAwardedPoint(gameWithBuyer, playerKey, role).value().round shouldBe None
     }
 
     "fails if the player cannot be found in the game state's players" in {

@@ -88,7 +88,7 @@ object QuackStanley {
       allRoles <- Resources.roles()
       role <- nextRole(allRoles, usedRoles(players.values.toList))
       playerWithRole = player.copy(role = Some(role))
-      gameWithBuyer = gameState.copy(buyer = Some(Buyer(data.playerKey)))
+      gameWithBuyer = gameState.copy(round = Some(Round(data.playerKey, role, Map.empty)))
       _ <- writeGameState(gameWithBuyer, config)
       _ <- writePlayerState(playerWithRole, data.playerKey, config)
     } yield playerInfo(data.playerKey, playerWithRole, gameWithBuyer)
@@ -104,7 +104,7 @@ object QuackStanley {
       _ <- authenticate(data.playerKey, gameState)
       _ <- authenticateBuyer(data.playerKey, gameState)
       player <- getPlayerState(data.playerKey, data.gameId, config)
-      gameWithoutBuyer = gameState.copy(buyer = None)
+      gameWithoutBuyer = gameState.copy(round = None)
       playerWithoutBuyer = player.copy(role = None)
       _ <- writeGameState(gameWithoutBuyer, config)
       _ <- writePlayerState(playerWithoutBuyer, data.playerKey, config)
@@ -141,8 +141,10 @@ object QuackStanley {
       refillWords <- nextWords(2, allWords, used)
       discardedPlayerState <- discardWords(data.words, playerState)
       refilledPlayerState <- fillHand(refillWords, discardedPlayerState)
+      gameStateWithPitch <- updateGameWithPitch(gameState, data.playerKey, data.words)
       _ <- writePlayerState(refilledPlayerState, data.playerKey, config)
-    } yield playerInfo(data.playerKey, refilledPlayerState, gameState)
+      _ <- writeGameState(gameStateWithPitch, config)
+    } yield playerInfo(data.playerKey, refilledPlayerState, gameStateWithPitch)
   }
 
   /**

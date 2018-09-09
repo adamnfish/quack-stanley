@@ -39,7 +39,20 @@ object Logic {
     val otherPlayers = gameState.players.filterNot { case (key, _) =>
         playerKey == key
     }
-    PlayerInfo(playerState, gameState.started, otherPlayers.values.toList)
+    val roundInfo = gameState.round.map(roundToRoundInfo(_, gameState))
+    PlayerInfo(playerState, gameState.started, otherPlayers.values.toList, roundInfo)
+  }
+
+  def roundToRoundInfo(round: Round, gameState: GameState): RoundInfo = {
+    RoundInfo(
+      // could make this function an attempt, but the game state would have
+      // to be very broken for this to fail, shouldn't be possible?
+      gameState.players(round.buyerKey).screenName,
+      round.role,
+      round.products.flatMap { case (playerKey, words) =>
+        gameState.players.get(playerKey).map(_.screenName -> words)
+      }
+    )
   }
 
   def authenticate(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[PlayerSummary] = {
@@ -60,7 +73,7 @@ object Logic {
 
   def authenticateBuyer(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[PlayerKey] = {
     Attempt.fromOption(
-      gameState.buyer.find(_.playerKey == playerKey).map(_.playerKey),
+      gameState.round.find(_.buyerKey == playerKey).map(_.buyerKey),
       Failure("Player is not buyer", "Another player is already the buyer", 404).asAttempt
     )
   }
@@ -97,11 +110,11 @@ object Logic {
   }
 
   def verifyNoBuyer(gameState: GameState): Attempt[Unit] = {
-    gameState.buyer match {
+    gameState.round match {
       case None =>
         Attempt.unit
       case Some(buyer) =>
-        val playerName = gameState.players.mapValues(_.screenName).getOrElse(buyer.playerKey, "another player")
+        val playerName = gameState.players.mapValues(_.screenName).getOrElse(buyer.buyerKey, "another player")
         Attempt.Left(Failure(s"Buyer already exists: $playerName", s"$playerName is already the buyer", 400))
     }
   }
@@ -128,6 +141,19 @@ object Logic {
     }
   }
 
+  def updateGameWithPitch(gameState: GameState, pitcher: PlayerKey, words: (Word, Word)): Attempt[GameState] = {
+    Attempt.fromOption(
+      gameState.round.map { round =>
+        val updatedProducts = round.products + (pitcher -> words)
+        val roundWithPitch = round.copy(products = updatedProducts)
+        gameState.copy(
+          round = Some(roundWithPitch)
+        )
+      },
+      FailedAttempt(Failure("Cannot add pitch to game, no round in progress", "There's no buyer to pitch to", 500))
+    )
+  }
+
   def updateGameWithAwardedPoint(gameState: GameState, winner: PlayerKey, role: Role)(implicit ec: ExecutionContext): Attempt[GameState] = {
     for {
       winnerSummary <- Attempt.fromOption(gameState.players.get(winner),
@@ -136,7 +162,7 @@ object Logic {
       updatedWinnerSummary = winnerSummary.copy(points = winnerSummary.points :+ role)
       modifiedPlayers = gameState.players.updated(winner, updatedWinnerSummary)
     } yield gameState.copy(
-      buyer = None,
+      round = None,
       players = modifiedPlayers
     )
   }
