@@ -20,14 +20,19 @@ PRIORITY
   + infrastructure
     + lambda considerations
 	+ cloudformation
-+ favicon (and updated manifest etc)
+	+ build (not yet cloudformed)
+  + user testing (playing)
+    + move trade-offs away from tech towards usability
+	 ` edge case / race condition from finish pitch change
+	+ UI simplifications - move away from physical card ideas
+  + learnings
+    + model as union type, not single object with optional bits
 
 UI
 + consider skipping "loading backend" message
-+ screen to show full standings (with words)
++ screen to show full standings (with words/role)
 + Say on spectating page what the currently active role is?
   + and who has that role?
-+ Desktop display on Buyer screen (flex up to multiple columns)
 + Error screen header margin (and generally fix that screen's display)
 + Stanley pictures on loading screens
 
@@ -41,15 +46,15 @@ GENERAL
 + manage game screen for creator
   - manage buyer
   - kick players
-  - allow player to join after start
+  - allow player to join after start (share a join link from in game / creator waiting)
 + use flags for api endpoint config
-+ stop being buyer without awarding point?
 * display fixes
   + discarded words
 * change model
 * frontend tests
   * https://medium.com/@_rchaves_/testing-in-elm-93ad05ee1832
 * help pages
++ disallow duplicate screen names
 
 BUILD / OVERHEAD
 + cloudformation for build pipeline
@@ -72,7 +77,8 @@ UI
   - materialize style animated to show both?
 - smaller headers
   - spectate header especially is bad
-+ integrate error handling
+- integrate error handling
+- favicon (and updated manifest etc)
 
 BUILD
 - switch to elm-live instead of elm-reactor with hot reloading for frontend dev server (still use something for local API)
@@ -122,6 +128,7 @@ GENERAL
 - design UI as a game
 - loading pages use vdom!
   - starts with same headings etc as target page, spinner that loads content. Swaps content in when ready.
+- stop being buyer without awarding point?
 
 
 * elm SPA frontend
