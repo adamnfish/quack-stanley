@@ -38,7 +38,7 @@ spectating selected errors model =
                 [ col "s12"
                     [ card
                         [ helpText
-                            """|You can take a turn as the **buyer** (below), or choose 2 words
+                            """|You can take a turn as the **buyer** (below) or choose 2 words
                                |that together represent a product you will pitch to the buyer.
                                |
                                |When it is your turn to **pitch** select "Start pitch".

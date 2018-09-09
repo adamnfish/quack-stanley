@@ -55,7 +55,7 @@ buying role awardingTo model =
                                |you as that role.
                                |
                                |After they've each had a turn pitching their product,
-                               |choose the player who's sales pitch & end product you
+                               |choose the player whose sales pitch & end product you
                                |most liked from the list below.
                                |"""
                        ]

@@ -45,7 +45,7 @@ create loading gameName screenName errors model =
                 [ card
                     [ helpText
                         """|Creates a new game that others can join.
-                           |You will be able to start the game when player's have joined.
+                           |You will be able to start the game when players have joined.
                            |"""
                    ]
                 ]
