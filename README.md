@@ -11,5 +11,6 @@ Play at [quackstanley.net](https://quackstanley.net), have fun!
 
 ## Architecture
 
-Quack Stanley is an [Elm](http://elm-lang.org/) frontend with a Scala
-backend that runs "serverless" as an AWS lambda function.
+Quack Stanley is an [Elm](http://elm-lang.org/) frontend with a
+[Scala](https://www.scala-lang.org/) backend that runs "serverless"
+as an [AWS Lambda Function](https://aws.amazon.com/lambda/).
