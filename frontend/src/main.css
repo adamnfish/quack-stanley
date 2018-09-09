@@ -239,10 +239,54 @@ p.card-header {
     visibility: hidden;
 }
 
-.pitch-winner__button {
-    width: 100%;
-    text-align: left;
+.awards__list {
+    margin: 0px;
+}
+
+.awards__li {
     margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: solid 1px #ccc;
+    display: flex;
+}
+
+.awards__li:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.award-winner__button {
+    width: 100%;
+}
+
+.award-name__container {
+    flex: 1 1 30%;
+}
+
+.award-winner__container {
+    flex: 1 1 70%;
+}
+
+@media only screen and (max-width: 500px) {
+    .awards__li {
+        flex-wrap: wrap;
+    }
+
+    .award-name__container {
+        flex: 1 1 100%;
+        margin-bottom: 5px;
+    }
+
+    .award-winner__container {
+        flex: 1 1 100%;
+    }
+}
+
+.pitch-product__text {
+    margin-top: 5px;
+    font-size: 120%;
+    font-weight: bold;
 }
 
 .buyer-role__text {

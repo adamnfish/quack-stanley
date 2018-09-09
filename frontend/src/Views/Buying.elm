@@ -1,7 +1,8 @@
 module Views.Buying exposing (buying)
 
-import Html exposing (Html, div, p, span, text, button, ul, li, h2, a)
-import Html.Attributes exposing (class, placeholder, href)
+import Dict exposing (Dict)
+import Html exposing (Html, div, p, span, text, button, ul, li, h2, a, br)
+import Html.Attributes exposing (class, placeholder, href, disabled)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, PlayerSummary, Lifecycle (..))
 import Msg exposing (Msg)
@@ -22,6 +23,7 @@ buying role awardingTo model =
                         , text " to "
                         , text playerName
                         ]
+        products = Maybe.withDefault Dict.empty ( Maybe.map .products model.round )
     in
         (
             [ button
@@ -54,9 +56,9 @@ buying role awardingTo model =
                                    |The other players will each try to **pitch** a product to
                                    |you as that role.
                                    |
-                                   |After they've all had a turn pitching their product,
+                                   |After they've each had a turn pitching their product,
                                    |choose the player who's sales pitch & end product you
-                                   |most liked from the list above.
+                                   |most liked from the list below.
                                    |"""
                            ]
                         ]
@@ -64,15 +66,15 @@ buying role awardingTo model =
                 , row
                     [ col "s12"
                         [ card
-                            [ otherPlayers model.opponents role ]
+                            [ otherPlayers model.opponents products role ]
                         ]
                     ]
                 ]
             ]
         )
 
-otherPlayers : List PlayerSummary -> String -> Html Msg
-otherPlayers opponents role =
+otherPlayers : List PlayerSummary -> Dict String ( List String ) -> String -> Html Msg
+otherPlayers opponents products role =
     if List.isEmpty opponents then
         div
             []
@@ -92,18 +94,37 @@ otherPlayers opponents role =
             ]
     else
         ul
-            []
-            ( List.map ( otherPlayer role ) opponents )
+            [ class "awards__list" ]
+            ( List.map ( otherPlayer role products ) opponents )
 
-otherPlayer : String ->  PlayerSummary -> Html Msg
-otherPlayer role playerSummary =
-    li
-        []
-        [ button
-            [ class "pitch-winner__button waves-effect waves-light btn purple btn-large"
-            , onClick ( Msg.AwardPoint role playerSummary.screenName )
+otherPlayer : String ->  Dict String ( List String ) -> PlayerSummary -> Html Msg
+otherPlayer role products playerSummary =
+    let
+        hasPitched = Dict.member playerSummary.screenName products
+        productWords = Maybe.withDefault [] ( Dict.get playerSummary.screenName products )
+        product =
+            if List.isEmpty productWords then
+                "Not yet pitched"
+            else
+                String.join " " productWords
+    in
+        li
+            [ class "awards__li valign-wrapper" ]
+            [ div
+                [ class "award-name__container left valign-wrapper" ]
+                [ p
+                    []
+                    [ text playerSummary.screenName ]
+                ]
+            , div
+                [ class "award-winner__container left" ]
+                [ button
+                    [ class "award-winner__button waves-effect waves-light btn purple btn-large"
+                    , onClick ( Msg.AwardPoint role playerSummary.screenName )
+                    , disabled ( not hasPitched )
+                    ]
+                    [ text product
+                    , icon "favorite" "right"
+                    ]
+                ]
             ]
-            [ text playerSummary.screenName
-            , icon "done" "right"
-            ]
-        ]
