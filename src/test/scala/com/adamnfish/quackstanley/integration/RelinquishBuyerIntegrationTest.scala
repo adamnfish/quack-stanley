@@ -39,8 +39,9 @@ class RelinquishBuyerIntegrationTest extends FreeSpec with Matchers
       "and this player is registered" - {
         val screenName = "player name"
         val playerKey = PlayerKey(playerKeyUUID)
-        val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, Some(Role("role")), Nil)
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(playerKey),
+        val role = Role("role")
+        val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, Some(role), Nil)
+        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Round(playerKey, role, Map.empty)),
           Map(creator -> PlayerSummary("Creator", Nil), playerKey -> PlayerSummary(screenName, Nil))
         )
         GameIO.writeGameState(gameState, testConfig)
@@ -63,7 +64,7 @@ class RelinquishBuyerIntegrationTest extends FreeSpec with Matchers
           val request = RelinquishBuyer(gameId, playerKey)
           val playerInfo = relinquishBuyer(request, testConfig).value()
           val persistedState = GameIO.getGameState(gameId, testConfig).value()
-          persistedState.buyer.isEmpty shouldEqual true
+          persistedState.round.isEmpty shouldEqual true
         }
 
         "excludes current player from otherPlayers" in {

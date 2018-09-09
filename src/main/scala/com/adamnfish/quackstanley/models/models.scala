@@ -27,6 +27,19 @@ case class PlayerSummary(
   points: List[Role]
 )
 
+case class Round(
+  buyerKey: PlayerKey,
+  role: Role,
+  products: Map[PlayerKey, (Word, Word)]
+)
+// no-secrets version of round for the frontend
+case class RoundInfo(
+  buyer: String,
+  role: Role,
+  // discarded: Role,
+  products: Map[String, (Word, Word)]
+)
+
 // private global gamestate
 case class GameState(
   gameId: GameId,
@@ -34,7 +47,7 @@ case class GameState(
   startTime: DateTime,
   started: Boolean, // once game has started players cannot be added
   creator: PlayerKey,
-  buyer: Option[PlayerKey],
+  round: Option[Round],
   players: Map[PlayerKey, PlayerSummary]
   // pitching: Option[PlayerKey]  <- required?
 )
@@ -95,7 +108,8 @@ sealed trait ApiResponse
 case class PlayerInfo(
   state: PlayerState,
   started: Boolean,
-  opponents: List[PlayerSummary]
+  opponents: List[PlayerSummary],
+  round: Option[RoundInfo]
   // buyer: Option[(String, Word)]
 ) extends ApiResponse
 // creates new game and registers creator

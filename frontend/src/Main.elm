@@ -21,6 +21,7 @@ init =
       , playerKey = Nothing
       , isCreator = False
       , opponents = []
+      , round = Nothing
       }
     , Cmd.batch
         [ wakeServer

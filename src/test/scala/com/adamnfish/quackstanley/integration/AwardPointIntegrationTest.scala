@@ -39,11 +39,12 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
       "and this player and winner are both registered" - {
         val screenName = "player name"
         val playerKey = PlayerKey(playerKeyUUID)
-        val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, Some(Role("role")), Nil)
+        val role = Role("role")
+        val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, Some(role), Nil)
         val winningPlayerKey = PlayerKey(winningPlayerKeyUUID)
         val winnerScreenName = "winner"
         val winningPlayerState = PlayerState(gameId, gameName, winnerScreenName, Nil, Nil, None, Nil)
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(playerKey),
+        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Round(playerKey, role, Map.empty)),
           Map(
             creator -> PlayerSummary("Creator", Nil),
             playerKey -> PlayerSummary(screenName, Nil),
@@ -92,7 +93,7 @@ class AwardPointIntegrationTest extends FreeSpec with Matchers
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
           val playerInfo = awardPoint(request, testConfig).value()
           val persistedState = GameIO.getGameState(gameId, testConfig).value()
-          persistedState.buyer.isEmpty shouldEqual true
+          persistedState.round.isEmpty shouldEqual true
         }
 
         "excludes current player from otherPlayers" in {

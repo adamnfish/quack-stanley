@@ -3,9 +3,9 @@ module Api.Codecs exposing
     , playerStateDecoder, playerSummaryDecoder, playerInfoDecoder
     )
 
-import Json.Decode exposing (Decoder, field, string, bool, list, nullable)
+import Json.Decode exposing (Decoder, field, string, bool, list, dict, nullable)
 import Json.Decode.Pipeline exposing (decode, required, optional)
-import Model exposing (PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame, ApiError)
+import Model exposing (PlayerState, Round, PlayerInfo, PlayerSummary, Registered, NewGame, ApiError)
 
 
 apiErrsDecoder : Decoder ( List ApiError )
@@ -48,9 +48,17 @@ registeredDecoder =
         |> required "state" playerStateDecoder
         |> required "playerKey" string
 
+roundDecoder : Decoder Round
+roundDecoder =
+    decode Round
+        |> required "buyer" string
+        |> required "role" string
+        |> required "products" ( dict (list string ) )
+
 playerInfoDecoder : Decoder PlayerInfo
 playerInfoDecoder =
     decode PlayerInfo
         |> required "state" playerStateDecoder
         |> required "started" bool
         |> required "opponents" ( list playerSummaryDecoder )
+        |> optional "round" (Json.Decode.map Just roundDecoder) Nothing

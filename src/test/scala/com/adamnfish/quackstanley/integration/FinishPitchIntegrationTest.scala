@@ -41,11 +41,16 @@ class FinishPitchIntegrationTest extends FreeSpec with Matchers
         val playerKey = PlayerKey(playerKeyUUID)
         val hand = Word("one") :: Word("two") :: List.fill(QuackStanley.handSize - 2)(Word("padding"))
         val playerState = PlayerState(gameId, gameName, screenName, hand, Nil, None, Nil)
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
-          Map(creator -> PlayerSummary("Creator", Nil), playerKey -> PlayerSummary(screenName, Nil))
+        val creatorState = PlayerState(gameId, gameName, "buyer", Nil, Nil, Some(Role("role")), Nil)
+        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Round(creator, Role("role"), Map.empty)),
+          Map(
+            creator -> PlayerSummary("Creator", Nil),
+            playerKey -> PlayerSummary(screenName, Nil)
+          )
         )
         val request = FinishPitch(gameId, playerKey, (Word("one"), Word("two")))
         GameIO.writeGameState(gameState, testConfig)
+        GameIO.writePlayerState(creatorState, creator, testConfig)
         GameIO.writePlayerState(playerState, playerKey, testConfig)
 
         "fills hand" in {
@@ -63,6 +68,12 @@ class FinishPitchIntegrationTest extends FreeSpec with Matchers
           playerInfo.state.hand.count(_ != Word("padding")) shouldEqual 2
         }
 
+        "new game state includes this pitch" in {
+          val playerInfo = finishPitch(request, testConfig).value()
+          val roundInfo = playerInfo.round.value
+          roundInfo.products.get(screenName).value shouldEqual (Word("one"), Word("two"))
+        }
+
         "persists new hand in player state" in {
           val playerInfo = finishPitch(request, testConfig).value()
           val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
@@ -73,6 +84,14 @@ class FinishPitchIntegrationTest extends FreeSpec with Matchers
           val playerInfo = finishPitch(request, testConfig).value()
           val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
           persistedPlayerState.discardedWords shouldEqual List(Word("one"), Word("two"))
+        }
+
+        "persists pitched product to the game state's round" in {
+          finishPitch(request, testConfig).value()
+          val persistedGameState = GameIO.getGameState(gameId, testConfig).value()
+          persistedGameState
+            .round.value
+            .products.get(playerKey).value shouldEqual (Word("one"), Word("two"))
         }
 
         "returned playerInfo's otherPlayers excludes current player" in {

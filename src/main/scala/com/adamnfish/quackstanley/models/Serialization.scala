@@ -64,6 +64,7 @@ object Serialization {
 
   // response types
   implicit val playerInfoEncoder: Encoder[PlayerInfo] = deriveEncoder[PlayerInfo]
+  implicit val roundInfoEncoder: Encoder[RoundInfo] = deriveEncoder[RoundInfo]
   implicit val newGameEncoder: Encoder[NewGame] = deriveEncoder[NewGame]
   implicit val registeredEncoder: Encoder[Registered] = deriveEncoder[Registered]
   implicit val okResponseEncoder: Encoder[Ok] = deriveEncoder[Ok]
@@ -74,7 +75,10 @@ object Serialization {
     case ok: Ok => okResponseEncoder.apply(ok)
   }
 
-  // persisted types
+  // persisted types and dependencies
+  implicit val buyerEncoder: Encoder[Round] = deriveEncoder[Round]
+  implicit val buyerDecoder: Decoder[Round] = deriveDecoder[Round]
+
   implicit val opponentEncoder: Encoder[PlayerSummary] = deriveEncoder[PlayerSummary]
   implicit val opponentDecoder: Decoder[PlayerSummary] = deriveDecoder[PlayerSummary]
 

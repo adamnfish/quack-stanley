@@ -63,7 +63,7 @@ class BecomeBuyerIntegrationTest extends FreeSpec with Matchers
           val request = BecomeBuyer(gameId, playerKey)
           val playerInfo = becomeBuyer(request, testConfig).value()
           val persistedState = GameIO.getGameState(gameId, testConfig).value()
-          persistedState.buyer.isDefined shouldEqual true
+          persistedState.round.isDefined shouldEqual true
         }
 
         "excludes current player from otherPlayers" in {
