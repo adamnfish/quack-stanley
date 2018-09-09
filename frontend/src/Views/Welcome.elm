@@ -16,7 +16,7 @@ welcome model =
 awake : Time -> List SavedGame -> Bool -> ( List ( Html Msg ), ShroudContent, Html Msg )
 awake now savedGames isAwake =
     ( []
-    , LoadingMessage ( not isAwake ) [ text "Waking server" ]
+    , LoadingMessage ( not isAwake ) [ text "Loading..." ]
     , div
         []
         [ container "welcome"
