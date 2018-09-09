@@ -43,9 +43,7 @@ spectating selected errors model =
                                 """|You can take a turn as the **buyer** (below), or choose 2 words
                                    |that together represent a product you will pitch to the buyer.
                                    |
-                                   |When it is your turn to **pitch** select "start pitch". You'll
-                                   |be able to tap to reveal your words individually or at once as
-                                   |you try and sell your product.
+                                   |When it is your turn to **pitch** select "Start pitch".
                                    |"""
                             ]
                         ]

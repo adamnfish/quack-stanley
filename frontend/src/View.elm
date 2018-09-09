@@ -42,8 +42,8 @@ view model =
         Spectating selected errors ->
             spectating selected errors model
 
-        Pitching word1 word2 pitchStatus loading ->
-            pitching word1 word2 pitchStatus loading model
+        Pitching word1 word2 loading ->
+            pitching word1 word2 loading model
 
         BecomingBuyer ->
             message "Loading role" model

@@ -222,21 +222,33 @@ p.card-header {
     margin-bottom: 5px;
 }
 
-.pitch--text {
+.pitch__container {
+    text-align: center;
+}
+
+.pitch__divider {
+    display: none;
+}
+
+.pitch--word {
     font-weight: 400;
-    font-size: 80px;
-    font-size: 13vw;
+    font-size: 50px;
+    font-size: 12vw;
     text-shadow: 1px 1px #888888;
+    display: block;
 }
 
 @media only screen and (min-width: 601px) {
-    .pitch--text {
-        font-size: 5vw;
+    .pitch--word {
+        font-size: 8vw;
+        display: inline;
     }
-}
 
-.pitch__card--hidden {
-    visibility: hidden;
+    .pitch__divider {
+        display: inline;
+        font-size: 8vw;
+        padding: 0 5px;
+    }
 }
 
 .awards__list {
@@ -281,12 +293,6 @@ p.card-header {
     .award-winner__container {
         flex: 1 1 100%;
     }
-}
-
-.pitch-product__text {
-    margin-top: 5px;
-    font-size: 120%;
-    font-weight: bold;
 }
 
 .buyer-role__text {
