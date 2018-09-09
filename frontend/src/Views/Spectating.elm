@@ -32,93 +32,88 @@ spectating selected errors model =
                 ]
             ]
         , NoLoadingShroud
-        , div
-            []
-            [ container "spectating"
-                [ showErrors errors
-                , row
-                    [ col "s12"
-                        [ card
-                            [ helpText
-                                """|You can take a turn as the **buyer** (below), or choose 2 words
-                                   |that together represent a product you will pitch to the buyer.
-                                   |
-                                   |When it is your turn to **pitch** select "start pitch". You'll
-                                   |be able to tap to reveal your words individually or at once as
-                                   |you try and sell your product.
-                                   |"""
-                            ]
+        , container "spectating"
+            [ showErrors errors
+            , row
+                [ col "s12"
+                    [ card
+                        [ helpText
+                            """|You can take a turn as the **buyer** (below) or choose 2 words
+                               |that together represent a product you will pitch to the buyer.
+                               |
+                               |When it is your turn to **pitch** select "Start pitch".
+                               |"""
                         ]
                     ]
-                , row
-                    [ col "s12"
-                        [ card
-                            [ row
-                                [ col "m6 s12"
-                                    [ div
-                                        [ class "hand__container" ]
-                                        ( List.map ( handEntry selected ) hand )
-                                    ]
-                                , col "m6 s12"
-                                    [ selectedWords selected
-                                    , div
-                                        [ class "container--spaced" ]
-                                        [ button
-                                            ( case selected of
-                                                word1 :: word2 :: [] ->
-                                                    [ class "waves-effect waves-light btn btn-large indigo cta__button"
-                                                    , onClick ( Msg.StartPitch word1 word2 )
-                                                    , disabled False
-                                                    ]
-                                                _ ->
-                                                    [ class "waves-effect waves-light btn btn-large indigo cta__button"
-                                                    , disabled True
-                                                    ]
-                                            )
-                                            [ text "Start pitch"
-                                            , icon "play_arrow" "right"
-                                            ]
-                                        ]
-                                    ]
+                ]
+            , row
+                [ col "s12"
+                    [ card
+                        [ row
+                            [ col "m6 s12"
+                                [ div
+                                    [ class "hand__container" ]
+                                    ( List.map ( handEntry selected ) hand )
                                 ]
-                            ]
-                        ]
-                    ]
-                , row
-                    [ col "m6 s12"
-                        [ card
-                            [ button
-                                [ class "waves-effect waves-light btn purple cta__button"
-                                , onClick Msg.RequestBuyer
-                                ]
-                                [ text "Buyer"
-                                , icon "play_arrow" "right"
-                                ]
-                            ]
-                        ]
-                    ]
-                , row
-                    [ col "s12"
-                        [ ul
-                            [ class "collection z-depth-1" ]
-                            (
-                                [ li
-                                    [ class "collection-item" ]
-                                    [ div []
-                                        [ text "You"
-                                        , span
-                                            [ classList
-                                                [ ("badge", True)
-                                                , ("new amber black-text", leadingScore == playerScore && playerScore > 0)
+                            , col "m6 s12"
+                                [ selectedWords selected
+                                , div
+                                    [ class "container--spaced" ]
+                                    [ button
+                                        ( case selected of
+                                            word1 :: word2 :: [] ->
+                                                [ class "waves-effect waves-light btn btn-large indigo cta__button"
+                                                , onClick ( Msg.StartPitch word1 word2 )
+                                                , disabled False
                                                 ]
-                                            , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
-                                            ]
-                                            [ text ( toString playerScore ) ]
+                                            _ ->
+                                                [ class "waves-effect waves-light btn btn-large indigo cta__button"
+                                                , disabled True
+                                                ]
+                                        )
+                                        [ text "Start pitch"
+                                        , icon "play_arrow" "right"
                                         ]
                                     ]
-                                ] ++ List.map ( playerListEntry leadingScore ) model.opponents
-                            )
+                                ]
+                            ]
                         ]
+                    ]
+                ]
+            , row
+                [ col "m6 s12"
+                    [ card
+                        [ button
+                            [ class "waves-effect waves-light btn purple cta__button"
+                            , onClick Msg.RequestBuyer
+                            ]
+                            [ text "Buyer"
+                            , icon "play_arrow" "right"
+                            ]
+                        ]
+                    ]
+                ]
+            , row
+                [ col "s12"
+                    [ ul
+                        [ class "collection z-depth-1" ]
+                        (
+                            [ li
+                                [ class "collection-item" ]
+                                [ div []
+                                    [ text "You"
+                                    , span
+                                        [ classList
+                                            [ ("badge", True)
+                                            , ("new amber black-text", leadingScore == playerScore && playerScore > 0)
+                                            ]
+                                        , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
+                                        ]
+                                        [ text ( toString playerScore ) ]
+                                    ]
+                                ]
+                            ] ++ List.map ( playerListEntry leadingScore ) model.opponents
+                        )
                     ]
                 ]
             ]

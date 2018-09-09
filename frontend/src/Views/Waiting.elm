@@ -15,35 +15,32 @@ waiting model =
     in
         ( []
         , NoLoadingShroud
-        , div
-            []
-            [ container "waiting"
-                [ row
-                    [ col "s12 m6"
-                        [ card
-                            [ p
-                                [ class "card-header valign-wrapper" ]
-                                [ icon "gamepad" "left"
-                                , strong
-                                    []
-                                    [ text gameName ]
-                                ]
-                            , p
-                                [ class "valign-wrapper" ]
-                                [ icon "person" "left"
-                                , text screenName
-                                ]
-                            , p
-                                [ class "flow-text" ]
-                                [ text "Waiting for the game to start" ]
+        , container "waiting"
+            [ row
+                [ col "s12 m6"
+                    [ card
+                        [ p
+                            [ class "card-header valign-wrapper" ]
+                            [ icon "gamepad" "left"
+                            , strong
+                                []
+                                [ text gameName ]
                             ]
+                        , p
+                            [ class "valign-wrapper" ]
+                            [ icon "person" "left"
+                            , text screenName
+                            ]
+                        , p
+                            [ class "flow-text" ]
+                            [ text "Waiting for the game to start" ]
                         ]
-                    , col "s12 m6"
-                        [ card
-                            [ helpText
-                                """|When all players have joined the creator can start the game.
-                                   |"""
-                            ]
+                    ]
+                , col "s12 m6"
+                    [ card
+                        [ helpText
+                            """|When all players have joined the creator can start the game.
+                               |"""
                         ]
                     ]
                 ]

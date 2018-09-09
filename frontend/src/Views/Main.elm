@@ -67,7 +67,7 @@ lifecycleTheme lifecycle =
             "blue"
         Spectating _ _ ->
             "blue"
-        Pitching _ _ _ loading ->
+        Pitching _ _ loading ->
             if loading then
                 "blue"
             else
