@@ -226,6 +226,7 @@ update msg model =
                     { model | lifecycle = Spectating [] []
                             , state = Just playerInfo.state
                             , opponents = playerInfo.opponents
+                            , round = playerInfo.round
                     }
             in
                 ( updatedModel
@@ -269,7 +270,11 @@ update msg model =
             , Cmd.none
             )
         BecomeBuyer ( ApiOk playerInfo ) ->
-            ( { model | lifecycle = Buying ( Maybe.withDefault "Couldn't get a role" playerInfo.state.role ) }
+            ( { model | lifecycle = Buying ( Maybe.withDefault "Couldn't get a role" playerInfo.state.role )
+                      , state = Just playerInfo.state
+                      , opponents = playerInfo.opponents
+                      , round = playerInfo.round
+            }
             , Cmd.none
             )
 
@@ -287,7 +292,11 @@ update msg model =
             , Cmd.none
             )
         RelinquishBuyerResult ( ApiOk playerInfo ) ->
-            ( { model | lifecycle = Spectating [] [] }
+            ( { model | lifecycle = Spectating [] []
+                      , state = Just playerInfo.state
+                      , opponents = playerInfo.opponents
+                      , round = playerInfo.round
+              }
             , Cmd.none
             )
 
@@ -310,6 +319,7 @@ update msg model =
             ( { model | lifecycle = Spectating [] []
                       , state = Just playerInfo.state
                       , opponents = playerInfo.opponents
+                      , round = playerInfo.round
               }
             , Cmd.none
             )
@@ -338,6 +348,7 @@ update msg model =
                                 { model | lifecycle = Spectating [] []
                                         , state = Just playerInfo.state
                                         , opponents = playerInfo.opponents
+                                        , round = playerInfo.round
                                 }
                         in
                             ( updatedModel
@@ -346,6 +357,7 @@ update msg model =
                     else
                         ( { model | state = Just playerInfo.state
                                   , opponents = playerInfo.opponents
+                                  , round = playerInfo.round
                           }
                         , Cmd.none
                         )
@@ -361,12 +373,14 @@ update msg model =
                         ( { model | lifecycle = prevLifecycle
                                   , state = Just playerInfo.state
                                   , opponents = playerInfo.opponents
+                                  , round = playerInfo.round
                           }
                         , Cmd.none
                         )
                 _ ->
                     ( { model | state = Just playerInfo.state
                               , opponents = playerInfo.opponents
+                              , round = playerInfo.round
                       }
                     , Cmd.none
                     )
@@ -400,6 +414,7 @@ update msg model =
             ( { model | lifecycle = Spectating [] []
                       , state = Just playerInfo.state
                       , opponents = playerInfo.opponents
+                      , round = playerInfo.round
               }
             , Cmd.none
             )

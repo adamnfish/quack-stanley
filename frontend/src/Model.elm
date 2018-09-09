@@ -1,8 +1,9 @@
 module Model exposing
-    ( Model, PlayerState, PlayerInfo, PlayerSummary, Registered, NewGame, SavedGame
+    ( Model, PlayerState, Round, PlayerInfo, PlayerSummary, Registered, NewGame, SavedGame
     , ApiResponse (..), ApiError, Lifecycle(..), PitchStatus (..))
 
 import Time exposing (Time)
+import Dict exposing (Dict)
 
 
 type Lifecycle
@@ -50,6 +51,7 @@ type alias Model =
     , playerKey : Maybe String
     , isCreator : Bool
     , opponents : List PlayerSummary
+    , round : Maybe Round
     }
 
 -- Lifecycles
@@ -94,10 +96,17 @@ type ApiResponse a
     = ApiOk a
     | ApiErr ( List ApiError )
 
+type alias Round =
+    { buyer : String
+    , role : String
+    , products : Dict String ( List String )
+    }
+
 type alias PlayerInfo =
     { state : PlayerState
     , started : Bool
     , opponents : List PlayerSummary
+    , round : Maybe Round
     }
 
 type alias PlayerSummary =
