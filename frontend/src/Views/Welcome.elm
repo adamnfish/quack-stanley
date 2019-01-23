@@ -58,11 +58,9 @@ savedGameBlock : Int -> SavedGame -> Html Msg
 savedGameBlock now game =
     let
         delta = now - game.startTime
-        minutes = modBy 60 <| floor ( toFloat delta / 1000 )
-        hours = modBy 24 <| floor ( toFloat delta / 1000 / 60 )
-        -- hours = Time.toHour Time.utc delta
-        days = floor ( toFloat delta / 1000 / 60 / 24 )
-        -- days = floor ( toFloat ( Time.toHour Time.utc delta ) / 24 )
+        minutes = modBy 60 <| floor ( toFloat delta / 1000 / 60 )
+        hours = modBy 24 <| floor ( toFloat delta / 1000 / 60 / 60 )
+        days = floor ( toFloat delta / 1000 / 60 / 60 / 24 )
         ago =
             if minutes < 1 then
                 "Just now"
