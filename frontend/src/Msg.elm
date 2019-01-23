@@ -3,7 +3,7 @@ module Msg exposing (Msg (..), update, wakeServer)
 import Api.Api exposing (sendApiCall)
 import Api.Requests exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, relinquishBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
 import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), ApiResponse (..), ApiError)
-import Time exposing (Time)
+import Time exposing (Posix)
 import Ports exposing (fetchSavedGames, saveGame, removeSavedGame)
 
 
@@ -11,7 +11,7 @@ type Msg
     = BackendAwake
         ( ApiResponse () )
     | WelcomeTick
-        Time
+        Posix
     | LoadedGames
         ( List SavedGame )
     | NavigateHome
@@ -53,7 +53,7 @@ type Msg
     | PingResult
         ( ApiResponse PlayerInfo )
     | PingEvent
-        Time.Time
+        Posix
     | StartPitch
         String String
     | FinishedPitch
@@ -76,7 +76,7 @@ update msg model =
             )
 
         WelcomeTick time ->
-            ( { model | time = time }
+            ( { model | time = Time.posixToMillis time }
             , fetchSavedGames ()
             )
 

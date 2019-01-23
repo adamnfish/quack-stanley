@@ -1,9 +1,10 @@
 port module Ports exposing (saveGame, fetchSavedGames, savedGames, removeSavedGame)
 
 import Model exposing (Model, SavedGame)
+import Time exposing (posixToMillis)
 
 
-send : String -> String -> String -> String -> Float -> Cmd msg
+send : String -> String -> String -> String -> Int -> Cmd msg
 send gameId gameName playerKey screenName time =
     sendGameToJS
         { gameId = gameId
@@ -23,7 +24,7 @@ saveGame model =
             ( Maybe.map .gameName model.state )
             ( model.playerKey )
             ( Maybe.map .screenName model.state )
-            ( Just model.time )
+            ( Just <| model.time )
         )
 
 port sendGameToJS : SavedGame -> Cmd msg

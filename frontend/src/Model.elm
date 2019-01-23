@@ -2,7 +2,7 @@ module Model exposing
     ( Model, PlayerState, Round, PlayerInfo, PlayerSummary, Registered, NewGame, SavedGame
     , ApiResponse (..), ApiError, Lifecycle(..) )
 
-import Time exposing (Time)
+import Time exposing (Posix)
 import Dict exposing (Dict)
 
 
@@ -45,7 +45,7 @@ type alias PlayerState =
 type alias Model =
     { lifecycle : Lifecycle
     , backendAwake : Bool
-    , time : Time
+    , time : Int
     , savedGames : List SavedGame
     , state : Maybe PlayerState
     , playerKey : Maybe String
@@ -77,7 +77,7 @@ type alias SavedGame =
     , gameName : String
     , playerKey : String
     , screenName : String
-    , startTime : Float
+    , startTime : Int
     }
 
 -- API responses
