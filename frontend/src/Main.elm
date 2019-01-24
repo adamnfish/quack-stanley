@@ -1,13 +1,14 @@
 module Main exposing (..)
 
-import Html exposing (Html, program)
+import Browser
+import Html exposing (Html)
 import Model exposing (Model, Lifecycle (..))
 import Msg exposing (Msg, update, wakeServer)
 import View exposing (view)
 import Views.Main exposing (pageTemplate)
 import Ports exposing (fetchSavedGames)
 import Task exposing (Task)
-import Time exposing (Time)
+import Time exposing (Posix)
 import Subs exposing (subscriptions)
 
 
@@ -31,10 +32,10 @@ init =
     )
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    program
-        { init = init
+    Browser.element
+        { init = \_ -> init
         , view = \model -> pageTemplate view model
         , update = update
         , subscriptions = subscriptions

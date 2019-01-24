@@ -21,7 +21,7 @@ phases:
     - mkdir -p $NPM_ROOT
     - npm config set prefix $NPM_ROOT
 
-    - npm install -g create-elm-app@1.10.4 --unsafe-perm=true --allow-root
+    - npm install -g create-elm-app@2.2.4 --unsafe-perm=true --allow-root
 
   build:
     commands:
@@ -30,7 +30,6 @@ phases:
     - sbt/bin/sbt -no-colors test universal:packageBin
     # frontend
     - cd frontend
-    - elm-app install
     - elm-app build
     - cd -
 

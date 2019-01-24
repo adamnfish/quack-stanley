@@ -4,7 +4,7 @@ module Api.Codecs exposing
     )
 
 import Json.Decode exposing (Decoder, field, string, bool, list, dict, nullable)
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Decode.Pipeline exposing (required, optional)
 import Model exposing (PlayerState, Round, PlayerInfo, PlayerSummary, Registered, NewGame, ApiError)
 
 
@@ -14,13 +14,13 @@ apiErrsDecoder =
 
 apiErrorDecoder : Decoder ApiError
 apiErrorDecoder =
-    decode ApiError
+    Json.Decode.succeed ApiError
         |> required "message" string
         |> optional "context" (Json.Decode.map Just Json.Decode.string) Nothing
 
 playerStateDecoder : Decoder PlayerState
 playerStateDecoder =
-    decode PlayerState
+    Json.Decode.succeed PlayerState
         |> required "gameId" string
         |> required "gameName" string
         |> required "screenName" string
@@ -31,33 +31,33 @@ playerStateDecoder =
 
 playerSummaryDecoder : Decoder PlayerSummary
 playerSummaryDecoder =
-    decode PlayerSummary
+    Json.Decode.succeed PlayerSummary
         |> required "screenName" string
         |> required "points" ( list string )
 
 newGameDecoder : Decoder NewGame
 newGameDecoder =
-    decode NewGame
+    Json.Decode.succeed NewGame
         |> required "state" playerStateDecoder
         |> required "playerKey" string
         |> required "gameCode" string
 
 registeredDecoder : Decoder Registered
 registeredDecoder =
-    decode Registered
+    Json.Decode.succeed Registered
         |> required "state" playerStateDecoder
         |> required "playerKey" string
 
 roundDecoder : Decoder Round
 roundDecoder =
-    decode Round
+    Json.Decode.succeed Round
         |> required "buyer" string
         |> required "role" string
         |> required "products" ( dict (list string ) )
 
 playerInfoDecoder : Decoder PlayerInfo
 playerInfoDecoder =
-    decode PlayerInfo
+    Json.Decode.succeed PlayerInfo
         |> required "state" playerStateDecoder
         |> required "started" bool
         |> required "opponents" ( list playerSummaryDecoder )

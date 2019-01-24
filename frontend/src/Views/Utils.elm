@@ -205,3 +205,6 @@ helpText message =
     toHtml
         [ class "text--help" ]
         ( stripMargin message )
+
+flip : ( a -> b -> c ) -> b -> a -> c
+flip f b a = f a b

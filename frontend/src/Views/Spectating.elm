@@ -109,7 +109,7 @@ spectating selected errors model =
                                             ]
                                         , attribute "data-badge-caption" ( plural "point" ( List.length points ) )
                                         ]
-                                        [ text ( toString playerScore ) ]
+                                        [ text ( String.fromInt playerScore ) ]
                                     ]
                                 ]
                             ] ++ List.map ( playerListEntry leadingScore ) model.opponents
@@ -135,7 +135,7 @@ playerListEntry leadingScore playerSummary =
                         ]
                     , attribute "data-badge-caption" ( plural "point" ( List.length playerSummary.points ) )
                     ]
-                    [ text ( toString score ) ]
+                    [ text ( String.fromInt score ) ]
                 ]
             ]
 

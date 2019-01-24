@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing (Model, SavedGame, Lifecycle (..))
 import Msg exposing (Msg)
-import Time exposing (Time)
+import Time exposing (Posix)
 import Views.Utils exposing (container, row, col, card, icon, empty, gameNav, shroud, helpText, ShroudContent (..))
 
 
@@ -13,7 +13,7 @@ welcome : Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
 welcome model =
     awake model.time model.savedGames model.backendAwake
 
-awake : Time -> List SavedGame -> Bool -> ( List ( Html Msg ), ShroudContent, Html Msg )
+awake : Int -> List SavedGame -> Bool -> ( List ( Html Msg ), ShroudContent, Html Msg )
 awake now savedGames isAwake =
     ( []
     , LoadingMessage ( not isAwake ) [ text "Loading" ]
@@ -47,35 +47,35 @@ awake now savedGames isAwake =
         ]
     )
 
-savedGamesBlock : Time -> List SavedGame -> Html Msg
+savedGamesBlock : Int -> List SavedGame -> Html Msg
 savedGamesBlock now savedGames =
     if List.isEmpty savedGames then
         empty
     else
         row ( List.map ( savedGameBlock now ) savedGames )
 
-savedGameBlock : Time -> SavedGame -> Html Msg
+savedGameBlock : Int -> SavedGame -> Html Msg
 savedGameBlock now game =
     let
         delta = now - game.startTime
-        minutes = floor ( Time.inMinutes delta )
-        hours = floor ( Time.inHours delta )
-        days = floor ( ( Time.inHours delta ) / 24 )
+        minutes = modBy 60 <| floor ( toFloat delta / 1000 / 60 )
+        hours = modBy 24 <| floor ( toFloat delta / 1000 / 60 / 60 )
+        days = floor ( toFloat delta / 1000 / 60 / 60 / 24 )
         ago =
             if minutes < 1 then
                 "Just now"
             else if minutes == 1 then
                 "1 minute ago"
             else if hours < 1 then
-                ( toString minutes ) ++ " minutes ago"
+                ( String.fromInt minutes ) ++ " minutes ago"
             else if hours == 1 then
                 "1 hour ago"
             else if days < 1 then
-                ( toString hours ) ++ " hours ago"
+                ( String.fromInt hours ) ++ " hours ago"
             else if days == 1 then
                 "yesterday"
             else
-                ( toString days ) ++ " days ago"
+                ( String.fromInt days ) ++ " days ago"
     in
         col "s12 m6"
             [ card
