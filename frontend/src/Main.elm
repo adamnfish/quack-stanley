@@ -12,31 +12,41 @@ import Time exposing (Posix)
 import Subs exposing (subscriptions)
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( { lifecycle = Welcome
-      , savedGames = []
-      , backendAwake = False
-      , time = 0
-      , state = Nothing
-      , playerKey = Nothing
-      , isCreator = False
-      , opponents = []
-      , round = Nothing
-      }
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    let
+        model =
+            { lifecycle = Welcome
+            , savedGames = []
+            , backendAwake = False
+            , time = 0
+            , state = Nothing
+            , playerKey = Nothing
+            , isCreator = False
+            , opponents = []
+            , round = Nothing
+            , apiRoot = flags.apiRoot
+            }
+    in
+    ( model
     , Cmd.batch
-        [ wakeServer
+        [ wakeServer model
         , Task.perform Msg.WelcomeTick Time.now  -- initialise model with current time
         , fetchSavedGames ()
         ]
     )
 
 
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element
-        { init = \_ -> init
+        { init = init
         , view = \model -> pageTemplate view model
         , update = update
         , subscriptions = subscriptions
         }
+
+
+type alias Flags =
+    { apiRoot : String
+    }

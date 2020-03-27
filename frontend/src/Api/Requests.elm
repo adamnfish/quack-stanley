@@ -8,51 +8,51 @@ import Api.Codecs exposing (apiErrsDecoder, registeredDecoder, newGameDecoder, p
 import Config exposing (apiUrl)
 import Http exposing (stringBody)
 import Json.Decode exposing (succeed)
-import Model exposing (PlayerInfo, Registered, NewGame)
+import Model exposing (Model, NewGame, PlayerInfo, Registered)
 
 
 
-wakeServerRequest : Http.Request ()
-wakeServerRequest =
-    Http.post apiUrl ( stringBody "application/json" """{ "operation": "wake" }""" ) ( succeed () )
+wakeServerRequest : Model -> Http.Request ()
+wakeServerRequest model =
+    Http.post (apiUrl model) ( stringBody "application/json" """{ "operation": "wake" }""" ) ( succeed () )
 
-createGameRequest : String -> String -> Http.Request NewGame
-createGameRequest gameName screenName =
+createGameRequest : Model -> String -> String -> Http.Request NewGame
+createGameRequest model gameName screenName =
     let
         body = """{ "operation": "create-game", "screenName": \"""" ++ screenName ++ """", "gameName": \"""" ++ gameName ++ """" }"""
     in
-        Http.post apiUrl ( stringBody "application/json" body ) newGameDecoder
+        Http.post (apiUrl model) ( stringBody "application/json" body ) newGameDecoder
 
-joinGameRequest : String -> String -> Http.Request Registered
-joinGameRequest gameId screenName =
+joinGameRequest : Model -> String -> String -> Http.Request Registered
+joinGameRequest model gameId screenName =
     let
         body = """{ "operation": "register-player", "screenName": \"""" ++ screenName ++ """", "gameCode": \"""" ++ gameId ++ """" }"""
     in
-        Http.post apiUrl ( stringBody "application/json" body ) registeredDecoder
+        Http.post (apiUrl model) ( stringBody "application/json" body ) registeredDecoder
 
-startGameRequest : String -> String -> Http.Request PlayerInfo
-startGameRequest gameId playerKey =
+startGameRequest : Model -> String -> String -> Http.Request PlayerInfo
+startGameRequest model gameId playerKey =
     let
         body = """{ "operation": "start-game", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
-        Http.post apiUrl ( stringBody "application/json" body ) playerInfoDecoder
+        Http.post (apiUrl model) ( stringBody "application/json" body ) playerInfoDecoder
 
-becomeBuyerRequest : String -> String -> Http.Request PlayerInfo
-becomeBuyerRequest gameId playerKey =
+becomeBuyerRequest : Model -> String -> String -> Http.Request PlayerInfo
+becomeBuyerRequest model gameId playerKey =
     let
         body = """{ "operation": "become-buyer", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
-        Http.post apiUrl ( stringBody "application/json" body ) playerInfoDecoder
+        Http.post (apiUrl model) ( stringBody "application/json" body ) playerInfoDecoder
 
-relinquishBuyerRequest : String -> String -> Http.Request PlayerInfo
-relinquishBuyerRequest gameId playerKey =
+relinquishBuyerRequest : Model -> String -> String -> Http.Request PlayerInfo
+relinquishBuyerRequest model gameId playerKey =
     let
         body = """{ "operation": "relinquish-buyer", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
-        Http.post apiUrl ( stringBody "application/json" body ) playerInfoDecoder
+        Http.post (apiUrl model) ( stringBody "application/json" body ) playerInfoDecoder
 
-awardPointRequest : String -> String -> String -> String -> Http.Request PlayerInfo
-awardPointRequest gameId playerKey role playerName =
+awardPointRequest : Model -> String -> String -> String -> String -> Http.Request PlayerInfo
+awardPointRequest model gameId playerKey role playerName =
     let
         body =
             """{ "operation": "award-point", "gameId": \"""" ++ gameId ++
@@ -61,20 +61,20 @@ awardPointRequest gameId playerKey role playerName =
                         """", "awardToPlayerWithName": \"""" ++ playerName ++
                             """" }"""
     in
-        Http.post apiUrl ( stringBody "application/json" body ) playerInfoDecoder
+        Http.post (apiUrl model) ( stringBody "application/json" body ) playerInfoDecoder
 
-finishPitchRequest : String -> String ->  ( String, String ) -> Http.Request PlayerInfo
-finishPitchRequest gameId playerKey ( word1, word2 ) =
+finishPitchRequest : Model -> String -> String ->  ( String, String ) -> Http.Request PlayerInfo
+finishPitchRequest model gameId playerKey ( word1, word2 ) =
     let
         body = """{ "operation": "finish-pitch", "playerKey": \""""
                ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """", "words": [\""""
                    ++ word1 ++ """", \"""" ++ word2 ++ """"] }"""
     in
-        Http.post apiUrl ( stringBody "application/json" body ) playerInfoDecoder
+        Http.post (apiUrl model) ( stringBody "application/json" body ) playerInfoDecoder
 
-pingRequest : String -> String -> Http.Request PlayerInfo
-pingRequest gameId playerKey =
+pingRequest : Model -> String -> String -> Http.Request PlayerInfo
+pingRequest model gameId playerKey =
     let
         body = """{ "operation": "ping", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
-        Http.post apiUrl ( stringBody "application/json" body ) playerInfoDecoder
+        Http.post (apiUrl model) ( stringBody "application/json" body ) playerInfoDecoder

@@ -2,7 +2,10 @@ import './main.css';
 import { Elm } from './Main.elm';
 
 var app = Elm.Main.init({
-    node: document.getElementById('root')
+    node: document.getElementById('root'),
+    flags: {
+        apiRoot: deriveApiRoot(document.location)
+    }
 });
 
 
@@ -51,4 +54,15 @@ function removeGame(games, game) {
         var match = savedGame.gameId == game.gameId && savedGame.playerKey == game.playerKey
         return !match;
     });
+}
+
+function deriveApiRoot(location) {
+    var devHost = /[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/;
+    if (location.hostname === "localhost" || devHost.test(location.hostname)) {
+        return location.protocol + "//" + location.hostname + ":9001/api";
+    } else {
+        // hard-coded for now
+        // TODO: move API route to /api in CloudFormation
+        return "https://api.quackstanley.net/";
+    }
 }

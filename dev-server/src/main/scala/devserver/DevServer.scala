@@ -13,19 +13,44 @@ object DevServer extends LazyLogging {
   implicit val ec = scala.concurrent.ExecutionContext.global
 
   def main(args: Array[String]): Unit = {
-    val frontendClient = Client("localhost", 3000)
-
     Server.listen(9001) {
+      // CORS
+      case _ @ HttpMethod("OPTIONS") at url"/api" =>
+        Response(
+          204, Content.empty,
+          headers = Map(
+            h"content-type" -> h"application/json",
+            h"Access-Control-Allow-Origin" -> h"*",
+            h"Access-Control-Allow-Methods" -> h"POST",
+            h"Access-Control-Allow-Headers" -> h"Content-Type"
+          )
+        )
+
+      // API
       case request @ POST at url"/api" =>
         for {
           json <- request.readAs[Json]
           statusAndResponse <- IO.fromFuture(IO(devQuackStanley(json)))
           _ <- IO.sleep(2.seconds)
           (statusCode, responseBody) = statusAndResponse
-        } yield Response(statusCode, Content.of(responseBody))
+        } yield {
+          Response(
+            statusCode, Content.of(responseBody),
+            headers = Map(
+              h"content-type" -> h"application/json",
+              h"Access-Control-Allow-Origin" -> h"*"
+            )
+          )
+        }
 
-      case request =>
-        frontendClient(request)
+      case _ =>
+        Response(
+          404, Content.empty,
+          headers = Map(
+            h"content-type" -> h"application/json",
+            h"Access-Control-Allow-Origin" -> h"*"
+          )
+        )
     }
   }
 }

@@ -1,5 +1,8 @@
 module Config exposing (apiUrl)
 
+import Model exposing (Model)
 
-apiUrl : String
-apiUrl = "https://api.quackstanley.net/"
+
+apiUrl : Model -> String
+apiUrl model =
+    model.apiRoot
