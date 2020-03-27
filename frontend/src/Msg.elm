@@ -111,7 +111,7 @@ update msg model =
                     }
             in
                 ( { model | lifecycle = Create createState }
-                , createGame gameName screenName
+                , createGame model gameName screenName
                 )
 
         JoiningGame gameId screenName errs ->
@@ -136,7 +136,7 @@ update msg model =
                     }
             in
                 ( { model | lifecycle = Join joinState }
-                , joinGame gameId screenName
+                , joinGame model gameId screenName
                 )
 
         CreatedGame gameName screenName ( ApiErr errs ) ->
@@ -196,7 +196,7 @@ update msg model =
                           , playerKey = Just savedGame.playerKey
                           , state = Just temporaryState
                           }
-                , ping savedGame.gameId savedGame.playerKey
+                , ping model savedGame.gameId savedGame.playerKey
                 )
 
         RemoveSavedGame savedGame ->
@@ -208,7 +208,7 @@ update msg model =
             case keys model of
                 Just ( gameId, playerKey ) ->
                     ( { model | lifecycle = Starting }
-                    , startGame gameCode gameId playerKey
+                    , startGame model gameCode gameId playerKey
                     )
                 Nothing ->
                     let
@@ -257,7 +257,7 @@ update msg model =
             case keys model of
                 Just (gameId, playerKey) ->
                     ( { model | lifecycle = BecomingBuyer }
-                    , becomeBuyer gameId playerKey
+                    , becomeBuyer model gameId playerKey
                     )
                 Nothing ->
                     ( { model | lifecycle = Error [ "No player key or game ID" ] }, Cmd.none )
@@ -280,7 +280,7 @@ update msg model =
             case keys model of
                 Just (gameId, playerKey) ->
                     ( { model | lifecycle = RelinquishingBuyer }
-                    , relinquishBuyer gameId playerKey
+                    , relinquishBuyer model gameId playerKey
                     )
                 Nothing ->
                     ( { model | lifecycle = Error [ "No player key or game ID" ] }, Cmd.none )
@@ -302,7 +302,7 @@ update msg model =
             case keys model of
                 Just (gameId, playerKey) ->
                     ( { model | lifecycle = AwardingPoint role playerName }
-                    , awardPoint gameId playerKey role playerName
+                    , awardPoint model gameId playerKey role playerName
                     )
                 Nothing ->
                     ( { model | lifecycle = Error [ "No game ID or Player Key" ] }
@@ -325,7 +325,7 @@ update msg model =
         PingEvent _ ->
             case keys model of
                 Just ( gameId, playerKey ) ->
-                    ( model, ping gameId playerKey )
+                    ( model, ping model gameId playerKey )
                 Nothing ->
                     ( model, Cmd.none )
 
@@ -391,7 +391,7 @@ update msg model =
             case keys model of
                 Just ( gameId, playerKey ) ->
                     ( { model | lifecycle = Pitching word1 word2 True }
-                    , finishPitch gameId playerKey ( word1, word2 ) )
+                    , finishPitch model gameId playerKey ( word1, word2 ) )
                 Nothing ->
                     ( model, Cmd.none )
         FinishedPitchResult ( ApiErr err ) ->
@@ -410,38 +410,38 @@ update msg model =
 
 -- API calls
 
-wakeServer : Cmd Msg
-wakeServer =
-    sendApiCall BackendAwake ( wakeServerRequest )
+wakeServer : Model -> Cmd Msg
+wakeServer model =
+    sendApiCall BackendAwake ( wakeServerRequest model )
 
-createGame : String -> String -> Cmd Msg
-createGame gameName screenName =
-    sendApiCall ( CreatedGame gameName screenName ) ( createGameRequest gameName screenName )
+createGame : Model -> String -> String -> Cmd Msg
+createGame model gameName screenName =
+    sendApiCall ( CreatedGame gameName screenName ) ( createGameRequest model gameName screenName )
 
-joinGame : String -> String -> Cmd Msg
-joinGame gameCode screenName =
-    sendApiCall ( JoinedGame gameCode screenName ) ( joinGameRequest gameCode screenName )
+joinGame : Model -> String -> String -> Cmd Msg
+joinGame model gameCode screenName =
+    sendApiCall ( JoinedGame gameCode screenName ) ( joinGameRequest model gameCode screenName )
 
-startGame : String -> String -> String -> Cmd Msg
-startGame gameCode gameId playerKey =
-    sendApiCall ( GameStarted gameCode ) ( startGameRequest gameId playerKey )
+startGame : Model -> String -> String -> String -> Cmd Msg
+startGame model gameCode gameId playerKey =
+    sendApiCall ( GameStarted gameCode ) ( startGameRequest model gameId playerKey )
 
-becomeBuyer : String -> String -> Cmd Msg
-becomeBuyer gameId playerKey =
-    sendApiCall BecomeBuyer ( becomeBuyerRequest gameId playerKey )
+becomeBuyer : Model -> String -> String -> Cmd Msg
+becomeBuyer model gameId playerKey =
+    sendApiCall BecomeBuyer ( becomeBuyerRequest model gameId playerKey )
 
-relinquishBuyer : String -> String -> Cmd Msg
-relinquishBuyer gameId playerKey =
-    sendApiCall RelinquishBuyerResult ( relinquishBuyerRequest gameId playerKey )
+relinquishBuyer : Model -> String -> String -> Cmd Msg
+relinquishBuyer model gameId playerKey =
+    sendApiCall RelinquishBuyerResult ( relinquishBuyerRequest model gameId playerKey )
 
-awardPoint : String -> String -> String -> String -> Cmd Msg
-awardPoint gameId playerKey role playerName =
-    sendApiCall AwardedPoint ( awardPointRequest gameId playerKey role playerName )
+awardPoint : Model -> String -> String -> String -> String -> Cmd Msg
+awardPoint model gameId playerKey role playerName =
+    sendApiCall AwardedPoint ( awardPointRequest model gameId playerKey role playerName )
 
-ping : String -> String -> Cmd Msg
-ping gameId playerKey =
-    sendApiCall PingResult ( pingRequest gameId playerKey )
+ping : Model -> String -> String -> Cmd Msg
+ping model gameId playerKey =
+    sendApiCall PingResult ( pingRequest model gameId playerKey )
 
-finishPitch : String -> String -> ( String, String ) -> Cmd Msg
-finishPitch gameId playerKey words =
-    sendApiCall FinishedPitchResult ( finishPitchRequest gameId playerKey words )
+finishPitch : Model -> String -> String -> ( String, String ) -> Cmd Msg
+finishPitch model gameId playerKey words =
+    sendApiCall FinishedPitchResult ( finishPitchRequest model gameId playerKey words )

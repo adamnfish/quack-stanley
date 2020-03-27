@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-cd frontend
+cd frontend || exit
 elm-app start

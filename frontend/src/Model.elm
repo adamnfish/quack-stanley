@@ -52,6 +52,7 @@ type alias Model =
     , isCreator : Bool
     , opponents : List PlayerSummary
     , round : Maybe Round
+    , apiRoot : String
     }
 
 -- Lifecycles
