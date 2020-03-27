@@ -8,12 +8,12 @@ phases:
 
     # Install software for API build
     - echo Installing sbt
-    - wget https://piccolo.link/sbt-1.0.2.zip
-    - unzip sbt-1.0.2.zip
+    - wget https://piccolo.link/sbt-1.3.8.zip
+    - unzip sbt-1.3.8.zip
 
     # Install software for frontend build
     - echo Installing node, npm and frontend build dependencies
-    - curl -sL https://deb.nodesource.com/setup_8.x | bash
+    - curl -sL https://deb.nodesource.com/setup_12.x | bash
     - apt-get install -y nodejs build-essential
 
     - export NPM_ROOT=$HOME/npm-global
@@ -21,7 +21,7 @@ phases:
     - mkdir -p $NPM_ROOT
     - npm config set prefix $NPM_ROOT
 
-    - npm install -g create-elm-app@2.2.4 --unsafe-perm=true --allow-root
+    - npm install -g create-elm-app@4.2.3 --unsafe-perm=true --allow-root
 
   build:
     commands:

@@ -1,6 +1,6 @@
 organization := "com.adamnfish"
 version := "0.1-SNAPSHOT"
-scalaVersion := "2.12.3"
+scalaVersion := "2.12.10"
 scalacOptions ++= Seq(
   "-deprecation",
   "-Xfatal-warnings",
