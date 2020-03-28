@@ -77,6 +77,37 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
   }
 
+  "lobbyPlayerInfo" - {
+    val gameState = newGame("game name", "Creator")
+    val creatorState = newPlayer(gameState.gameId, gameState.gameName, "Creator")
+    val creatorKey = gameState.creator
+    val playerState1 = newPlayer(gameState.gameId, gameState.gameName, "Player 1")
+    val playerKey1 = generatePlayerKey()
+    val playerState2 = newPlayer(gameState.gameId, gameState.gameName, "Player 2")
+    val playerKey2 = generatePlayerKey()
+    val allPlayers = Map(
+      creatorKey -> creatorState,
+      playerKey1 -> playerState1,
+      playerKey2 -> playerState2
+    )
+
+    "started is false" in {
+      lobbyPlayerInfo(creatorKey, creatorState, allPlayers).started shouldEqual false
+    }
+
+    "sets player state" in {
+      lobbyPlayerInfo(creatorKey, creatorState, allPlayers).state shouldEqual creatorState
+    }
+
+    "excludes this player from 'otherPlayers'" in {
+      lobbyPlayerInfo(creatorKey, creatorState, allPlayers).opponents.map(_.screenName) should not contain("Creator")
+    }
+
+    "includes other players" in {
+      lobbyPlayerInfo(creatorKey, creatorState, allPlayers).opponents.map(_.screenName) should contain only("Player 1", "Player 2")
+    }
+  }
+
   "roundToRoundInfo" - {
     val gameState = newGame("game name", "Creator")
     val playerState1 = newPlayer(gameState.gameId, gameState.gameName, "Player 1")

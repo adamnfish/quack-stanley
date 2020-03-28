@@ -116,6 +116,11 @@ object Validation {
       validate(ping.playerKey.value, "player key", isUUID)
   }
 
+  def validate(lobbyPing: LobbyPing)(implicit ec: ExecutionContext): Attempt[Unit] = {
+    validate(lobbyPing.gameId.value, "game ID", isUUID) |@|
+      validate(lobbyPing.playerKey.value, "player key", isUUID)
+  }
+
   def validate(mulligan: Mulligan)(implicit ec: ExecutionContext): Attempt[Unit] = {
     validate(mulligan.gameId.value, "game ID", isUUID) |@|
       validate(mulligan.playerKey.value, "player key", isUUID) |@|

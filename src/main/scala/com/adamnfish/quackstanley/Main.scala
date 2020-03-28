@@ -40,6 +40,7 @@ class Main {
         case data: AwardPoint => awardPoint(data, config)
         case data: Mulligan => mulligan(data, config)
         case data: Ping => ping(data, config)
+        case data: LobbyPing => lobbyPing(data, config)
         case data: Wake => wake(data, config)
       }
     } catch {

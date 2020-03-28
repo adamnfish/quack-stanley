@@ -5,6 +5,7 @@ import java.util.UUID
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
+import com.adamnfish.quackstanley.persistence.GameIO.playerStateDir
 import com.adamnfish.quackstanley.{AttemptValues, Config, QuackStanley, TestPersistence}
 import org.joda.time.DateTime
 import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
@@ -41,7 +42,7 @@ class StartGameIntegrationTest extends FreeSpec with Matchers
       val playerKey = PlayerKey(playerKeyUUID)
       val playerState = PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil)
       val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
-        Map(creatorKey -> PlayerSummary(creatorScreenName, Nil), playerKey -> PlayerSummary(playerScreenName, Nil))
+        Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
       )
       GameIO.writeGameState(gameState, testConfig).value()
       GameIO.writePlayerState(creatorState, creatorKey, testConfig).value()
@@ -55,14 +56,14 @@ class StartGameIntegrationTest extends FreeSpec with Matchers
 
         "writes all players into players game state" in {
           val request = StartGame(gameId, creatorKey)
-          startGame(request, testConfig)
+          startGame(request, testConfig).value()
           val savedState = GameIO.getGameState(gameId, testConfig).value()
           savedState.players.keys.toSet shouldEqual Set(creatorKey, playerKey)
         }
 
-        "includes player screen names" in {
+        "includes player screen names in persisted game state" in {
           val request = StartGame(gameId, creatorKey)
-          startGame(request, testConfig)
+          startGame(request, testConfig).value()
           val savedState = GameIO.getGameState(gameId, testConfig).value()
           savedState.players.mapValues(_.screenName).toSet shouldEqual Set(
             creatorKey -> creatorScreenName,
@@ -72,7 +73,7 @@ class StartGameIntegrationTest extends FreeSpec with Matchers
 
         "players start with zero points" in {
           val request = StartGame(gameId, creatorKey)
-          startGame(request, testConfig)
+          startGame(request, testConfig).value()
           val savedState = GameIO.getGameState(gameId, testConfig).value()
           all(savedState.players.values.map(_.points)) shouldEqual Nil
         }

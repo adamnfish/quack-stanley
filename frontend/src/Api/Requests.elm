@@ -1,7 +1,7 @@
 module Api.Requests exposing
     ( wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest
     , becomeBuyerRequest, relinquishBuyerRequest, awardPointRequest, finishPitchRequest
-    , pingRequest
+    , pingRequest, lobbyPingRequest
     )
 
 import Api.Codecs exposing (apiErrsDecoder, registeredDecoder, newGameDecoder, playerStateDecoder, playerSummaryDecoder, playerInfoDecoder)
@@ -76,5 +76,12 @@ pingRequest : Model -> String -> String -> Http.Request PlayerInfo
 pingRequest model gameId playerKey =
     let
         body = """{ "operation": "ping", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
+    in
+        Http.post (apiUrl model) ( stringBody "application/json" body ) playerInfoDecoder
+
+lobbyPingRequest : Model -> String -> String -> Http.Request PlayerInfo
+lobbyPingRequest model gameId playerKey =
+    let
+        body = """{ "operation": "lobbyPing", "playerKey": \"""" ++ playerKey ++ """", "gameId": \"""" ++ gameId ++ """" }"""
     in
         Http.post (apiUrl model) ( stringBody "application/json" body ) playerInfoDecoder
