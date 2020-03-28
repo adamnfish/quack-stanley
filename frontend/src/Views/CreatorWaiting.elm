@@ -1,11 +1,11 @@
 module Views.CreatorWaiting exposing (creatorWaiting)
 
-import Html exposing (Html, div, text, button, input, label, span, br)
-import Html.Attributes exposing (class, id, placeholder, value, type_, disabled, for)
-import Html.Events exposing (onClick, onSubmit, onInput)
-import Model exposing (Model, Lifecycle (..), ApiError)
+import Html exposing (Html, div, text, button, input, label, span, ul, li)
+import Html.Attributes exposing (class, id, value, type_, disabled, for)
+import Html.Events exposing (onClick)
+import Model exposing (ApiError, Lifecycle(..), Model, PlayerSummary)
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon, helpText, showErrors, ShroudContent (..))
+import Views.Utils exposing (container, row, col, card, icon, helpText, showErrors, ShroudContent (..))
 
 
 creatorWaiting : String -> List ApiError -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
@@ -50,32 +50,51 @@ creatorWaiting gameCode errors model =
             [ col "s12"
                 [ card
                     [ row
-                        [ col "s12 m6 push-m6"
-                            [ button
-                                [ class "waves-effect waves-light blue btn btn-large cta__button"
-                                , onClick ( Msg.StartingGame gameCode )
-                                ]
-                                [ text "Start game"
-                                , icon "play_arrow" "right"
-                                ]
-                            ]
-                        , col "s12 m6 pull-m6"
+                        [ col "s12 m6"
                             [ div
-                                []
-                                [ icon "group_add" "left medium hide-on-small-only" ]
-                            , br
-                                [ class "clearfix" ]
-                                []
-                            , div
                                 []
                                 [ span
                                     [ class "flow-text" ]
                                     [ text "Wait for other players to join before starting." ]
-                                , icon "group_add" "left medium hide-on-med-and-up"
+                                ]
+                            ]
+                        , col "s12 m6"
+                            [ div
+                                [ class "start-game__btn" ]
+                                [ button
+                                    [ class "waves-effect waves-light blue btn btn-large cta__button"
+                                    , onClick ( Msg.StartingGame gameCode )
+                                    ]
+                                    [ text "Start game"
+                                    , icon "play_arrow" "right"
+                                    ]
                                 ]
                             ]
                         ]
                     ]
+                ]
+            ]
+        , row
+            [ col "s12"
+                [ ul
+                    [ class "collection with-header z-depth-1" ]
+                    (
+                        [ li
+                            [ class "collection-header" ]
+                            [ div []
+                                [ icon "person" "left"
+                                , span
+                                    [ class "flow-text" ]
+                                    [ text "Players" ]
+                                ]
+                            ]
+                        , li
+                            [ class "collection-item" ]
+                            [ div []
+                                [ text "You" ]
+                            ]
+                        ] ++ List.map lobbyPlayer model.opponents
+                    )
                 ]
             ]
         , row
@@ -88,10 +107,20 @@ creatorWaiting gameCode errors model =
                            |
                            |Give the other players time to join and then start
                            |the game using the button above.
-                           |Once the game has started additional players cannot be added.
+                           |
+                           |**After the game has started additional players
+                           |cannot be added.**
                            |"""
                     ]
                 ]
             ]
         ]
     )
+
+lobbyPlayer : PlayerSummary -> Html Msg
+lobbyPlayer playerSummary =
+    li
+        [ class "collection-item" ]
+        [ div []
+            [ text playerSummary.screenName ]
+        ]

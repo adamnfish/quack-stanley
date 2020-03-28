@@ -16,6 +16,8 @@ subscriptions model =
                 ]
         Waiting ->
             Time.every ( 5 * 1000 ) PingEvent
+        CreatorWaiting _ _ ->
+            Time.every ( 5 * 1000 ) LobbyPingEvent
         Spectating _ _ ->
             Time.every ( 15 * 1000 ) PingEvent
         Buying _ ->

@@ -1,7 +1,7 @@
 module Msg exposing (Msg (..), update, wakeServer)
 
 import Api.Api exposing (sendApiCall)
-import Api.Requests exposing (wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest, becomeBuyerRequest, relinquishBuyerRequest, awardPointRequest, pingRequest, finishPitchRequest)
+import Api.Requests exposing (awardPointRequest, becomeBuyerRequest, createGameRequest, finishPitchRequest, joinGameRequest, lobbyPingRequest, pingRequest, relinquishBuyerRequest, startGameRequest, wakeServerRequest)
 import Model exposing (Model, Registered, NewGame, PlayerInfo, SavedGame, Lifecycle (..), ApiResponse (..), ApiError)
 import Time exposing (Posix)
 import Ports exposing (fetchSavedGames, saveGame, removeSavedGame)
@@ -54,6 +54,10 @@ type Msg
         ( ApiResponse PlayerInfo )
     | PingEvent
         Posix
+    | LobbyPingResult
+        ( ApiResponse PlayerInfo )
+    | LobbyPingEvent
+        Posix
     | StartPitch
         String String
     | FinishedPitch
@@ -71,7 +75,13 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NavigateHome ->
-            ( { model | lifecycle = Welcome }
+            ( { model | lifecycle = Welcome
+                      , playerKey = Nothing
+                      , state = Nothing
+                      , isCreator = False
+                      , opponents = []
+                      , round = Nothing
+            }
             , fetchSavedGames ()
             )
 
@@ -156,6 +166,8 @@ update msg model =
                       , playerKey = Just newGame.playerKey
                       , state = Just newGame.state
                       , isCreator = True
+                      , opponents = []
+                      , round = Nothing
                       }
             , Cmd.none
             )
@@ -334,9 +346,7 @@ update msg model =
                 Waiting ->
                     ( model, Cmd.none )
                 _ ->
-                    ( { model | lifecycle = Error ( List.map .message err ) }
-                    , Cmd.none
-                    )
+                    ( model , Cmd.none )
         PingResult ( ApiOk playerInfo ) ->
             case model.lifecycle of
                 Waiting ->
@@ -380,6 +390,36 @@ update msg model =
                               , opponents = playerInfo.opponents
                               , round = playerInfo.round
                       }
+                    , Cmd.none
+                    )
+
+        LobbyPingEvent _ ->
+            case keys model of
+                Just ( gameId, playerKey ) ->
+                    ( model, lobbyPing model gameId playerKey )
+                Nothing ->
+                    ( model, Cmd.none )
+
+        LobbyPingResult ( ApiErr errs ) ->
+            case model.lifecycle of
+                CreatorWaiting gameCode _ ->
+                    ( { model | lifecycle = CreatorWaiting gameCode errs }
+                    , Cmd.none
+                    )
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+        LobbyPingResult ( ApiOk playerInfo ) ->
+            case model.lifecycle of
+                CreatorWaiting _ _ ->
+                    ( { model | state = Just playerInfo.state
+                              , opponents = playerInfo.opponents
+                      }
+                    , Cmd.none
+                    )
+                _ ->
+                    ( model
                     , Cmd.none
                     )
 
@@ -441,6 +481,10 @@ awardPoint model gameId playerKey role playerName =
 ping : Model -> String -> String -> Cmd Msg
 ping model gameId playerKey =
     sendApiCall PingResult ( pingRequest model gameId playerKey )
+
+lobbyPing : Model -> String -> String -> Cmd Msg
+lobbyPing model gameId playerKey =
+    sendApiCall LobbyPingResult ( lobbyPingRequest model gameId playerKey )
 
 finishPitch : Model -> String -> String -> ( String, String ) -> Cmd Msg
 finishPitch model gameId playerKey words =

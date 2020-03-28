@@ -133,6 +133,10 @@ strong {
     margin-bottom: 0px;
 }
 
+.collection.with-header .collection-header {
+    border-bottom-color: #cccccc;
+}
+
 /* GENERAL APP STYLES */
 
 .card-header {
@@ -199,6 +203,12 @@ p.card-header {
     color: #333333;
     height: 3rem;
     font-size: 30px;
+}
+
+@media only screen and (max-width: 600px) {
+    .start-game__btn {
+        margin-top: 1rem;
+    }
 }
 
 .hand__container {
