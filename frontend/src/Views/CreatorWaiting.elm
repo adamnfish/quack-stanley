@@ -82,7 +82,7 @@ creatorWaiting gameCode errors model =
                         [ li
                             [ class "collection-header" ]
                             [ div []
-                                [ icon "person" "left"
+                                [ icon "person" "left medium"
                                 , span
                                     [ class "flow-text" ]
                                     [ text "Players" ]

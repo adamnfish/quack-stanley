@@ -135,6 +135,11 @@ strong {
 
 .collection.with-header .collection-header {
     border-bottom-color: #cccccc;
+    height: 75px;
+}
+
+.collection.with-header .collection-header span {
+    line-height: 58px;
 }
 
 /* GENERAL APP STYLES */
