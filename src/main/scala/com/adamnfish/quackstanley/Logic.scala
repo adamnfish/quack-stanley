@@ -43,6 +43,15 @@ object Logic {
     PlayerInfo(playerState, gameState.started, otherPlayers.values.toList, roundInfo)
   }
 
+  def lobbyPlayerInfo(playerKey: PlayerKey, playerState: PlayerState, playerStates: Map[PlayerKey, PlayerState]): PlayerInfo = {
+    val otherPlayers = playerSummaries(playerStates)
+      .filterNot { case (opponentKey, _) =>
+        playerKey == opponentKey
+      }
+      .values
+    PlayerInfo(playerState, started = false, otherPlayers.toList, round = None)
+  }
+
   def roundToRoundInfo(round: Round, gameState: GameState): RoundInfo = {
     RoundInfo(
       // could make this function an attempt, but the game state would have

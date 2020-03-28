@@ -33,7 +33,6 @@ object QuackStanley {
     * Note that this function does not update the game state to prevent race conditions, this will be
     * done once by the creator when the game is started.
     *
-    * TODO: allow unique prefix of game ID to specify game (min 4 chars).
     * TODO: Optionally find a way to map dictionary(/game) words to key prefixes for easy sharing.
     */
   def registerPlayer(data: RegisterPlayer, config: Config)(implicit ec: ExecutionContext): Attempt[Registered] = {
@@ -62,7 +61,7 @@ object QuackStanley {
       _ <- verifyNotStarted(gameState)
       playerStates <- getRegisteredPlayers(data.gameId, config)
       _ <- validatePlayerCount(playerStates.size)
-      allWords <- Resources.words()
+      allWords <- Resources.words
       words <- nextWords(handSize * playerStates.size, allWords, Set.empty)
       players = playerSummaries(playerStates)
       dealtPlayers <- dealWordsToAllPlayers(words, playerStates)
@@ -85,7 +84,7 @@ object QuackStanley {
       _ <- verifyNoBuyer(gameState)
       players <- getRegisteredPlayers(data.gameId, config)
       player <- lookupPlayer(players, data.playerKey)
-      allRoles <- Resources.roles()
+      allRoles <- Resources.roles
       role <- nextRole(allRoles, usedRoles(players.values.toList))
       playerWithRole = player.copy(role = Some(role))
       gameWithBuyer = gameState.copy(round = Some(Round(data.playerKey, role, Map.empty)))
@@ -136,7 +135,7 @@ object QuackStanley {
       _ <- authenticate(data.playerKey, gameState)
       players <- getRegisteredPlayers(data.gameId, config)
       playerState <- lookupPlayer(players, data.playerKey)
-      allWords <- Resources.words()
+      allWords <- Resources.words
       used = usedWords(players.values.toList)
       refillWords <- nextWords(2, allWords, used)
       discardedPlayerState <- discardWords(data.words, playerState)
@@ -191,13 +190,32 @@ object QuackStanley {
   def ping(data: Ping, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
-      // kick off requests in parallel to speed up ping response
+      // kick off requests in parallel to speed up response
       fGameState = getGameState(data.gameId, config)
       fPlayerState = getPlayerState(data.playerKey, data.gameId, config)
       gameState <- fGameState
       _ <- authenticate(data.playerKey, gameState)
       playerState <- fPlayerState
     } yield playerInfo(data.playerKey, playerState, gameState)
+  }
+
+  /**
+    * return current state for the player with a description of who has joined the game.
+    *
+    * LobbyPing is called regularly so optimisations are in place to reduce costs.
+    */
+  def lobbyPing(data: LobbyPing, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+    for {
+      _ <- validate(data)
+      // kick off requests in parallel to speed up response
+      fGameState = getGameState(data.gameId, config)
+      fPlayerState = getPlayerState(data.playerKey, data.gameId, config)
+      gameState <- fGameState
+      _ <- authenticateCreator(data.playerKey, gameState)
+      _ <- verifyNotStarted(gameState)
+      playerStates <- getRegisteredPlayers(data.gameId, config)
+      playerState <- fPlayerState
+    } yield lobbyPlayerInfo(data.playerKey, playerState, playerStates)
   }
 
   /**

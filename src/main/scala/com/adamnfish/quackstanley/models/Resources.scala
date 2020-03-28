@@ -7,7 +7,7 @@ import scala.util.control.NonFatal
 
 
 object Resources {
-  def words(): Attempt[List[Word]] = {
+  lazy val words: Attempt[List[Word]] = {
     try {
       Attempt.Right {
         Source.fromResource("words.txt").getLines()
@@ -23,7 +23,7 @@ object Resources {
     }
   }
 
-  def roles(): Attempt[List[Role]] = {
+  lazy val roles: Attempt[List[Role]] = {
     try {
       Attempt.Right {
         Source.fromResource("roles.txt").getLines()

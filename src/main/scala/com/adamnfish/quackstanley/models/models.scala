@@ -93,6 +93,10 @@ case class Ping(
   gameId: GameId,
   playerKey: PlayerKey
 ) extends ApiOperation
+case class LobbyPing(
+  gameId: GameId,
+  playerKey: PlayerKey
+) extends ApiOperation
 case class Wake(
 ) extends ApiOperation
 case class Mulligan(
