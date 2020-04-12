@@ -133,14 +133,6 @@ welcomeHelp =
                        |One at a time, they use those words to **pitch** their
                        |product to the buyer.
                        |
-                       |Consider the buyer's role when you choose and pitch your
-                       |product. For example, if buyer is an *Astronaut* and your
-                       |hand contains *hoodie*, *gravity*, *barricade*, *pyjamas*,
-                       |*oven* and *cone* you might choose *gravity* and *pyjamas*.
-                       |You could pitch gravity-pyjamas to the buyer by talking about
-                       |how hard it is to get a good night's sleep when you're floating
-                       |in space. Be creative!
-                       |
                        |After each player has pitched their product the buyer chooses
                        |the player with their favourite idea & delivery. This player
                        |wins the round and receives 1 point.
@@ -150,6 +142,19 @@ welcomeHelp =
                        |
                        |The game goes on for as long as you are all enjoying yourselves.
                        |Good luck, have fun!
+                       |"""
+                , p []
+                    [ text "Top tips:" ]
+                , helpText
+                    """|Consider the buyer's role when you choose and pitch your
+                       |product.
+                       |
+                       |For example, if buyer is an *Astronaut* and your
+                       |hand contains *Hoodie*, *Velcro*, *Barricade*, *Pyjamas*,
+                       |*Oven* and *Cone* you might choose *Velcro* and *Pyjamas*.
+                       |You could pitch "Velcro Pyjamas" to the buyer by talking about
+                       |how hard it is to get a good night's sleep when you're floating
+                       |in space. Be creative!
                        |"""
                 ]
             ]
