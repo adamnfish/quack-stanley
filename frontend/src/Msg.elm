@@ -201,6 +201,7 @@ update msg model =
                     , hand = []
                     , discardedWords = []
                     , role = Nothing
+                    , roleChoices = Nothing
                     , points = []
                     }
             in

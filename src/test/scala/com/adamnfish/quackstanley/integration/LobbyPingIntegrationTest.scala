@@ -37,14 +37,14 @@ class LobbyPingIntegrationTest extends FreeSpec with Matchers
       val gameName = "game-name"
       val creatorScreenName = "creator"
       val creatorKey = PlayerKey(creatorUUID)
-      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
+      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil, Nil)
 
       val playerScreenName = "player"
       val playerKey = PlayerKey(playerKeyUUID)
-      val playerState = PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil)
+      val playerState = PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil, Nil)
       val player2ScreenName = "player2"
       val player2Key = PlayerKey(player2KeyUUID)
-      val player2State = PlayerState(gameId, gameName, player2ScreenName, Nil, Nil, None, Nil)
+      val player2State = PlayerState(gameId, gameName, player2ScreenName, Nil, Nil, None, Nil, Nil)
 
       val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
         Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))

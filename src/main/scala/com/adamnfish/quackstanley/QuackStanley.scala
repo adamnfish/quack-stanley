@@ -94,6 +94,20 @@ object QuackStanley {
   }
 
   /**
+    * Indicates that player would like to become the buyer and gets roles for them to choose between.
+    */
+  def requestBuyerRoles(data: RequestBuyerRoles, config: Config): Attempt[PlayerInfo] = {
+    ???
+  }
+
+  /**
+    * Player chooses the role they would like to assume as buyer.
+    */
+  def selectRole(data: SelectRole, config: Config): Attempt[PlayerInfo] = {
+    ???
+  }
+
+  /**
     * Allows player to stop being the game's "buyer" without granting a point to another player.
     */
   def relinquishBuyer(data: RelinquishBuyer, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {

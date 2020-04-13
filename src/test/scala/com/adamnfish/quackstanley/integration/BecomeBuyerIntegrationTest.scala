@@ -39,7 +39,7 @@ class BecomeBuyerIntegrationTest extends FreeSpec with Matchers
       "and this player is registered" - {
         val screenName = "player name"
         val playerKey = PlayerKey(playerKeyUUID)
-        val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, None, Nil)
+        val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, None, Nil, Nil)
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
           Map(creator -> PlayerSummary("Creator", Nil), playerKey -> PlayerSummary(screenName, Nil))
         )

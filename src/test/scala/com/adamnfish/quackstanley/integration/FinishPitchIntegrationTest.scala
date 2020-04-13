@@ -40,8 +40,8 @@ class FinishPitchIntegrationTest extends FreeSpec with Matchers
         val screenName = "player name"
         val playerKey = PlayerKey(playerKeyUUID)
         val hand = Word("one") :: Word("two") :: List.fill(QuackStanley.handSize - 2)(Word("padding"))
-        val playerState = PlayerState(gameId, gameName, screenName, hand, Nil, None, Nil)
-        val creatorState = PlayerState(gameId, gameName, "buyer", Nil, Nil, Some(Role("role")), Nil)
+        val playerState = PlayerState(gameId, gameName, screenName, hand, Nil, None, Nil, Nil)
+        val creatorState = PlayerState(gameId, gameName, "buyer", Nil, Nil, Some(Role("role")), Nil, Nil)
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Round(creator, Role("role"), Map.empty)),
           Map(
             creator -> PlayerSummary("Creator", Nil),

@@ -39,6 +39,7 @@ type alias PlayerState =
     , hand : List String
     , discardedWords : List String
     , role : Maybe String -- has role if current player
+    , roleChoices : Maybe ( List String )
     , points : List String
     }
 
@@ -94,7 +95,7 @@ type ApiResponse a
 
 type alias Round =
     { buyer : String
-    , role : String
+    , role : Maybe String
     , products : Dict String ( List String )
     }
 

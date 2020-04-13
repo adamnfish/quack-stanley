@@ -34,6 +34,8 @@ class Main {
         case data: RegisterPlayer => registerPlayer(data, config)
         case data: StartGame => startGame(data, config)
         case data: BecomeBuyer => becomeBuyer(data, config)
+        case data: RequestBuyerRoles => requestBuyerRoles(data, config)
+        case data: SelectRole => selectRole(data, config)
         case data: RelinquishBuyer => relinquishBuyer(data, config)
         case data: StartPitch => startPitch(data, config)
         case data: FinishPitch => finishPitch(data, config)

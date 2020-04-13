@@ -39,6 +39,8 @@ object Serialization {
   implicit val registerPlayerDecoder: Decoder[RegisterPlayer] = deriveDecoder[RegisterPlayer]
   implicit val startGameDecoder: Decoder[StartGame] = deriveDecoder[StartGame]
   implicit val becomeBuyerDecoder: Decoder[BecomeBuyer] = deriveDecoder[BecomeBuyer]
+  implicit val requestBuyerRolesDecoder: Decoder[RequestBuyerRoles] = deriveDecoder[RequestBuyerRoles]
+  implicit val selectRoleDecoder: Decoder[SelectRole] = deriveDecoder[SelectRole]
   implicit val relinquishBuyerDecoder: Decoder[RelinquishBuyer] = deriveDecoder[RelinquishBuyer]
   implicit val startPitchDecoder: Decoder[StartPitch] = deriveDecoder[StartPitch]
   implicit val finishPitchDecoder: Decoder[FinishPitch] = deriveDecoder[FinishPitch]
@@ -54,6 +56,8 @@ object Serialization {
       case "start-game" => c.as[StartGame]
       case "relinquish-buyer" => c.as[RelinquishBuyer]
       case "become-buyer" => c.as[BecomeBuyer]
+      case "request-buyer-roles" => c.as[RequestBuyerRoles]
+      case "select-role" => c.as[SelectRole]
       case "start-pitch" => c.as[StartPitch]
       case "finish-pitch" => c.as[FinishPitch]
       case "award-point" => c.as[AwardPoint]
@@ -66,7 +70,7 @@ object Serialization {
 
   // response types
   implicit val playerInfoEncoder: Encoder[PlayerInfo] = deriveEncoder[PlayerInfo]
-  implicit val roundInfoEncoder: Encoder[RoundInfo] = deriveEncoder[RoundInfo]
+  implicit val roundInfoEncoder: Encoder[RoundSummary] = deriveEncoder[RoundSummary]
   implicit val newGameEncoder: Encoder[NewGame] = deriveEncoder[NewGame]
   implicit val registeredEncoder: Encoder[Registered] = deriveEncoder[Registered]
   implicit val okResponseEncoder: Encoder[Ok] = deriveEncoder[Ok]

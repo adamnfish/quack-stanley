@@ -17,6 +17,7 @@ case class PlayerState(
   hand: List[Word],
   discardedWords: List[Word], // these words are no longer available
   role: Option[Role], // current player has a role
+  roleChoices: List[Role],
   points: List[Role]
   // pitching: Boolean  <- required?
 )
@@ -33,9 +34,9 @@ case class Round(
   products: Map[PlayerKey, (Word, Word)]
 )
 // no-secrets version of round for the frontend
-case class RoundInfo(
+case class RoundSummary(
   buyer: String,
-  role: Role,
+  role: Option[Role],
   // discarded: Role,
   products: Map[String, (Word, Word)]
 )
@@ -66,9 +67,19 @@ case class StartGame(
   gameId: GameId,
   playerKey: PlayerKey
 ) extends ApiOperation
+// BecomeBuyer DEPRECATED
 case class BecomeBuyer(
   gameId: GameId,
   playerKey: PlayerKey
+) extends ApiOperation
+case class RequestBuyerRoles(
+  gameId: GameId,
+  playerKey: PlayerKey
+) extends ApiOperation
+case class SelectRole(
+  gameId: GameId,
+  playerKey: PlayerKey,
+  chosenRole: Role
 ) extends ApiOperation
 case class RelinquishBuyer(
   gameId: GameId,
@@ -113,7 +124,7 @@ case class PlayerInfo(
   state: PlayerState,
   started: Boolean,
   opponents: List[PlayerSummary],
-  round: Option[RoundInfo]
+  round: Option[RoundSummary]
   // buyer: Option[(String, Word)]
 ) extends ApiResponse
 // creates new game and registers creator

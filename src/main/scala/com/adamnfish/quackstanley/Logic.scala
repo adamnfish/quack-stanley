@@ -32,7 +32,7 @@ object Logic {
   }
 
   def newPlayer(gameId: GameId, gameName: String, screenName: String): PlayerState = {
-    PlayerState(gameId, gameName, screenName, Nil, Nil, None, Nil)
+    PlayerState(gameId, gameName, screenName, Nil, Nil, None, Nil, Nil)
   }
 
   def playerInfo(playerKey: PlayerKey, playerState: PlayerState, gameState: GameState): PlayerInfo = {
@@ -52,12 +52,12 @@ object Logic {
     PlayerInfo(playerState, started = false, otherPlayers.toList, round = None)
   }
 
-  def roundToRoundInfo(round: Round, gameState: GameState): RoundInfo = {
-    RoundInfo(
+  def roundToRoundInfo(round: Round, gameState: GameState): RoundSummary = {
+    RoundSummary(
       // could make this function an attempt, but the game state would have
       // to be very broken for this to fail, shouldn't be possible?
       gameState.players(round.buyerKey).screenName,
-      round.role,
+      Some(round.role),
       round.products.flatMap { case (playerKey, words) =>
         gameState.players.get(playerKey).map(_.screenName -> words)
       }

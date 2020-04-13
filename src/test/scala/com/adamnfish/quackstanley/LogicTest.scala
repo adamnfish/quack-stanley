@@ -127,7 +127,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
 
     "includes correct role" in {
       val roundInfo = roundToRoundInfo(round, gameStateWithPlayers)
-      roundInfo.role shouldEqual Role("role")
+      roundInfo.role.value shouldEqual Role("role")
     }
 
     "no players in round before any pitching" in {
@@ -227,11 +227,11 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
   }
 
   "lookupPlayerByName" - {
-    val playerState = PlayerState(GameId("game"), "game name", "screen-name", Nil, Nil, None, Nil)
+    val playerState = PlayerState(GameId("game"), "game name", "screen-name", Nil, Nil, None, Nil, Nil)
     val playerKey = PlayerKey("player")
     val players = Map(
       playerKey -> playerState,
-      PlayerKey("player-2") -> PlayerState(GameId("game"), "game name", "another-screen-name", Nil, Nil, None, Nil)
+      PlayerKey("player-2") -> PlayerState(GameId("game"), "game name", "another-screen-name", Nil, Nil, None, Nil, Nil)
     )
 
     "fails if the name is not found" in {
@@ -247,24 +247,24 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
 
   "playerHasRole" - {
     "fails if the player has no role" in {
-      val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil)
+      val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil, Nil)
       playerHasRole(playerState, Role("role")).isFailedAttempt() shouldEqual true
     }
 
     "fails if the player does not have the provided role" in {
-      val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, Some(Role("role")), Nil)
+      val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, Some(Role("role")), Nil, Nil)
       playerHasRole(playerState, Role("test")).isFailedAttempt() shouldEqual true
     }
 
     "succeeds if we provide the player's current role" in {
-      val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, Some(Role("role")), Nil)
+      val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, Some(Role("role")), Nil, Nil)
       playerHasRole(playerState, Role("role")).isSuccessfulAttempt() shouldEqual true
     }
   }
 
   "playerSummaries" - {
     "returns player summaries from player states" in {
-      val template = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil)
+      val template = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil, Nil)
       val states = Map(
         PlayerKey("one") -> template.copy(screenName = "player one"),
         PlayerKey("two") -> template.copy(screenName = "player two"),
@@ -279,7 +279,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
   }
 
   "verifyNoBuyer" - {
-    "returns sucessful attempt if there is no buyer" in {
+    "returns successful attempt if there is no buyer" in {
       val game = newGame("game name", "creator").copy(round = None)
       verifyNoBuyer(game).isFailedAttempt() shouldEqual false
     }
@@ -371,7 +371,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
   }
 
   "usedWords" in {
-    val template = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil)
+    val template = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil, Nil)
     val states = List(
       template.copy(
         hand = List(Word("one"), Word("two")),
@@ -412,7 +412,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
   }
 
   "usedRoles" in {
-    val template = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil)
+    val template = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil, Nil)
     val states = List(
       template.copy(
         points = List(Role("one"), Role("two")),
@@ -453,7 +453,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
   }
 
   "dealWordsToAllPlayers" - {
-    val template = PlayerState(GameId("game-id"), "game-name", "sreen-name", Nil, Nil, None, Nil)
+    val template = PlayerState(GameId("game-id"), "game-name", "sreen-name", Nil, Nil, None, Nil, Nil)
     val players = Map(
       PlayerKey("one") -> template.copy(screenName = "player one"),
       PlayerKey("two") -> template.copy(screenName = "player two")
@@ -473,7 +473,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
 
   "discardWords" - {
     val hand = List(Word("one"), Word("two"), Word("three"), Word("four"))
-    val playerState = PlayerState(GameId("game-id"), "game name", "screen name", hand, Nil, None, Nil)
+    val playerState = PlayerState(GameId("game-id"), "game name", "screen name", hand, Nil, None, Nil, Nil)
 
     "if both words are missing, returns multiple failures" in {
       val failure = discardWords((Word("foo"), Word("bar")), playerState).leftValue()
@@ -512,20 +512,20 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
 
   "fillHand" - {
     "fails if we don't provide enough words" in {
-      val result = fillHand(Nil, PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil))
+      val result = fillHand(Nil, PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil, Nil))
       result.isFailedAttempt() shouldEqual true
     }
 
     "returns filled hand if we provide enough words" in {
       val words = List.fill(QuackStanley.handSize)(Word("one"))
-      val updatedPlayerState = fillHand(words, PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil)).value()
+      val updatedPlayerState = fillHand(words, PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil, Nil)).value()
       updatedPlayerState.hand shouldEqual words
     }
   }
 
   "addRoleToPoints" - {
     val points = List(Role("one"), Role("two"))
-    val playerState = PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, points)
+    val playerState = PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil, points)
 
     "adds the provided role to the already-received points" in {
       addRoleToPoints(playerState, Role("test-role")).points shouldEqual (points :+ Role("test-role"))

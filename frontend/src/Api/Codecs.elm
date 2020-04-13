@@ -27,6 +27,7 @@ playerStateDecoder =
         |> required "hand" ( list string )
         |> required "discardedWords" ( list string )
         |> required "role" ( nullable string )
+        |> required "roleChoices" ( nullable ( list string ) )
         |> required "points" ( list string )
 
 playerSummaryDecoder : Decoder PlayerSummary
@@ -52,7 +53,7 @@ roundDecoder : Decoder Round
 roundDecoder =
     Json.Decode.succeed Round
         |> required "buyer" string
-        |> required "role" string
+        |> required "role" ( nullable string )
         |> required "products" ( dict (list string ) )
 
 playerInfoDecoder : Decoder PlayerInfo

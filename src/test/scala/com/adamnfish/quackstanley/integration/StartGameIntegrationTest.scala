@@ -37,10 +37,10 @@ class StartGameIntegrationTest extends FreeSpec with Matchers
       val gameName = "game-name"
       val creatorScreenName = "creator"
       val creatorKey = PlayerKey(creatorUUID)
-      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
+      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil, Nil)
       val playerScreenName = "player"
       val playerKey = PlayerKey(playerKeyUUID)
-      val playerState = PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil)
+      val playerState = PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil, Nil)
       val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
         Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
       )
@@ -170,7 +170,7 @@ class StartGameIntegrationTest extends FreeSpec with Matchers
       val gameName = "game-name"
       val creatorScreenName = "creator"
       val creatorKey = PlayerKey(creatorUUID)
-      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
+      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil, Nil)
       val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
         Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
       )
