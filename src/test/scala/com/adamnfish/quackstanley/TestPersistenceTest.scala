@@ -1,10 +1,12 @@
 package com.adamnfish.quackstanley
 
 import io.circe.Json
-import org.scalatest.{FreeSpec, Matchers, OptionValues}
+import org.scalatest.{OptionValues}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
 
 
-class TestPersistenceTest extends FreeSpec with Matchers with OptionValues {
+class TestPersistenceTest extends AnyFreeSpec with Matchers with OptionValues {
   val testConfig = new Config("test", "test", new TestPersistence)
 
   "test persistence" - {

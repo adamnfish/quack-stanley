@@ -1,12 +1,14 @@
 package com.adamnfish.quackstanley.models
 
+import com.adamnfish.quackstanley.{HaveMatchers, RightValues}
 import com.adamnfish.quackstanley.models.Serialization._
 import io.circe.parser._
 import io.circe.syntax._
-import org.scalatest.{EitherValues, FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
 
-class SerializationTest extends FreeSpec with Matchers with EitherValues {
+class SerializationTest extends AnyFreeSpec with Matchers with HaveMatchers with RightValues {
   "ApiOperation" - {
     "parses a create game request" in {
       val data = """{
@@ -14,10 +16,10 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
                    |  "gameName": "test-game",
                    |  "screenName": "player-one"
                    |}""".stripMargin
-      parse(data).right.value.as[CreateGame]
-        .right.value should have(
-          'gameName ("test-game"),
-          'screenName ("player-one")
+      parse(data).value.as[CreateGame]
+        .value should have(
+          "gameName" as ("test-game"),
+          "screenName" as ("player-one")
         )
     }
 
@@ -27,10 +29,10 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
                    |  "gameName": "test-game",
                    |  "screenName": "player-one"
                    |}""".stripMargin
-      parse(data).right.value.as[ApiOperation]
-        .right.value should have(
-          'gameName ("test-game"),
-          'screenName ("player-one")
+      parse(data).value.as[ApiOperation]
+        .value should have(
+          "gameName" as ("test-game"),
+          "screenName" as ("player-one")
         )
     }
 
@@ -38,8 +40,8 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
       val data = """{
                    |  "operation": "wake"
                    |}""".stripMargin
-      parse(data).right.value.as[ApiOperation]
-        .right.value shouldEqual Wake()
+      parse(data).value.as[ApiOperation]
+        .value shouldEqual Wake()
     }
 
     "parses an awardPointRequest" in {
@@ -51,12 +53,12 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
           |  "role": "role",
           |  "awardToPlayerWithName": "player"
           |}""".stripMargin
-      parse(data).right.value.as[ApiOperation]
-        .right.value should have(
-          'gameId ("abcdefgh-1234-5678-9abc-abcdefghijkl"),
-          'playerKey ("12345678-abcd-efgh-ijkl-123456789abc"),
-          'role ("role"),
-          'awardToPlayerWithName ("player")
+      parse(data).value.as[ApiOperation]
+        .value should have(
+          "gameId" as ("abcdefgh-1234-5678-9abc-abcdefghijkl"),
+          "playerKey" as ("12345678-abcd-efgh-ijkl-123456789abc"),
+          "role" as ("role"),
+          "awardToPlayerWithName" as ("player")
         )
     }
   }
@@ -81,23 +83,23 @@ class SerializationTest extends FreeSpec with Matchers with EitherValues {
 
   "Value classes are decoded from values" - {
     "player key" in {
-      parse("\"player-key\"").right.value.as[PlayerKey]
-        .right.value shouldEqual PlayerKey("player-key")
+      parse("\"player-key\"").value.as[PlayerKey]
+        .value shouldEqual PlayerKey("player-key")
     }
 
     "game ID" in {
-      parse("\"game-id\"").right.value.as[GameId]
-        .right.value shouldEqual GameId("game-id")
+      parse("\"game-id\"").value.as[GameId]
+        .value shouldEqual GameId("game-id")
     }
 
     "word" in {
-      parse("\"word\"").right.value.as[Word]
-        .right.value shouldEqual Word("word")
+      parse("\"word\"").value.as[Word]
+        .value shouldEqual Word("word")
     }
 
     "role" in {
-      parse("\"role\"").right.value.as[Role]
-        .right.value shouldEqual Role("role")
+      parse("\"role\"").value.as[Role]
+        .value shouldEqual Role("role")
     }
   }
 }

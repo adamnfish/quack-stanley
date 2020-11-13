@@ -7,7 +7,7 @@ import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import io.circe.Json
 import io.circe.parser.parse
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.io.Source
 import scala.util.control.NonFatal
 

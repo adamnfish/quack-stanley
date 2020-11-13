@@ -11,6 +11,10 @@ class FakeContext extends Context with LazyLogging {
     def log(string: String): Unit = {
       logger.info(string)
     }
+
+    override def log(message: Array[Byte]): Unit = {
+      logger.info(new String(message))
+    }
   }
 
   override def getFunctionName = "function-name"

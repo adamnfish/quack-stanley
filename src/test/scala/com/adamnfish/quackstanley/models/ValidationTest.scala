@@ -4,12 +4,14 @@ import java.util.UUID
 
 import com.adamnfish.quackstanley.AttemptValues
 import com.adamnfish.quackstanley.models.Validation._
-import org.scalatest.{FreeSpec, Matchers, OptionValues}
+import org.scalatest.{OptionValues}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class ValidationTest extends FreeSpec with Matchers with AttemptValues with OptionValues {
+class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with OptionValues {
   "nonEmpty" - {
     "returns no errors if the input is not empty" in {
       nonEmpty("non-empty", "context") shouldBe empty

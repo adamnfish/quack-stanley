@@ -3,14 +3,16 @@ package com.adamnfish.quackstanley.integration
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models.{CreateGame, PlayerSummary}
 import com.adamnfish.quackstanley.persistence.GameIO
-import com.adamnfish.quackstanley.{AttemptValues, Config, TestPersistence}
-import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
+import com.adamnfish.quackstanley.{AttemptValues, Config, HaveMatchers, TestPersistence}
+import org.scalatest.{OneInstancePerTest, OptionValues}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class CreateGameIntegrationTest extends FreeSpec with Matchers
-  with OneInstancePerTest with AttemptValues with OptionValues {
+class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
+  with OneInstancePerTest with AttemptValues with OptionValues with HaveMatchers {
 
   val persistence = new TestPersistence
   val testConfig = Config("test", "test", persistence)
@@ -20,8 +22,8 @@ class CreateGameIntegrationTest extends FreeSpec with Matchers
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
       newGame.state should have(
-        'gameName ("game name"),
-        'screenName ("screen name")
+        "gameName" as ("game name"),
+        "screenName" as ("screen name")
       )
     }
 
@@ -29,10 +31,10 @@ class CreateGameIntegrationTest extends FreeSpec with Matchers
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
       newGame.state should have(
-        'role (None),
-        'hand (Nil),
-        'discardedWords (Nil),
-        'points (Nil)
+        "role" as (None),
+        "hand" as (Nil),
+        "discardedWords" as (Nil),
+        "points" as (Nil)
       )
     }
 
@@ -81,8 +83,8 @@ class CreateGameIntegrationTest extends FreeSpec with Matchers
       savedGameState.creator shouldEqual newGame.playerKey
       savedGameState.gameId shouldEqual newGame.state.gameId
       savedGameState should have (
-        'gameName ("game name"),
-        'started (false)
+        "gameName" as ("game name"),
+        "started" as (false)
       )
       savedGameState.players shouldEqual Map(newGame.playerKey -> PlayerSummary("screen name", Nil))
     }

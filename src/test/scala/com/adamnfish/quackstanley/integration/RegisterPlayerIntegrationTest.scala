@@ -5,15 +5,17 @@ import java.util.UUID
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
-import com.adamnfish.quackstanley.{AttemptValues, Config, TestPersistence}
+import com.adamnfish.quackstanley.{AttemptValues, Config, HaveMatchers, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
+import org.scalatest.{OneInstancePerTest, OptionValues}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
-  with OneInstancePerTest with AttemptValues with OptionValues {
+class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
+  with OneInstancePerTest with AttemptValues with OptionValues with HaveMatchers {
 
   val persistence = new TestPersistence
   val testConfig = Config("test", "test", persistence)
@@ -48,10 +50,10 @@ class RegisterPlayerIntegrationTest extends FreeSpec with Matchers
         val request = RegisterPlayer(gameCode, "player one")
         val registered = registerPlayer(request, testConfig).value()
         registered.state should have(
-          'role (None),
-          'hand (Nil),
-          'discardedWords (Nil),
-          'points (Nil)
+          "role" as (None),
+          "hand" as (Nil),
+          "discardedWords" as (Nil),
+          "points" as (Nil)
         )
       }
 

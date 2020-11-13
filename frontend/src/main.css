@@ -1,7 +1,3 @@
-html {
-    background: url("/images/bg.png");
-}
-
 body, #root, #app-root {
     display: flex;
     min-height: 100vh;
