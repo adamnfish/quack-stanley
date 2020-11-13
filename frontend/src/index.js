@@ -13,7 +13,6 @@ var app = Elm.Main.init({
 var savedGamesKey = "QS_SAVED_GAMES";
 
 app.ports.fetchSavedGames.subscribe(function() {
-    console.log("sending game to Elm");
     var existingGames = JSON.parse(localStorage.getItem(savedGamesKey)) || [];
     // clear out expired games
     var recentGames = filterExpired(existingGames);
