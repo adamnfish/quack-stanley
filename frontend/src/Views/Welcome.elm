@@ -126,22 +126,22 @@ welcomeHelp =
                 , p []
                     [ text "How to play:" ]
                 , helpText
-                    """|Players take turns to assume a **role** as **buyer**.
-                       |Each of the other players chooses
-                       |2 words from their hand that together represent a **product**
-                       |they think the buyer would like.
+                    """|One player chooses to become the **buyer**, and is given a **role**.
+                       |
+                       |Each of the other players chooses 2 words from their hand
+                       |that together represent a **product** they think the buyer would like.
+                       |
                        |One at a time, they use those words to **pitch** their
                        |product to the buyer.
                        |
                        |After each player has pitched their product the buyer chooses
-                       |the player with their favourite idea & delivery. This player
-                       |wins the round and receives 1 point.
+                       |the player with their favourite pitch. This player wins the round
+                       |and receives 1 point.
                        |
-                       |Now another player can have a turn as buyer and the same
+                       |Now another player can have a turn as the buyer and the same
                        |thing happens again.
                        |
-                       |The game goes on for as long as you are all enjoying yourselves.
-                       |Good luck, have fun!
+                       |The game keeps going for as long as you are all enjoying yourselves.
                        |"""
                 , p []
                     [ text "Top tips:" ]
@@ -149,10 +149,10 @@ welcomeHelp =
                     """|Consider the buyer's role when you choose and pitch your
                        |product.
                        |
-                       |For example, if buyer is an *Astronaut* and your
+                       |**Example:** If the buyer is an *Astronaut* and your
                        |hand contains *Hoodie*, *Velcro*, *Barricade*, *Pyjamas*,
                        |*Oven* and *Cone* you might choose *Velcro* and *Pyjamas*.
-                       |You could pitch "Velcro Pyjamas" to the buyer by talking about
+                       |You could pitch *Velcro Pyjamas* to the buyer by talking about
                        |how hard it is to get a good night's sleep when you're floating
                        |in space. Be creative!
                        |"""
