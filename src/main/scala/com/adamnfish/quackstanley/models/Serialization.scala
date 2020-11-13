@@ -59,7 +59,8 @@ object Serialization {
       case "award-point" => c.as[AwardPoint]
       case "mulligan" => c.as[Mulligan]
       case "ping" => c.as[Ping]
-      case "lobbyPing" => c.as[LobbyPing]
+      case "lobby-ping" => c.as[LobbyPing]
+      case "lobbyPing" => c.as[LobbyPing] // compatibility for now TODO: remove this
       case "wake" => c.as[Wake]
     }
   )
