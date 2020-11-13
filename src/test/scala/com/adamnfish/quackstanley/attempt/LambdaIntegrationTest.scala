@@ -2,17 +2,19 @@ package com.adamnfish.quackstanley.attempt
 
 import java.io.InputStream
 
-import com.adamnfish.quackstanley.AttemptValues
+import com.adamnfish.quackstanley.{AttemptValues, HaveMatchers}
 import com.adamnfish.quackstanley.Utils._
 import com.adamnfish.quackstanley.attempt.LambdaIntegration._
 import com.adamnfish.quackstanley.models.ApiOperation
 import com.adamnfish.quackstanley.models.Serialization._
-import org.scalatest.{Matchers, OptionValues}
+import org.scalatest.OptionValues
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class LambdaIntegrationTest extends org.scalatest.FreeSpec with Matchers with AttemptValues with OptionValues {
+class LambdaIntegrationTest extends AnyFreeSpec with Matchers with AttemptValues with OptionValues with HaveMatchers {
   "headers" - {
     "includes default headers (just Content-Type) if no origin is supplied" in {
       headers(None).keys.toList shouldEqual List("Content-Type")
@@ -32,8 +34,8 @@ class LambdaIntegrationTest extends org.scalatest.FreeSpec with Matchers with At
       val data = """"{ \"operation\": \"create-game\", \"gameName\": \"test-game\", \"screenName\": \"player-one\" }""""
       val (operation, _) = parseBody[ApiOperation](asLambdaRequest(data)).value()
       operation should have(
-        'gameName ("test-game"),
-        'screenName ("player-one")
+        "gameName" as ("test-game"),
+        "screenName" as ("player-one")
       )
     }
   }

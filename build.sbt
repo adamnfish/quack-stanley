@@ -1,7 +1,7 @@
-organization := "com.adamnfish"
-version := "0.1-SNAPSHOT"
-scalaVersion := "2.12.10"
-scalacOptions ++= Seq(
+ThisBuild / organization := "com.adamnfish"
+ThisBuild / version := "0.1-SNAPSHOT"
+ThisBuild / scalaVersion := "2.13.3"
+ThisBuild / scalacOptions ++= Seq(
   "-deprecation",
   "-Xfatal-warnings",
   "-encoding", "UTF-8",
@@ -9,36 +9,37 @@ scalacOptions ++= Seq(
   "-Ywarn-dead-code"
 )
 
-val awsSdkVersion = "1.11.185"
-val http4sVersion = "0.17.6"
+val awsSdkVersion = "1.11.900"
 
-lazy val root = (project in file(".")).
-  settings(
+lazy val root = (project in file("."))
+  .enablePlugins(JavaAppPackaging)
+  .settings(
     name := "quack-stanley",
     libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
+      "com.amazonaws" % "aws-lambda-java-core" % "1.2.1",
       "com.amazonaws" % "aws-java-sdk-iam" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
-      "joda-time" % "joda-time" % "2.9.9",
-      "io.circe" %% "circe-parser" % "0.9.3",
-      "io.circe" %% "circe-generic" % "0.9.3",
-      "org.scalatest" %% "scalatest" % "3.0.4" % Test
-    )
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+      "ch.qos.logback" % "logback-classic" % "1.2.3",
+      "joda-time" % "joda-time" % "2.10.8",
+      "io.circe" %% "circe-parser" % "0.12.3",
+      "io.circe" %% "circe-generic" % "0.12.3",
+      "org.scalatest" %% "scalatest" % "3.2.2" % Test
+    ),
+    topLevelDirectory in Universal := None,
+    packageName in Universal := normalizedName.value,
   )
 
-lazy val devServer = (project in file("dev-server")).
-  settings(
+lazy val devServer = (project in file("dev-server"))
+  .settings(
     name := "dev-server",
     libraryDependencies ++= Seq(
-      "com.criteo.lolhttp" %% "lolhttp" % "10.0.0",
-      "com.criteo.lolhttp" %% "loljson" % "10.0.0",
+      "io.javalin" % "javalin" % "3.11.0",
       "ch.qos.logback" % "logback-classic" % "1.2.3",
-      "org.typelevel" %% "cats-effect" % "1.0.0-RC"
-    )
-  ).
-  dependsOn(root)
+    ),
+    fork in run := true,
+    connectInput in run := true,
+    outputStrategy := Some(StdoutOutput),
+  )
+  .dependsOn(root)
 
-enablePlugins(JavaAppPackaging)
-topLevelDirectory in Universal := None
-packageName in Universal := normalizedName.value

@@ -123,7 +123,7 @@ object Logic {
       case None =>
         Attempt.unit
       case Some(buyer) =>
-        val playerName = gameState.players.mapValues(_.screenName).getOrElse(buyer.buyerKey, "another player")
+        val playerName = gameState.players.view.mapValues(_.screenName).toMap.getOrElse(buyer.buyerKey, "another player")
         Attempt.Left(Failure(s"Buyer already exists: $playerName", s"$playerName is already the buyer", 400))
     }
   }

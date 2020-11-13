@@ -5,12 +5,14 @@ import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt, Failure}
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
 import org.joda.time.DateTime
-import org.scalatest.{FreeSpec, Matchers, OptionValues}
+import org.scalatest.OptionValues
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionValues {
+class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with OptionValues with HaveMatchers {
   "newGame" - {
     "populates the player states map with just the creator" in {
       newGame("test-game", "test-player").players.size shouldEqual 1
@@ -38,8 +40,8 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
   "newPlayer" - {
     "correctly sets up initial player state" in {
       newPlayer(GameId("game-id"), "game", "player") should have (
-        'screenName ("player"),
-        'gameName ("game")
+        "screenName" as ("player"),
+        "gameName" as ("game")
       )
     }
   }
@@ -73,7 +75,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
 
     "includes other players" in {
-      playerInfo(playerKey1, playerState1, gameStateWithPlayers).opponents.map(_.screenName) should contain only("Player 2", "Creator")
+      playerInfo(playerKey1, playerState1, gameStateWithPlayers).opponents.map(_.screenName) should contain.only("Player 2", "Creator")
     }
   }
 
@@ -104,7 +106,7 @@ class LogicTest extends FreeSpec with Matchers with AttemptValues with OptionVal
     }
 
     "includes other players" in {
-      lobbyPlayerInfo(creatorKey, creatorState, allPlayers).opponents.map(_.screenName) should contain only("Player 1", "Player 2")
+      lobbyPlayerInfo(creatorKey, creatorState, allPlayers).opponents.map(_.screenName) should contain.only("Player 1", "Player 2")
     }
   }
 

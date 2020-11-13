@@ -1,12 +1,13 @@
 package com.adamnfish.quackstanley.models
 
 import com.adamnfish.quackstanley.AttemptValues
-import org.scalatest.{FreeSpec, FunSuite, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class ResourcesTest extends FreeSpec with Matchers with AttemptValues {
+class ResourcesTest extends AnyFreeSpec with Matchers with AttemptValues {
   "roles" - {
     "filters empty lines" in {
       Resources.roles.value().filter(_.value.isEmpty) shouldBe empty

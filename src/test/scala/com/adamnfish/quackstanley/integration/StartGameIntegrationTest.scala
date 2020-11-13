@@ -8,12 +8,14 @@ import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.persistence.GameIO.playerStateDir
 import com.adamnfish.quackstanley.{AttemptValues, Config, QuackStanley, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
+import org.scalatest.{OneInstancePerTest, OptionValues}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class StartGameIntegrationTest extends FreeSpec with Matchers
+class StartGameIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues {
 
   val persistence = new TestPersistence
@@ -65,7 +67,7 @@ class StartGameIntegrationTest extends FreeSpec with Matchers
           val request = StartGame(gameId, creatorKey)
           startGame(request, testConfig).value()
           val savedState = GameIO.getGameState(gameId, testConfig).value()
-          savedState.players.mapValues(_.screenName).toSet shouldEqual Set(
+          savedState.players.view.mapValues(_.screenName).toMap.toSet shouldEqual Set(
             creatorKey -> creatorScreenName,
             playerKey -> playerScreenName
           )

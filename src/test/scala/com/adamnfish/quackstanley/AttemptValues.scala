@@ -1,13 +1,14 @@
 package com.adamnfish.quackstanley
 
 import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt}
-import org.scalatest.{EitherValues, Matchers}
+import org.scalatest.EitherValues
+import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 
 
-trait AttemptValues extends EitherValues with Matchers {
+trait AttemptValues extends EitherValues with RightValues with Matchers {
   implicit class RichAttmpt[A](attempt: Attempt[A]) {
     def value()(implicit ec: ExecutionContext): A = {
       val result = Await.result(attempt.asFuture, 5.seconds)
@@ -17,7 +18,7 @@ trait AttemptValues extends EitherValues with Matchers {
           _ => ""
         )
       } {
-        result.right.value
+        result.value
       }
     }
 

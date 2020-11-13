@@ -2,12 +2,13 @@ package com.adamnfish.quackstanley.persistence
 
 import com.adamnfish.quackstanley.AttemptValues
 import com.adamnfish.quackstanley.models.{GameId, PlayerKey}
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class GameIOTest extends FreeSpec with Matchers with AttemptValues {
+class GameIOTest extends AnyFreeSpec with Matchers with AttemptValues {
   "path function" - {
     val playerKey = PlayerKey("player-key")
     val gameId = GameId("test")

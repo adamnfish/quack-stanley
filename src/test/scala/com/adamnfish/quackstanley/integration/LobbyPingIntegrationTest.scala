@@ -7,12 +7,14 @@ import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.{AttemptValues, Config, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
+import org.scalatest.{OneInstancePerTest, OptionValues}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class LobbyPingIntegrationTest extends FreeSpec with Matchers
+class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues {
 
   val persistence = new TestPersistence
@@ -77,7 +79,7 @@ class LobbyPingIntegrationTest extends FreeSpec with Matchers
         "includes other players in 'otherPlayers'" in {
           val request = LobbyPing(gameId, creatorKey)
           val playerInfo = lobbyPing(request, testConfig).value()
-          playerInfo.opponents.map(_.screenName) should contain allOf (playerScreenName, player2ScreenName)
+          playerInfo.opponents.map(_.screenName) should contain.allOf(playerScreenName, player2ScreenName)
         }
 
         "validates user input," - {

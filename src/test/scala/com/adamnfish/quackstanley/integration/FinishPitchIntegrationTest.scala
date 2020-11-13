@@ -7,12 +7,14 @@ import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.{AttemptValues, Config, QuackStanley, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{FreeSpec, Matchers, OneInstancePerTest, OptionValues}
+import org.scalatest.{OneInstancePerTest, OptionValues}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class FinishPitchIntegrationTest extends FreeSpec with Matchers
+class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues {
 
   val persistence = new TestPersistence
