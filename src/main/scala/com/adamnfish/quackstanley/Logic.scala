@@ -150,6 +150,20 @@ object Logic {
     }
   }
 
+  def verifyUniqueScreenName(screenName: String, playerStates: Map[PlayerKey, PlayerState]): Attempt[Unit] = {
+    playerStates.find { case (_, playerState) =>
+      playerState.screenName == screenName
+    }.fold(Attempt.unit) { _ =>
+      Attempt.Left {
+        Failure(
+          "duplicate screen name",
+          s"The name $screenName is already in use, please choose a different name.",
+          409
+        )
+      }
+    }
+  }
+
   def updateGameWithPitch(gameState: GameState, pitcher: PlayerKey, words: (Word, Word)): Attempt[GameState] = {
     Attempt.fromOption(
       gameState.round.map { round =>

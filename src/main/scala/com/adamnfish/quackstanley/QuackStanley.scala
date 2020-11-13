@@ -33,7 +33,8 @@ object QuackStanley {
     * Note that this function does not update the game state to prevent race conditions, this will be
     * done once by the creator when the game is started.
     *
-    * TODO: Optionally find a way to map dictionary(/game) words to key prefixes for easy sharing.
+    * Because player info is only added to the game state when the game starts, we need to lookup all
+    * the players' info separately to check if the screen name is unique.
     */
   def registerPlayer(data: RegisterPlayer, config: Config)(implicit ec: ExecutionContext): Attempt[Registered] = {
     for {
@@ -41,6 +42,8 @@ object QuackStanley {
       gameId <- lookupGameIdFromCode(data.gameCode, config)
       gameState <- getGameState(gameId, config)
       _ <- verifyNotStarted(gameState)
+      playerStates <- getRegisteredPlayers(gameId, config)
+      _ <- verifyUniqueScreenName(data.screenName, playerStates)
       newPlayerKey = generatePlayerKey()
       playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
       _ <- writePlayerState(playerState, newPlayerKey, config)

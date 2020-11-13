@@ -11,6 +11,8 @@ import org.scalatest.{OneInstancePerTest, OptionValues}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
@@ -38,6 +40,8 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
       val gameState = GameState(gameId, "game-name", DateTime.now(), false, creator, None,
         Map(creator -> PlayerSummary("Creator", Nil))
       )
+      val creatorState = PlayerState(gameState.gameId, gameState.gameName, "Creator", Nil, Nil, None, Nil)
+      GameIO.writePlayerState(creatorState, creator, testConfig)
       GameIO.writeGameState(gameState, testConfig)
 
       "uses provided screen name" in {
@@ -74,7 +78,19 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
         registered.state shouldEqual savedState
       }
 
-      "does not allow duplicate screen name" ignore {}
+      "does not allow duplicate screen names" - {
+        "player cannot use the creator's screen name" in {
+          val request = RegisterPlayer(gameCode, "Creator")
+          registerPlayer(request, testConfig).isFailedAttempt() shouldBe true
+        }
+
+        "player cannot use another player's screen name" in {
+          val firstRequest = RegisterPlayer(gameCode.take(4).toUpperCase(), "player one")
+          registerPlayer(firstRequest, testConfig).isSuccessfulAttempt() shouldBe true
+          val duplicateRequest = firstRequest
+          registerPlayer(duplicateRequest, testConfig).isFailedAttempt() shouldBe true
+        }
+      }
 
       "validates user input," - {
         "flags empty game code" in {

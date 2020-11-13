@@ -327,6 +327,23 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     }
   }
 
+  "verifyUniqueScreenName" - {
+    val template = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil)
+    val existing = Map(
+      PlayerKey("creator-key") -> template.copy(screenName = "creator"),
+      PlayerKey("p1-key") -> template.copy(screenName = "player 1"),
+      PlayerKey("p2-key") -> template.copy(screenName = "player 2"),
+    )
+
+    "succeeds if the name is not already used" in {
+      verifyUniqueScreenName("unique name", existing).value() shouldEqual ()
+    }
+
+    "fails if the name is already in use" in {
+      verifyUniqueScreenName("creator", existing).isFailedAttempt() shouldEqual true
+    }
+  }
+
   "updateGameWithPitch" - {
     val game = newGame("game name", "creator")
     val playerKey = game.creator
