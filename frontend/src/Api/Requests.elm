@@ -1,16 +1,21 @@
 module Api.Requests exposing
-    ( wakeServerRequest, createGameRequest, joinGameRequest, startGameRequest
-    , becomeBuyerRequest, relinquishBuyerRequest, awardPointRequest, finishPitchRequest
-    , pingRequest, lobbyPingRequest
+    ( awardPointRequest
+    , becomeBuyerRequest
+    , createGameRequest
+    , finishPitchRequest
+    , joinGameRequest
+    , lobbyPingRequest
+    , pingRequest
+    , relinquishBuyerRequest
+    , startGameRequest
+    , wakeServerRequest
     )
 
 import Api.Codecs exposing (newGameDecoder, playerInfoDecoder, registeredDecoder)
-import Config exposing (apiUrl)
 import Http exposing (jsonBody)
 import Json.Decode exposing (succeed)
 import Json.Encode
 import Model exposing (Model, NewGame, PlayerInfo, Registered)
-
 
 
 wakeServerRequest : Model -> Http.Request ()
@@ -21,7 +26,8 @@ wakeServerRequest model =
                 [ ( "operation", Json.Encode.string "wake" )
                 ]
     in
-    Http.post (apiUrl model) ( jsonBody json ) ( succeed () )
+    Http.post model.apiRoot (jsonBody json) (succeed ())
+
 
 createGameRequest : Model -> String -> String -> Http.Request NewGame
 createGameRequest model gameName screenName =
@@ -33,7 +39,8 @@ createGameRequest model gameName screenName =
                 , ( "gameName", Json.Encode.string gameName )
                 ]
     in
-        Http.post (apiUrl model) ( jsonBody json ) newGameDecoder
+    Http.post model.apiRoot (jsonBody json) newGameDecoder
+
 
 joinGameRequest : Model -> String -> String -> Http.Request Registered
 joinGameRequest model gameId screenName =
@@ -45,7 +52,8 @@ joinGameRequest model gameId screenName =
                 , ( "gameCode", Json.Encode.string gameId )
                 ]
     in
-        Http.post (apiUrl model) ( jsonBody json ) registeredDecoder
+    Http.post model.apiRoot (jsonBody json) registeredDecoder
+
 
 startGameRequest : Model -> String -> String -> Http.Request PlayerInfo
 startGameRequest model gameId playerKey =
@@ -57,7 +65,8 @@ startGameRequest model gameId playerKey =
                 , ( "gameId", Json.Encode.string gameId )
                 ]
     in
-        Http.post (apiUrl model) ( jsonBody json ) playerInfoDecoder
+    Http.post model.apiRoot (jsonBody json) playerInfoDecoder
+
 
 becomeBuyerRequest : Model -> String -> String -> Http.Request PlayerInfo
 becomeBuyerRequest model gameId playerKey =
@@ -69,7 +78,8 @@ becomeBuyerRequest model gameId playerKey =
                 , ( "gameId", Json.Encode.string gameId )
                 ]
     in
-        Http.post (apiUrl model) ( jsonBody json ) playerInfoDecoder
+    Http.post model.apiRoot (jsonBody json) playerInfoDecoder
+
 
 relinquishBuyerRequest : Model -> String -> String -> Http.Request PlayerInfo
 relinquishBuyerRequest model gameId playerKey =
@@ -81,7 +91,8 @@ relinquishBuyerRequest model gameId playerKey =
                 , ( "gameId", Json.Encode.string gameId )
                 ]
     in
-        Http.post (apiUrl model) ( jsonBody json ) playerInfoDecoder
+    Http.post model.apiRoot (jsonBody json) playerInfoDecoder
+
 
 awardPointRequest : Model -> String -> String -> String -> String -> Http.Request PlayerInfo
 awardPointRequest model gameId playerKey role playerName =
@@ -95,9 +106,10 @@ awardPointRequest model gameId playerKey role playerName =
                 , ( "awardToPlayerWithName", Json.Encode.string playerName )
                 ]
     in
-        Http.post (apiUrl model) ( jsonBody json ) playerInfoDecoder
+    Http.post model.apiRoot (jsonBody json) playerInfoDecoder
 
-finishPitchRequest : Model -> String -> String ->  ( String, String ) -> Http.Request PlayerInfo
+
+finishPitchRequest : Model -> String -> String -> ( String, String ) -> Http.Request PlayerInfo
 finishPitchRequest model gameId playerKey ( word1, word2 ) =
     let
         json =
@@ -105,10 +117,11 @@ finishPitchRequest model gameId playerKey ( word1, word2 ) =
                 [ ( "operation", Json.Encode.string "finish-pitch" )
                 , ( "playerKey", Json.Encode.string playerKey )
                 , ( "gameId", Json.Encode.string gameId )
-                , ( "words", Json.Encode.list Json.Encode.string [word1, word2] )
+                , ( "words", Json.Encode.list Json.Encode.string [ word1, word2 ] )
                 ]
     in
-        Http.post (apiUrl model) ( jsonBody json ) playerInfoDecoder
+    Http.post model.apiRoot (jsonBody json) playerInfoDecoder
+
 
 pingRequest : Model -> String -> String -> Http.Request PlayerInfo
 pingRequest model gameId playerKey =
@@ -120,7 +133,8 @@ pingRequest model gameId playerKey =
                 , ( "gameId", Json.Encode.string gameId )
                 ]
     in
-        Http.post (apiUrl model) ( jsonBody json ) playerInfoDecoder
+    Http.post model.apiRoot (jsonBody json) playerInfoDecoder
+
 
 lobbyPingRequest : Model -> String -> String -> Http.Request PlayerInfo
 lobbyPingRequest model gameId playerKey =
@@ -132,4 +146,4 @@ lobbyPingRequest model gameId playerKey =
                 , ( "gameId", Json.Encode.string gameId )
                 ]
     in
-        Http.post (apiUrl model) ( jsonBody json ) playerInfoDecoder
+    Http.post model.apiRoot (jsonBody json) playerInfoDecoder

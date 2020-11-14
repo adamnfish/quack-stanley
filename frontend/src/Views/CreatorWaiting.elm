@@ -1,14 +1,14 @@
 module Views.CreatorWaiting exposing (creatorWaiting)
 
-import Html exposing (Html, div, text, button, input, label, span, ul, li)
-import Html.Attributes exposing (class, id, value, type_, disabled, for)
+import Html exposing (Html, button, div, input, label, li, span, text, ul)
+import Html.Attributes exposing (class, disabled, for, id, type_, value)
 import Html.Events exposing (onClick)
 import Model exposing (ApiError, Lifecycle(..), Model, PlayerSummary)
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, icon, helpText, showErrors, ShroudContent (..))
+import Views.Utils exposing (ShroudContent(..), card, col, container, helpText, icon, row, showErrors)
 
 
-creatorWaiting : String -> List ApiError -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
+creatorWaiting : String -> List ApiError -> Model -> ( List (Html Msg), ShroudContent, Html Msg )
 creatorWaiting gameCode errors model =
     ( []
     , NoLoadingShroud
@@ -63,7 +63,7 @@ creatorWaiting gameCode errors model =
                                 [ class "start-game__btn" ]
                                 [ button
                                     [ class "waves-effect waves-light blue btn btn-large cta__button"
-                                    , onClick ( Msg.StartingGame gameCode )
+                                    , onClick (Msg.StartingGame gameCode)
                                     ]
                                     [ text "Start game"
                                     , icon "play_arrow" "right"
@@ -78,22 +78,22 @@ creatorWaiting gameCode errors model =
             [ col "s12"
                 [ ul
                     [ class "collection with-header z-depth-1" ]
-                    (
-                        [ li
-                            [ class "collection-header" ]
-                            [ div []
-                                [ icon "person" "left medium"
-                                , span
-                                    [ class "flow-text" ]
-                                    [ text "Players" ]
-                                ]
+                    ([ li
+                        [ class "collection-header" ]
+                        [ div []
+                            [ icon "person" "left medium"
+                            , span
+                                [ class "flow-text" ]
+                                [ text "Players" ]
                             ]
-                        , li
-                            [ class "collection-item" ]
-                            [ div []
-                                [ text "You" ]
-                            ]
-                        ] ++ List.map lobbyPlayer model.opponents
+                        ]
+                     , li
+                        [ class "collection-item" ]
+                        [ div []
+                            [ text "You" ]
+                        ]
+                     ]
+                        ++ List.map lobbyPlayer model.opponents
                     )
                 ]
             ]
@@ -116,6 +116,7 @@ creatorWaiting gameCode errors model =
             ]
         ]
     )
+
 
 lobbyPlayer : PlayerSummary -> Html Msg
 lobbyPlayer playerSummary =

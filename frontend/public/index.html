@@ -42,23 +42,42 @@
                 height: 120px;
                 background-color: #4CAF50;
                 border-radius: 60px;
-                border: solid 1px #cccccc;
+                border: solid 2px #424242;
+                margin-bottom: 20px;
+                animation: stanley-colour linear 15s infinite alternate;
             }
+
             .noscript-message {
                 margin-top: 100px;
             }
+
+            @keyframes stanley-colour {
+                0% {
+                    background-color: #CAF50;
+                }
+                50% {
+                    background-color: #2196F3;
+                }
+                100% {
+                    background-color: #9c27b0;
+                }
+            }
         </style>
-        <div class="container">
-            <div class="row">
-                <div class="col s12">
-                    <div class="noscript-message center-align flow-text">
-                        <img src="%PUBLIC_URL%/images/stanley.png" class="stanley--noscript" />
-                        <br />
-                        You need to enable JavaScript to play Quack Stanley
+        <main>
+            <div class="container">
+                <div class="row">
+                    <div class="col s12">
+                        <div class="noscript-message center-align flow-text">
+                            <img src="%PUBLIC_URL%/images/stanley.png" class="stanley--noscript" />
+                            <br />
+                            <div class="card-panel">
+                                <strong>Enable JavaScript</strong> to play Quack Stanley
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     </noscript>
 </body>
 </html>

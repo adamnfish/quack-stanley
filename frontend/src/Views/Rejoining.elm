@@ -1,23 +1,20 @@
 module Views.Rejoining exposing (rejoining)
 
-import Html exposing (Html, div, p, strong, span, text)
-import Model exposing (Model, SavedGame, Lifecycle (..))
+import Html exposing (Html, div, p, span, strong, text)
+import Model exposing (Lifecycle(..), Model, SavedGame)
 import Msg exposing (Msg)
-import Views.Utils exposing (container, gameNav, row, col, card, icon, ShroudContent (..))
+import Views.Utils exposing (ShroudContent(..), card, col, container, gameNav, icon, row)
 
 
-rejoining : SavedGame -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
+rejoining : SavedGame -> Model -> ( List (Html Msg), ShroudContent, Html Msg )
 rejoining savedGame model =
-    let
-        gameName = Maybe.withDefault "Game name not found" ( Maybe.map .gameName model.state )
-    in
-        ( []
-        , LoadingMessage True
-            [ p
-                []
-                [ text "Re-joining "
-                , text savedGame.gameName
-                ]
+    ( []
+    , LoadingMessage True
+        [ p
+            []
+            [ text "Re-joining "
+            , text savedGame.gameName
             ]
-        , container "rejoining" []
-        )
+        ]
+    , container "rejoining" []
+    )
