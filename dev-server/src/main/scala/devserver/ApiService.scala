@@ -1,10 +1,9 @@
 package devserver
 
 import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
-import com.adamnfish.quackstanley.attempt.LambdaIntegration.failureToJson
 import com.adamnfish.quackstanley.models.Serialization._
-import com.adamnfish.quackstanley.models.{ApiOperation, Serialization}
-import com.adamnfish.quackstanley.{Config, Main, QuackStanley}
+import com.adamnfish.quackstanley.models.{ApiOperation, Config, Serialization}
+import com.adamnfish.quackstanley.QuackStanley
 import com.typesafe.scalalogging.LazyLogging
 import io.circe.parser._
 import io.circe.syntax._

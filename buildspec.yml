@@ -27,7 +27,7 @@ phases:
     commands:
     - echo Build started at `date`
     # test and package API
-    - sbt/bin/sbt -no-colors test universal:packageBin
+    - sbt/bin/sbt -no-colors test lambda/universal:packageBin
     # frontend
     - cd frontend
     - elm-app build
@@ -37,7 +37,7 @@ phases:
     commands:
     - echo Deploy started at `date`
     - echo Deploying API to $FUNCTION_NAME
-    - aws s3 cp target/universal/quack-stanley.zip s3://$DIST_BUCKET/$DIST_KEY
+    - aws s3 cp lambda/target/universal/quack-stanley.zip s3://$DIST_BUCKET/$DIST_KEY
     - aws lambda update-function-code --function-name $FUNCTION_NAME --s3-bucket $DIST_BUCKET --s3-key $DIST_KEY
 
     - echo Uploading static site to $WWW_BUCKET_NAME
