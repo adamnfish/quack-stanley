@@ -18,7 +18,7 @@ class AwardPointIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues {
 
   val persistence = new TestPersistence
-  val testConfig = Config("test", "test", persistence)
+  val testConfig = Config("test", persistence)
   val creatorUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
   val gameDoesNotExistIdUUID = UUID.randomUUID().toString
@@ -53,9 +53,9 @@ class AwardPointIntegrationTest extends AnyFreeSpec with Matchers
             winningPlayerKey -> PlayerSummary(winnerScreenName, Nil)
           )
         )
-        GameIO.writeGameState(gameState, testConfig)
-        GameIO.writePlayerState(playerState, playerKey, testConfig)
-        GameIO.writePlayerState(winningPlayerState, winningPlayerKey, testConfig)
+        GameIO.writeGameState(gameState, persistence)
+        GameIO.writePlayerState(playerState, playerKey, persistence)
+        GameIO.writePlayerState(winningPlayerState, winningPlayerKey, persistence)
 
         "returns player info without role" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
@@ -73,28 +73,28 @@ class AwardPointIntegrationTest extends AnyFreeSpec with Matchers
         "persists point in winner's state" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
           val playerInfo = awardPoint(request, testConfig).value()
-          val persistedWinnerState = GameIO.getPlayerState(winningPlayerKey, gameId, testConfig).value()
+          val persistedWinnerState = GameIO.getPlayerState(winningPlayerKey, gameId, persistence).value()
           persistedWinnerState.points should contain(Role("role"))
         }
 
         "persists point in winner's player summary in game's state" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
           val playerInfo = awardPoint(request, testConfig).value()
-          val persistedGameState = GameIO.getGameState(gameId, testConfig).value()
+          val persistedGameState = GameIO.getGameState(gameId, persistence).value()
           persistedGameState.players.get(winningPlayerKey).value.points should contain(Role("role"))
         }
 
         "persists removal of role from player's state" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
           val playerInfo = awardPoint(request, testConfig).value()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
           persistedPlayerState.role.isEmpty shouldEqual true
         }
 
         "persists removal of buyer from game state" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
           val playerInfo = awardPoint(request, testConfig).value()
-          val persistedState = GameIO.getGameState(gameId, testConfig).value()
+          val persistedState = GameIO.getGameState(gameId, persistence).value()
           persistedState.round.isEmpty shouldEqual true
         }
 
@@ -157,7 +157,7 @@ class AwardPointIntegrationTest extends AnyFreeSpec with Matchers
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
           Map(creator -> PlayerSummary("Creator", Nil))
         )
-        GameIO.writeGameState(gameState, testConfig)
+        GameIO.writeGameState(gameState, persistence)
         val request = AwardPoint(gameId, PlayerKey(playerDoesNotExistUUID), Role("role"), "winner")
         awardPoint(request, testConfig).isFailedAttempt() shouldEqual true
       }

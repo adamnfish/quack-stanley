@@ -9,13 +9,11 @@ import scala.util.Properties
 
 
 case class Config(
-  s3Bucket: String,
   stage: String,
-  ioClient: Persistence
+  persistence: Persistence
 )
 object Config {
   def fromEnvironment()(implicit ec: ExecutionContext): Attempt[Config] = {
-    val io = new S3
     for {
       bucket <- Attempt.fromOption(Properties.envOrNone("APP_DATA_S3_BUCKET"), {
         Failure("Couldn't read S3 bucket name for configuration", "Quack Stanley failed because it is missing configuration", 500, Some("APP_DATA_S3_BUCKET")).asAttempt
@@ -23,6 +21,7 @@ object Config {
       stage <- Attempt.fromOption(Properties.envOrNone("APP_STAGE"), {
         Failure("Couldn't read stage configuration", "Quack Stanley failed because it is missing configuration", 500, Some("APP_STAGE")).asAttempt
       })
-    } yield Config(bucket, stage, io)
+      persistence = new S3(bucket)
+    } yield Config(stage, persistence)
   }
 }

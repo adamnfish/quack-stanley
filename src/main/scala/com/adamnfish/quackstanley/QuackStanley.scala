@@ -12,6 +12,23 @@ import scala.concurrent.ExecutionContext
 object QuackStanley {
   val handSize = 6
 
+  def dispatch(apiOperation: ApiOperation, config: Config)(implicit ec: ExecutionContext): Attempt[ApiResponse] = {
+    apiOperation match {
+      case data: CreateGame => createGame(data, config)
+      case data: RegisterPlayer => registerPlayer(data, config)
+      case data: StartGame => startGame(data, config)
+      case data: BecomeBuyer => becomeBuyer(data, config)
+      case data: RelinquishBuyer => relinquishBuyer(data, config)
+      case data: StartPitch => startPitch(data, config)
+      case data: FinishPitch => finishPitch(data, config)
+      case data: AwardPoint => awardPoint(data, config)
+      case data: Mulligan => mulligan(data, config)
+      case data: Ping => ping(data, config)
+      case data: LobbyPing => lobbyPing(data, config)
+      case data: Wake => wake(data, config)
+    }
+  }
+
   /**
     * Creates a new game and automatically registers this player as the creator.
     */
@@ -21,9 +38,9 @@ object QuackStanley {
     val playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
     for {
       _ <- validate(data)
-      code <- makeUniquePrefix(gameState.gameId, config, checkPrefixUnique)
-      _ <- writeGameState(gameState, config)
-      _ <- writePlayerState(playerState, playerKey, config)
+      code <- makeUniquePrefix(gameState.gameId, config.persistence, checkPrefixUnique)
+      _ <- writeGameState(gameState, config.persistence)
+      _ <- writePlayerState(playerState, playerKey, config.persistence)
     } yield NewGame(playerState, gameState.creator, code)
   }
 
@@ -39,14 +56,14 @@ object QuackStanley {
   def registerPlayer(data: RegisterPlayer, config: Config)(implicit ec: ExecutionContext): Attempt[Registered] = {
     for {
       _ <- validate(data)
-      gameId <- lookupGameIdFromCode(data.gameCode, config)
-      gameState <- getGameState(gameId, config)
+      gameId <- lookupGameIdFromCode(data.gameCode, config.persistence)
+      gameState <- getGameState(gameId, config.persistence)
       _ <- verifyNotStarted(gameState)
-      playerStates <- getRegisteredPlayers(gameId, config)
+      playerStates <- getRegisteredPlayers(gameId, config.persistence)
       _ <- verifyUniqueScreenName(data.screenName, playerStates)
       newPlayerKey = generatePlayerKey()
       playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
-      _ <- writePlayerState(playerState, newPlayerKey, config)
+      _ <- writePlayerState(playerState, newPlayerKey, config.persistence)
     } yield Registered(playerState, newPlayerKey)
   }
 
@@ -59,10 +76,10 @@ object QuackStanley {
   def startGame(data: StartGame, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
-      gameState <- getGameState(data.gameId, config)
+      gameState <- getGameState(data.gameId, config.persistence)
       _ <- authenticateCreator(data.playerKey, gameState)
       _ <- verifyNotStarted(gameState)
-      playerStates <- getRegisteredPlayers(data.gameId, config)
+      playerStates <- getRegisteredPlayers(data.gameId, config.persistence)
       _ <- validatePlayerCount(playerStates.size)
       allWords <- Resources.words
       words <- nextWords(handSize * playerStates.size, allWords, Set.empty)
@@ -70,8 +87,8 @@ object QuackStanley {
       dealtPlayers <- dealWordsToAllPlayers(words, playerStates)
       creatorState <- lookupPlayer(dealtPlayers, data.playerKey)
       updatedGameState = startGameState(gameState, players)
-      _ <- writeGameState(updatedGameState, config)
-      _ <- writePlayerStates(dealtPlayers, config)
+      _ <- writeGameState(updatedGameState, config.persistence)
+      _ <- writePlayerStates(dealtPlayers, config.persistence)
     } yield playerInfo(data.playerKey, creatorState, updatedGameState)
   }
 
@@ -82,17 +99,17 @@ object QuackStanley {
   def becomeBuyer(data: BecomeBuyer, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
-      gameState <- getGameState(data.gameId, config)
+      gameState <- getGameState(data.gameId, config.persistence)
       _ <- authenticate(data.playerKey, gameState)
       _ <- verifyNoBuyer(gameState)
-      players <- getRegisteredPlayers(data.gameId, config)
+      players <- getRegisteredPlayers(data.gameId, config.persistence)
       player <- lookupPlayer(players, data.playerKey)
       allRoles <- Resources.roles
       role <- nextRole(allRoles, usedRoles(players.values.toList))
       playerWithRole = player.copy(role = Some(role))
       gameWithBuyer = gameState.copy(round = Some(Round(data.playerKey, role, Map.empty)))
-      _ <- writeGameState(gameWithBuyer, config)
-      _ <- writePlayerState(playerWithRole, data.playerKey, config)
+      _ <- writeGameState(gameWithBuyer, config.persistence)
+      _ <- writePlayerState(playerWithRole, data.playerKey, config.persistence)
     } yield playerInfo(data.playerKey, playerWithRole, gameWithBuyer)
   }
 
@@ -102,14 +119,14 @@ object QuackStanley {
   def relinquishBuyer(data: RelinquishBuyer, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
-      gameState <- getGameState(data.gameId, config)
+      gameState <- getGameState(data.gameId, config.persistence)
       _ <- authenticate(data.playerKey, gameState)
       _ <- authenticateBuyer(data.playerKey, gameState)
-      player <- getPlayerState(data.playerKey, data.gameId, config)
+      player <- getPlayerState(data.playerKey, data.gameId, config.persistence)
       gameWithoutBuyer = gameState.copy(round = None)
       playerWithoutBuyer = player.copy(role = None)
-      _ <- writeGameState(gameWithoutBuyer, config)
-      _ <- writePlayerState(playerWithoutBuyer, data.playerKey, config)
+      _ <- writeGameState(gameWithoutBuyer, config.persistence)
+      _ <- writePlayerState(playerWithoutBuyer, data.playerKey, config.persistence)
     } yield playerInfo(data.playerKey, playerWithoutBuyer, gameWithoutBuyer)
   }
 
@@ -134,9 +151,9 @@ object QuackStanley {
   def finishPitch(data: FinishPitch, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
-      gameState <- getGameState(data.gameId, config)
+      gameState <- getGameState(data.gameId, config.persistence)
       _ <- authenticate(data.playerKey, gameState)
-      players <- getRegisteredPlayers(data.gameId, config)
+      players <- getRegisteredPlayers(data.gameId, config.persistence)
       playerState <- lookupPlayer(players, data.playerKey)
       allWords <- Resources.words
       used = usedWords(players.values.toList)
@@ -144,8 +161,8 @@ object QuackStanley {
       discardedPlayerState <- discardWords(data.words, playerState)
       refilledPlayerState <- fillHand(refillWords, discardedPlayerState)
       gameStateWithPitch <- updateGameWithPitch(gameState, data.playerKey, data.words)
-      _ <- writePlayerState(refilledPlayerState, data.playerKey, config)
-      _ <- writeGameState(gameStateWithPitch, config)
+      _ <- writePlayerState(refilledPlayerState, data.playerKey, config.persistence)
+      _ <- writeGameState(gameStateWithPitch, config.persistence)
     } yield playerInfo(data.playerKey, refilledPlayerState, gameStateWithPitch)
   }
 
@@ -155,9 +172,9 @@ object QuackStanley {
   def awardPoint(data: AwardPoint, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
-      gameState <- getGameState(data.gameId, config)
+      gameState <- getGameState(data.gameId, config.persistence)
       _ <- authenticateBuyer(data.playerKey, gameState)
-      players <- getRegisteredPlayers(data.gameId, config)
+      players <- getRegisteredPlayers(data.gameId, config.persistence)
       playerState <- lookupPlayer(players, data.playerKey)
       _ <- playerHasRole(playerState, data.role)
       updatedPlayerState = playerState.copy(role = None)
@@ -165,9 +182,9 @@ object QuackStanley {
       (winningPlayerKey, winningPlayer) = winningPlayerDetails
       updatedGameState <- updateGameWithAwardedPoint(gameState, winningPlayerKey, data.role)
       updatedWinningPlayer = addRoleToPoints(winningPlayer, data.role)
-      _ <- writePlayerState(updatedPlayerState, data.playerKey, config)
-      _ <- writePlayerState(updatedWinningPlayer, winningPlayerKey, config)
-      _ <- writeGameState(updatedGameState, config)
+      _ <- writePlayerState(updatedPlayerState, data.playerKey, config.persistence)
+      _ <- writePlayerState(updatedWinningPlayer, winningPlayerKey, config.persistence)
+      _ <- writeGameState(updatedGameState, config.persistence)
     } yield playerInfo(data.playerKey, updatedPlayerState, updatedGameState)
   }
 
@@ -194,8 +211,8 @@ object QuackStanley {
     for {
       _ <- validate(data)
       // kick off requests in parallel to speed up response
-      fGameState = getGameState(data.gameId, config)
-      fPlayerState = getPlayerState(data.playerKey, data.gameId, config)
+      fGameState = getGameState(data.gameId, config.persistence)
+      fPlayerState = getPlayerState(data.playerKey, data.gameId, config.persistence)
       gameState <- fGameState
       _ <- authenticate(data.playerKey, gameState)
       playerState <- fPlayerState
@@ -211,12 +228,12 @@ object QuackStanley {
     for {
       _ <- validate(data)
       // kick off requests in parallel to speed up response
-      fGameState = getGameState(data.gameId, config)
-      fPlayerState = getPlayerState(data.playerKey, data.gameId, config)
+      fGameState = getGameState(data.gameId, config.persistence)
+      fPlayerState = getPlayerState(data.playerKey, data.gameId, config.persistence)
       gameState <- fGameState
       _ <- authenticateCreator(data.playerKey, gameState)
       _ <- verifyNotStarted(gameState)
-      playerStates <- getRegisteredPlayers(data.gameId, config)
+      playerStates <- getRegisteredPlayers(data.gameId, config.persistence)
       playerState <- fPlayerState
     } yield lobbyPlayerInfo(data.playerKey, playerState, playerStates)
   }

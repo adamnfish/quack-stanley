@@ -18,7 +18,7 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues {
 
   val persistence = new TestPersistence
-  val testConfig = Config("test", "test", persistence)
+  val testConfig = Config("test", persistence)
 
   val creatorUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
@@ -46,8 +46,8 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Round(playerKey, role, Map.empty)),
           Map(creator -> PlayerSummary("Creator", Nil), playerKey -> PlayerSummary(screenName, Nil))
         )
-        GameIO.writeGameState(gameState, testConfig)
-        GameIO.writePlayerState(playerState, playerKey, testConfig)
+        GameIO.writeGameState(gameState, persistence)
+        GameIO.writePlayerState(playerState, playerKey, persistence)
 
         "returns no role in player info" in {
           val request = RelinquishBuyer(gameId, playerKey)
@@ -58,14 +58,14 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
         "persists no role in player state" in {
           val request = RelinquishBuyer(gameId, playerKey)
           val playerInfo = relinquishBuyer(request, testConfig).value()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
           persistedPlayerState.role.isEmpty shouldEqual true
         }
 
         "persists no buyer in game state" in {
           val request = RelinquishBuyer(gameId, playerKey)
           val playerInfo = relinquishBuyer(request, testConfig).value()
-          val persistedState = GameIO.getGameState(gameId, testConfig).value()
+          val persistedState = GameIO.getGameState(gameId, persistence).value()
           persistedState.round.isEmpty shouldEqual true
         }
 
@@ -112,7 +112,7 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
         val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
           Map(creator -> PlayerSummary("Creator", Nil))
         )
-        GameIO.writeGameState(gameState, testConfig)
+        GameIO.writeGameState(gameState, persistence)
         val request = RelinquishBuyer(gameId, PlayerKey(playerDoesNotExistUUID))
         relinquishBuyer(request, testConfig).isFailedAttempt() shouldEqual true
       }
