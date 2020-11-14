@@ -20,7 +20,7 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues with HaveMatchers {
 
   val persistence = new TestPersistence
-  val testConfig = Config("test", "test", persistence)
+  val testConfig = Config("test", persistence)
 
   val creatorUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
@@ -41,8 +41,8 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
         Map(creator -> PlayerSummary("Creator", Nil))
       )
       val creatorState = PlayerState(gameState.gameId, gameState.gameName, "Creator", Nil, Nil, None, Nil)
-      GameIO.writePlayerState(creatorState, creator, testConfig)
-      GameIO.writeGameState(gameState, testConfig)
+      GameIO.writePlayerState(creatorState, creator, persistence)
+      GameIO.writeGameState(gameState, persistence)
 
       "uses provided screen name" in {
         val request = RegisterPlayer(gameCode, "player one")
@@ -74,7 +74,7 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
       "correctly persists player state" in {
         val request = RegisterPlayer(gameCode, "player one")
         val registered = registerPlayer(request, testConfig).value()
-        val savedState = GameIO.getPlayerState(registered.playerKey, gameId, testConfig).value()
+        val savedState = GameIO.getPlayerState(registered.playerKey, gameId, persistence).value()
         registered.state shouldEqual savedState
       }
 
@@ -126,7 +126,7 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
 
       "fails if the game has already started" in {
         val startedState = gameState.copy(started = true)
-        GameIO.writeGameState(startedState, testConfig).value()
+        GameIO.writeGameState(startedState, persistence).value()
         val request = RegisterPlayer(gameCode, "player two")
         registerPlayer(request, testConfig).isFailedAttempt() shouldEqual true
       }

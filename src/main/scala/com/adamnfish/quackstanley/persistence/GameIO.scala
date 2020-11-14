@@ -24,8 +24,8 @@ object GameIO {
   def playerStateDir(gameId: GameId): String =
     s"$root/${gameId.value}/players"
 
-  def writeGameState(gameState: GameState, config: Config): Attempt[Unit] = {
-    config.ioClient.writeJson(gameState.asJson, gameStatePath(gameState.gameId), config)
+  def writeGameState(gameState: GameState, persistence: Persistence): Attempt[Unit] = {
+    persistence.writeJson(gameState.asJson, gameStatePath(gameState.gameId))
   }
 
   private val PlayerKeyFromPath = (root ++ "/[a-z0-9\\-]+/players/([a-z0-9\\-]+).json").r
@@ -41,52 +41,52 @@ object GameIO {
     }
   }
 
-  def getGameState(gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[GameState] = {
+  def getGameState(gameId: GameId, persistence: Persistence)(implicit ec: ExecutionContext): Attempt[GameState] = {
     for {
-      json <- config.ioClient.getJson(gameStatePath(gameId), config)
+      json <- persistence.getJson(gameStatePath(gameId))
       gameState <- Serialization.extractJson[GameState](json)
     } yield gameState
   }
 
-  def lookupGameIdFromCode(gameCode: String, config: Config)(implicit ec: ExecutionContext): Attempt[GameId] = {
+  def lookupGameIdFromCode(gameCode: String, persistence: Persistence)(implicit ec: ExecutionContext): Attempt[GameId] = {
     val normalisedGameCode = gameCode.toLowerCase
     for {
-      paths <- config.ioClient.listFiles(gameCodePath(normalisedGameCode), config)
+      paths <- persistence.listFiles(gameCodePath(normalisedGameCode))
       gameId <- Logic.gameIdFromPrefixResults(normalisedGameCode, paths)
     } yield gameId
   }
 
-  def writePlayerState(playerState: PlayerState, playerKey: PlayerKey, config: Config): Attempt[Unit] = {
-    config.ioClient.writeJson(playerState.asJson, playerStatePath(playerState.gameId, playerKey), config)
+  def writePlayerState(playerState: PlayerState, playerKey: PlayerKey, persistence: Persistence): Attempt[Unit] = {
+    persistence.writeJson(playerState.asJson, playerStatePath(playerState.gameId, playerKey))
   }
 
-  def writePlayerStates(playerState: Map[PlayerKey, PlayerState], config: Config)(implicit ec: ExecutionContext): Attempt[Unit] = {
+  def writePlayerStates(playerState: Map[PlayerKey, PlayerState], persistence: Persistence)(implicit ec: ExecutionContext): Attempt[Unit] = {
     Attempt.traverse(playerState.toList) { case (key, state) =>
-      writePlayerState(state, key, config)
+      writePlayerState(state, key, persistence)
     }.map(_ => ())
   }
 
-  def getPlayerState(playerKey: PlayerKey, gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerState] = {
+  def getPlayerState(playerKey: PlayerKey, gameId: GameId, persistence: Persistence)(implicit ec: ExecutionContext): Attempt[PlayerState] = {
     for {
-      json <- config.ioClient.getJson(playerStatePath(gameId, playerKey), config)
+      json <- persistence.getJson(playerStatePath(gameId, playerKey))
       playerState <- Serialization.extractJson[PlayerState](json)
     } yield playerState
   }
 
-  def getRegisteredPlayers(gameId: GameId, config: Config)(implicit ec: ExecutionContext): Attempt[Map[PlayerKey, PlayerState]] = {
+  def getRegisteredPlayers(gameId: GameId, persistence: Persistence)(implicit ec: ExecutionContext): Attempt[Map[PlayerKey, PlayerState]] = {
     for {
-      paths <- config.ioClient.listFiles(playerStateDir(gameId), config)
+      paths <- persistence.listFiles(playerStateDir(gameId))
       playerKeys <- Attempt.traverse(paths)(playerKeyFromPath)
       playerStates <- Attempt.traverse(playerKeys) { playerKey =>
-        getPlayerState(playerKey, gameId, config).map(playerKey -> _)
+        getPlayerState(playerKey, gameId, persistence).map(playerKey -> _)
       }
     } yield playerStates.toMap
   }
 
-  def checkPrefixUnique(gameId: GameId, prefixLength: Int, config: Config)(implicit ec: ExecutionContext): Attempt[Boolean] = {
+  def checkPrefixUnique(gameId: GameId, prefixLength: Int, persistence: Persistence)(implicit ec: ExecutionContext): Attempt[Boolean] = {
     val prefix = s"$root/${gameId.value.take(prefixLength)}"
     for {
-      matches <- config.ioClient.listFiles(prefix, config)
+      matches <- persistence.listFiles(prefix)
     } yield matches.isEmpty
   }
 }

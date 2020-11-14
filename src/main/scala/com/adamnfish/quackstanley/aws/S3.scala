@@ -12,13 +12,13 @@ import scala.io.Source
 import scala.util.control.NonFatal
 
 
-class S3 extends Persistence {
+class S3(s3Bucket: String) extends Persistence {
   val s3Client = S3.client()
 
   // TODO maybe run in a Future? Would allow parallel reqests...
-  override def getJson(path: String, config: Config): Attempt[Json] = {
+  override def getJson(path: String): Attempt[Json] = {
     try {
-      val s3obj = s3Client.getObject(config.s3Bucket, path)
+      val s3obj = s3Client.getObject(s3Bucket, path)
       val objStream = s3obj.getObjectContent
       Attempt.fromEither(parse(Source.fromInputStream(objStream, "UTF-8").mkString).left.map { parsingFailure =>
         Failure(s"Failed to parse JSON from S3 object $path", "Failed to parse persistent data", 500).asAttempt
@@ -31,10 +31,10 @@ class S3 extends Persistence {
     }
   }
 
-  override def writeJson(json: Json, path: String, config: Config): Attempt[Unit] = {
+  override def writeJson(json: Json, path: String): Attempt[Unit] = {
     try {
       Attempt.Right {
-        s3Client.putObject(config.s3Bucket, path, json.noSpaces)
+        s3Client.putObject(s3Bucket, path, json.noSpaces)
       }
     } catch {
       case NonFatal(e) =>
@@ -44,10 +44,10 @@ class S3 extends Persistence {
     }
   }
 
-  override def listFiles(path: String, config: Config): Attempt[List[String]] = {
+  override def listFiles(path: String): Attempt[List[String]] = {
     try {
       Attempt.Right {
-        val objectListings = s3Client.listObjects(config.s3Bucket, path)
+        val objectListings = s3Client.listObjects(s3Bucket, path)
         objectListings.getObjectSummaries.asScala.toList.map(_.getKey)
       }
     } catch {

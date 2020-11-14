@@ -134,9 +134,8 @@ welcomeHelp =
                        |One at a time, they use those words to **pitch** their
                        |product to the buyer.
                        |
-                       |After each player has pitched their product the buyer chooses
-                       |the player with their favourite pitch. This player wins the round
-                       |and receives 1 point.
+                       |After each player has pitched their product the buyer chooses their
+                       |favourite pitch. This player wins the round and receives 1 point.
                        |
                        |Now another player can have a turn as the buyer and the same
                        |thing happens again.

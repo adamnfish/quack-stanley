@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class WakeIntegrationTest extends AnyFreeSpec with Matchers with OneInstancePerTest with AttemptValues {
   val persistence = new TestPersistence
-  val testConfig = Config("test", "test", persistence)
+  val testConfig = Config("test", persistence)
 
   "wake" - {
     "returns ok" in {

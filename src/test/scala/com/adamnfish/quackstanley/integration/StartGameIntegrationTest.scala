@@ -19,7 +19,7 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues {
 
   val persistence = new TestPersistence
-  val testConfig = Config("test", "test", persistence)
+  val testConfig = Config("test", persistence)
 
   val creatorUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
@@ -46,9 +46,9 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
       val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
         Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
       )
-      GameIO.writeGameState(gameState, testConfig).value()
-      GameIO.writePlayerState(creatorState, creatorKey, testConfig).value()
-      GameIO.writePlayerState(playerState, playerKey, testConfig).value()
+      GameIO.writeGameState(gameState, persistence).value()
+      GameIO.writePlayerState(creatorState, creatorKey, persistence).value()
+      GameIO.writePlayerState(playerState, playerKey, persistence).value()
 
       "and this player is the creator" - {
         "succeeds" in {
@@ -59,14 +59,14 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
         "writes all players into players game state" in {
           val request = StartGame(gameId, creatorKey)
           startGame(request, testConfig).value()
-          val savedState = GameIO.getGameState(gameId, testConfig).value()
+          val savedState = GameIO.getGameState(gameId, persistence).value()
           savedState.players.keys.toSet shouldEqual Set(creatorKey, playerKey)
         }
 
         "includes player screen names in persisted game state" in {
           val request = StartGame(gameId, creatorKey)
           startGame(request, testConfig).value()
-          val savedState = GameIO.getGameState(gameId, testConfig).value()
+          val savedState = GameIO.getGameState(gameId, persistence).value()
           savedState.players.view.mapValues(_.screenName).toMap.toSet shouldEqual Set(
             creatorKey -> creatorScreenName,
             playerKey -> playerScreenName
@@ -76,7 +76,7 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
         "players start with zero points" in {
           val request = StartGame(gameId, creatorKey)
           startGame(request, testConfig).value()
-          val savedState = GameIO.getGameState(gameId, testConfig).value()
+          val savedState = GameIO.getGameState(gameId, persistence).value()
           all(savedState.players.values.map(_.points)) shouldEqual Nil
         }
 
@@ -101,15 +101,15 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
         "persists started setting" in {
           val request = StartGame(gameId, creatorKey)
           startGame(request, testConfig).value()
-          val savedState = GameIO.getGameState(gameId, testConfig).value()
+          val savedState = GameIO.getGameState(gameId, persistence).value()
           savedState.started shouldEqual true
         }
 
         "populates (and persists) each player's hand" in {
           val request = StartGame(gameId, creatorKey)
           startGame(request, testConfig).value()
-          val savedCreatorState = GameIO.getPlayerState(creatorKey, gameId, testConfig).value()
-          val savedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
+          val savedCreatorState = GameIO.getPlayerState(creatorKey, gameId, persistence).value()
+          val savedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
           savedCreatorState.hand.size shouldEqual QuackStanley.handSize
           savedPlayerState.hand.size shouldEqual QuackStanley.handSize
         }
@@ -159,7 +159,7 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
 
       "fails if the game has already started" in {
         val startedState = gameState.copy(started = true)
-        GameIO.writeGameState(startedState, testConfig).value()
+        GameIO.writeGameState(startedState, persistence).value()
         val request = StartGame(gameId, creatorKey)
         startGame(request, testConfig).isFailedAttempt() shouldEqual true
       }
@@ -176,8 +176,8 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
       val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
         Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
       )
-      GameIO.writeGameState(gameState, testConfig).value()
-      GameIO.writePlayerState(creatorState, creatorKey, testConfig).value()
+      GameIO.writeGameState(gameState, persistence).value()
+      GameIO.writePlayerState(creatorState, creatorKey, persistence).value()
 
       "fails to start the game (requires higher player count)" in {
         val request = StartGame(gameId, creatorKey)

@@ -3,7 +3,7 @@ package com.adamnfish.quackstanley
 import com.adamnfish.quackstanley.Logic._
 import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt, Failure}
 import com.adamnfish.quackstanley.models._
-import com.adamnfish.quackstanley.persistence.GameIO
+import com.adamnfish.quackstanley.persistence.{GameIO, Persistence}
 import org.joda.time.DateTime
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
@@ -554,27 +554,26 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
   "makeUniquePrefix" - {
     val gameId = GameId("123456789abcdef0")
     val testPersistence = new TestPersistence
-    val testConfig = Config("test", "test", testPersistence)
 
     "returns default prefix if it is clear" in {
-      def fn(gid: GameId, n: Int, c: Config): Attempt[Boolean] = Attempt.Right(true)
-      makeUniquePrefix(gameId, testConfig, fn).value() shouldEqual "1234"
+      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = Attempt.Right(true)
+      makeUniquePrefix(gameId, testPersistence, fn).value() shouldEqual "1234"
     }
 
     "returns longer prefix if first one was not clear" in {
-      def fn(gid: GameId, n: Int, c: Config): Attempt[Boolean] = Attempt.Right(n > 4)
-      makeUniquePrefix(gameId, testConfig, fn).value() shouldEqual "12345"
+      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = Attempt.Right(n > 4)
+      makeUniquePrefix(gameId, testPersistence, fn).value() shouldEqual "12345"
     }
 
     "fails if thea unique prefix cannot be found" in {
-      def fn(gid: GameId, n: Int, c: Config): Attempt[Boolean] = Attempt.Right(false)
-      makeUniquePrefix(gameId, testConfig, fn).isFailedAttempt() shouldEqual true
+      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = Attempt.Right(false)
+      makeUniquePrefix(gameId, testPersistence, fn).isFailedAttempt() shouldEqual true
     }
 
     "fails if the provided fn fails" in {
       val expected = FailedAttempt(Failure("test", "test", 500))
-      def fn(gid: GameId, n: Int, c: Config): Attempt[Boolean] = Attempt.Left(expected)
-      makeUniquePrefix(gameId, testConfig, fn).leftValue() shouldEqual expected
+      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = Attempt.Left(expected)
+      makeUniquePrefix(gameId, testPersistence, fn).leftValue() shouldEqual expected
     }
   }
 

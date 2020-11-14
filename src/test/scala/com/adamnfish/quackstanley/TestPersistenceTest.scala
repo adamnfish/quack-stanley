@@ -7,13 +7,11 @@ import org.scalatest.freespec.AnyFreeSpec
 
 
 class TestPersistenceTest extends AnyFreeSpec with Matchers with OptionValues {
-  val testConfig = new Config("test", "test", new TestPersistence)
-
   "test persistence" - {
     "saves value" in {
       val testDb = new TestPersistence
       val json = Json.fromInt(2)
-      testDb.writeJson(json, "test/path", testConfig)
+      testDb.writeJson(json, "test/path")
       testDb.data.get("test/path").value shouldEqual json
     }
 
@@ -21,7 +19,7 @@ class TestPersistenceTest extends AnyFreeSpec with Matchers with OptionValues {
       val testDb = new TestPersistence
       val json = Json.fromInt(2)
       testDb.data.put("test/path", json)
-      testDb.getJson("test/path", testConfig)
+      testDb.getJson("test/path")
     }
   }
 }

@@ -4,8 +4,8 @@ import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
 import com.adamnfish.quackstanley.attempt.LambdaIntegration.failureToJson
 import com.adamnfish.quackstanley.models.Serialization._
 import com.adamnfish.quackstanley.models.{ApiOperation, Serialization}
-import com.adamnfish.quackstanley.{Config, Main}
-
+import com.adamnfish.quackstanley.{Config, Main, QuackStanley}
+import com.typesafe.scalalogging.LazyLogging
 import io.circe.parser._
 import io.circe.syntax._
 import io.circe._
@@ -13,12 +13,10 @@ import io.circe._
 import scala.concurrent.Future
 
 
-object ApiService {
+object ApiService extends LazyLogging {
   implicit val ec = scala.concurrent.ExecutionContext.global
 
-  val quackStanley = new Main
-  val fakeContext = new FakeContext
-  val fakeConfig = Config("", "", new FakePersistence)
+  val fakeConfig = Config("dev", new FakePersistence)
 
   def devQuackStanley(body: String): Future[(Int, String)] = {
     (for {
@@ -26,12 +24,12 @@ object ApiService {
         Failure(e.getMessage(), "Failed to parse request", 400).asAttempt
       })
       apiOp <- Serialization.extractJson[ApiOperation](jsonBody)
-      statusAndResponse <- quackStanley.dispatch(apiOp, fakeContext, fakeConfig)
+      statusAndResponse <- QuackStanley.dispatch(apiOp, fakeConfig)
     } yield statusAndResponse).asFuture.map {
       case Right(out) =>
         (200, out.asJson.noSpaces)
       case Left(failures) =>
-        fakeContext.getLogger.log(s"Failure: ${failures.logString}")
+        logger.info(s"Failure: ${failures.logString}")
         val body = Json.obj(
           "errors" -> Json.fromValues(failures.failures.map(failureToJson))
         )

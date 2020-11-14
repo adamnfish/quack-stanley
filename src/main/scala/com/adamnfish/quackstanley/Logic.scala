@@ -4,7 +4,7 @@ import java.util.UUID
 
 import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt, Failure}
 import com.adamnfish.quackstanley.models._
-import com.adamnfish.quackstanley.persistence.GameIO
+import com.adamnfish.quackstanley.persistence.{GameIO, Persistence}
 import org.joda.time.DateTime
 
 import scala.concurrent.ExecutionContext
@@ -274,14 +274,14 @@ object Logic {
     playerState.copy(points = playerState.points :+ point)
   }
 
-  def makeUniquePrefix(gameId: GameId, config: Config,
-                       fn: (GameId, Int, Config) => Attempt[Boolean]
+  def makeUniquePrefix(gameId: GameId, persistence: Persistence,
+                       fn: (GameId, Int, Persistence) => Attempt[Boolean]
                       )
                       (implicit ec: ExecutionContext): Attempt[String] = {
     val min = 4
     val max = 10
     def loop(prefixLength: Int): Attempt[String] = {
-      fn(gameId, prefixLength, config).flatMap {
+      fn(gameId, prefixLength, persistence).flatMap {
         case true =>
           Attempt.Right(gameId.value.take(prefixLength))
         case false if prefixLength < max =>

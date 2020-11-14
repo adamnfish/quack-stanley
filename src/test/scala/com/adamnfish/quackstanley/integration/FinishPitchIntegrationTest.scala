@@ -18,7 +18,7 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues {
 
   val persistence = new TestPersistence
-  val testConfig = Config("test", "test", persistence)
+  val testConfig = Config("test", persistence)
 
   val creatorUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
@@ -51,9 +51,9 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
           )
         )
         val request = FinishPitch(gameId, playerKey, (Word("one"), Word("two")))
-        GameIO.writeGameState(gameState, testConfig)
-        GameIO.writePlayerState(creatorState, creator, testConfig)
-        GameIO.writePlayerState(playerState, playerKey, testConfig)
+        GameIO.writeGameState(gameState, persistence)
+        GameIO.writePlayerState(creatorState, creator, persistence)
+        GameIO.writePlayerState(playerState, playerKey, persistence)
 
         "fills hand" in {
           val playerInfo = finishPitch(request, testConfig).value()
@@ -78,19 +78,19 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
 
         "persists new hand in player state" in {
           val playerInfo = finishPitch(request, testConfig).value()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
           persistedPlayerState.hand shouldEqual playerInfo.state.hand
         }
 
         "persists discarded words to player's state" in {
           val playerInfo = finishPitch(request, testConfig).value()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, testConfig).value()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
           persistedPlayerState.discardedWords shouldEqual List(Word("one"), Word("two"))
         }
 
         "persists pitched product to the game state's round" in {
           finishPitch(request, testConfig).value()
-          val persistedGameState = GameIO.getGameState(gameId, testConfig).value()
+          val persistedGameState = GameIO.getGameState(gameId, persistence).value()
           persistedGameState
             .round.value
             .products.get(playerKey).value shouldEqual (Word("one"), Word("two"))
@@ -153,7 +153,7 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
         val playerKey = PlayerKey(playerKeyUUID)
         val request = FinishPitch(gameId, playerKey, (Word("one"), Word("two")))
 
-        GameIO.writeGameState(gameState, testConfig)
+        GameIO.writeGameState(gameState, persistence)
         finishPitch(request, testConfig).isFailedAttempt() shouldEqual true
       }
     }

@@ -18,7 +18,7 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues {
 
   val persistence = new TestPersistence
-  val testConfig = Config("test", "test", persistence)
+  val testConfig = Config("test", persistence)
 
   val creatorUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
@@ -51,10 +51,10 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
       val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
         Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
       )
-      GameIO.writeGameState(gameState, testConfig).value()
-      GameIO.writePlayerState(creatorState, creatorKey, testConfig).value()
-      GameIO.writePlayerState(playerState, playerKey, testConfig).value()
-      GameIO.writePlayerState(player2State, player2Key, testConfig).value()
+      GameIO.writeGameState(gameState, persistence).value()
+      GameIO.writePlayerState(creatorState, creatorKey, persistence).value()
+      GameIO.writePlayerState(playerState, playerKey, persistence).value()
+      GameIO.writePlayerState(player2State, player2Key, persistence).value()
 
       // LOOK AT START GAME FOR CREATOR VALIDATION ETC
 
@@ -127,7 +127,7 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
 
       "fails if the game has already started" in {
         val startedState = gameState.copy(started = true)
-        GameIO.writeGameState(startedState, testConfig).value()
+        GameIO.writeGameState(startedState, persistence).value()
         val request = LobbyPing(gameId, creatorKey)
         lobbyPing(request, testConfig).isFailedAttempt() shouldEqual true
       }

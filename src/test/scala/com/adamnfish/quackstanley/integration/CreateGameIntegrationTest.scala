@@ -15,7 +15,7 @@ class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues with HaveMatchers {
 
   val persistence = new TestPersistence
-  val testConfig = Config("test", "test", persistence)
+  val testConfig = Config("test", persistence)
 
   "createGame" - {
     "uses provided names" in {
@@ -57,14 +57,14 @@ class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
     "sets this player as the creator on the saved game state" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
-      val savedGameState = GameIO.getGameState(newGame.state.gameId, testConfig).value()
+      val savedGameState = GameIO.getGameState(newGame.state.gameId, persistence).value()
       savedGameState.creator shouldEqual newGame.playerKey
     }
 
     "puts creator into players with no points" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
-      val savedGameState = GameIO.getGameState(newGame.state.gameId, testConfig).value()
+      val savedGameState = GameIO.getGameState(newGame.state.gameId, persistence).value()
       savedGameState.players shouldEqual Map(newGame.playerKey -> PlayerSummary("screen name", Nil))
     }
 
@@ -79,7 +79,7 @@ class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
     "correctly persists game state" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
-      val savedGameState = GameIO.getGameState(newGame.state.gameId, testConfig).value()
+      val savedGameState = GameIO.getGameState(newGame.state.gameId, persistence).value()
       savedGameState.creator shouldEqual newGame.playerKey
       savedGameState.gameId shouldEqual newGame.state.gameId
       savedGameState should have (
@@ -92,7 +92,7 @@ class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
     "correctly persists player state" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
-      val savedPlayerState = GameIO.getPlayerState(newGame.playerKey, newGame.state.gameId, testConfig).value()
+      val savedPlayerState = GameIO.getPlayerState(newGame.playerKey, newGame.state.gameId, persistence).value()
       savedPlayerState shouldEqual newGame.state
     }
 
