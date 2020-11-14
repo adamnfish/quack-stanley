@@ -15,6 +15,16 @@ Quack Stanley is an [Elm](http://elm-lang.org/) frontend with a
 [Scala](https://www.scala-lang.org/) backend that runs "serverless"
 as an [AWS Lambda Function](https://aws.amazon.com/lambda/).
 
+#### Structure
+
+| Project                           | Purpose                                 |
+|-----------------------------------|-----------------------------------------|
+| [core](/core)                     | Quack Stanley game logic                |
+| [lambda](/lambda)                 | AWS Lambda handler                      |
+| [frontend](/frontend)             | Web application for game UI             |
+| [cloudformation](/cloudformation) | Infrastructure for AWS deployment       |
+| [dev-server](/dev-server)         | Standalone server for local development |
+
 ### Running locally
 
 To run Quack Stanley locally, you will need the following installed:
@@ -23,30 +33,32 @@ To run Quack Stanley locally, you will need the following installed:
 * [sbt](https://www.scala-sbt.org/)
 * [create-elm-app](https://github.com/halfzebra/create-elm-app)
 
-With those installed, you can run the api and frontend using the helper
-scripts in the root of the repository.
+You can then run the api and frontend using the helper scripts in the
+root of the repository.
 
 * devapi.sh
 * devfrontend.sh
 
-When run in development mode the game data is stored in-memory and will not
+The development server stores game data in-memory. This data will not
 persist through a restart of the API.
 
 ### Running in AWS
 
-Cloudformation templates are provided for running Quack Stanley in AWS.
+Quack Stanley can be run in AWS using the two CloudFormation templates provided
+in this repository.
 
 **Notes:**
 - Running Quack Stanley in AWS will incur costs.
-- Many properties are hard-coded for the public Quack Stanley
+- Some properties are hard-coded for the public Quack Stanley
 service. If you'd like to change these to run your own version of Quack Stanley
 some settings will need to be changed.
+- The region is currently hard-coded in Quack Stanley's source code
 
 #### Quack Stanley storage
 
 [`quack-stanley-storage.template.yaml`](cloudformation/quack-stanley-storage.template.yaml)
-will create the persistent resources needed to run Quack Stanley.
-Quack Stanley stores its data in S3 so the template creates S3 an bucket
+creates the persistent resources needed to run Quack Stanley.
+Quack Stanley stores its data in S3. The template creates one S3 bucket
 for the web assets and another for storing the data for in-progress games.
 
 #### Quack Stanley
