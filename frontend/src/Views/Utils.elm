@@ -1,38 +1,56 @@
 module Views.Utils exposing
-    ( lis, icon, plural, resumeGameIfItExists
-    , container, row, col, card, gameNav, stripMargin, multiLineText
-    , textInput, shroud, empty, ShroudContent (..)
-    , errorsForField, errorsExcludingField, nonFieldErrors, showErrors
+    ( ShroudContent(..)
+    , card
+    , col
+    , container
+    , empty
+    , errorsExcludingField
+    , errorsForField
+    , gameNav
     , helpText
+    , icon
+    , lis
+    , multiLineText
+    , nonFieldErrors
+    , plural
+    , resumeGameIfItExists
+    , row
+    , showErrors
+    , shroud
+    , stripMargin
+    , textInput
     )
 
-import Html exposing (Html, Attribute, div, text, button, input, label, li, i, span)
+import Html exposing (Attribute, Html, button, div, i, input, label, li, span, text)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onSubmit, onInput)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Markdown exposing (toHtml)
+import Model exposing (ApiError, Model)
 import Msg exposing (Msg)
-import Model exposing (Model, ApiError)
 
 
 empty : Html Msg
 empty =
     text ""
 
+
 resumeGameIfItExists : Model -> Html Msg
 resumeGameIfItExists model =
     case model.state of
         Just state ->
             button
-               [ class "waves-effect waves-light btn-flat"
-               , onClick Msg.NavigateSpectate
-               ]
-               [ icon "gamepad" "left"
-               , text "back to game"
-               ]
+                [ class "waves-effect waves-light btn-flat"
+                , onClick Msg.NavigateSpectate
+                ]
+                [ icon "gamepad" "left"
+                , text "back to game"
+                ]
+
         Nothing ->
             text ""
 
-lis : List String -> List ( Html Msg )
+
+lis : List String -> List (Html Msg)
 lis labels =
     let
         anLi label =
@@ -40,35 +58,46 @@ lis labels =
                 []
                 [ text label ]
     in
-        List.map anLi labels
+    List.map anLi labels
+
 
 icon : String -> String -> Html Msg
 icon code align =
     i
-        [ class ( "material-icons " ++ align ) ]
+        [ class ("material-icons " ++ align) ]
         [ text code ]
+
 
 plural : String -> Int -> String
 plural str count =
-    if count == 1 then str else ( str ++ "s" )
+    if count == 1 then
+        str
 
-container : String -> List ( Html Msg ) -> Html Msg
+    else
+        str ++ "s"
+
+
+container : String -> List (Html Msg) -> Html Msg
 container name children =
-    div [ class ( "container " ++ name ) ] children
+    div [ class ("container " ++ name) ] children
 
-row : List ( Html Msg ) -> Html Msg
+
+row : List (Html Msg) -> Html Msg
 row children =
     div [ class "row" ] children
 
-col : String -> List ( Html Msg ) -> Html Msg
-col classes children =
-    div [ class ( "col " ++ classes ) ] children
 
-card : List ( Html Msg ) -> Html Msg
+col : String -> List (Html Msg) -> Html Msg
+col classes children =
+    div [ class ("col " ++ classes) ] children
+
+
+card : List (Html Msg) -> Html Msg
 card children =
     div [ class "card-panel" ] children
 
-gameNav : List ( Html Msg ) -> Html Msg
+
+gameNav : List (Html Msg) -> Html Msg
 gameNav buttons =
     div
         [ class "game-nav" ]
@@ -80,31 +109,43 @@ gameNav buttons =
             ]
         ]
 
+
 stripMarginLine : String -> String
 stripMarginLine line =
     let
-        trimmed = String.trimLeft line
+        trimmed =
+            String.trimLeft line
     in
-        if String.startsWith "|" trimmed then
-            String.dropLeft 1 trimmed
-        else
-            line
+    if String.startsWith "|" trimmed then
+        String.dropLeft 1 trimmed
+
+    else
+        line
+
 
 stripMargin : String -> String
 stripMargin str =
     let
-        lines = String.split "\n" str
+        lines =
+            String.split "\n" str
     in
-        String.join "\n" ( List.map stripMarginLine lines )
+    String.join "\n" (List.map stripMarginLine lines)
+
 
 multiLineText : String -> Html Msg
-multiLineText str = text ( stripMargin str )
+multiLineText str =
+    text (stripMargin str)
 
-textInput : String -> String -> String -> List ApiError -> List ( Attribute Msg ) -> Html Msg
+
+textInput : String -> String -> String -> List ApiError -> List (Attribute Msg) -> Html Msg
 textInput elementLabel elementName value errors attrs =
     let
-        showError = not ( List.isEmpty errors )
-        elementId = elementName ++ "-id"
+        showError =
+            not (List.isEmpty errors)
+
+        elementId =
+            elementName ++ "-id"
+
         fixedAttrs =
             [ id elementId
             , name elementName
@@ -112,26 +153,29 @@ textInput elementLabel elementName value errors attrs =
             , autocomplete False
             , classList [ ( "invalid", showError ) ]
             ]
-        errMessages = String.concat ( List.intersperse ", " ( List.map .message errors ) )
-    in
-        div
-            [ class "input-field" ]
-            [ input
-                ( fixedAttrs ++ attrs )
-                []
-            , label
-                [ for elementId
-                , classList [ ("active", not ( String.isEmpty value )) ]
-                ]
-                [ text elementLabel ]
-            , span
-                [ class "helper-text"
-                , attribute "data-error" errMessages
-                ]
-                []
-            ]
 
-shroudMarkup : List ( Html Msg ) -> Bool -> Html Msg
+        errMessages =
+            String.concat (List.intersperse ", " (List.map .message errors))
+    in
+    div
+        [ class "input-field" ]
+        [ input
+            (fixedAttrs ++ attrs)
+            []
+        , label
+            [ for elementId
+            , classList [ ( "active", not (String.isEmpty value) ) ]
+            ]
+            [ text elementLabel ]
+        , span
+            [ class "helper-text"
+            , attribute "data-error" errMessages
+            ]
+            []
+        ]
+
+
+shroudMarkup : List (Html Msg) -> Bool -> Html Msg
 shroudMarkup contents visible =
     div
         [ classList
@@ -151,60 +195,73 @@ shroudMarkup contents visible =
             ]
         ]
 
+
 shroud : ShroudContent -> Html Msg
 shroud shroudContent =
     case shroudContent of
         LoadingMessage visible content ->
             if visible then
                 shroudMarkup content visible
+
             else
                 shroudMarkup [ empty ] visible
+
         ErrorMessage visible content ->
             if visible then
                 shroudMarkup content visible
+
             else
                 shroudMarkup [ empty ] visible
+
         NoLoadingShroud ->
             shroudMarkup [ empty ] False
 
+
 type ShroudContent
-    = LoadingMessage Bool ( List ( Html Msg ) )
-    | ErrorMessage Bool ( List ( Html Msg ) )
+    = LoadingMessage Bool (List (Html Msg))
+    | ErrorMessage Bool (List (Html Msg))
     | NoLoadingShroud
 
 
 errorsForField : String -> List ApiError -> List ApiError
 errorsForField field errors =
     List.filter
-        ( .context >> Maybe.withDefault "" >> ( (==) field ) )
+        (.context >> Maybe.withDefault "" >> (==) field)
         errors
+
 
 errorsExcludingField : String -> List ApiError -> List ApiError
 errorsExcludingField field errors =
     List.filter
-        ( .context >> Maybe.withDefault "" >> ( (/=) field ) )
+        (.context >> Maybe.withDefault "" >> (/=) field)
         errors
+
 
 nonFieldErrors : List String -> List ApiError -> List ApiError
 nonFieldErrors fields errors =
     List.filter
-        ( .context >> Maybe.withDefault "" >> ( flip List.member fields ) >> not )
+        (.context >> Maybe.withDefault "" >> flip List.member fields >> not)
         errors
+
 
 showErrors : List ApiError -> Html Msg
 showErrors errors =
     if List.isEmpty errors then
         text ""
+
     else
         div
             [ class "card-panel red lighten-4" ]
-            [ text ( String.concat ( List.intersperse ", " ( List.map .message errors ) ) ) ]
+            [ text (String.concat (List.intersperse ", " (List.map .message errors))) ]
+
 
 helpText : String -> Html Msg
 helpText message =
     toHtml
         [ class "text--help" ]
-        ( stripMargin message )
+        (stripMargin message)
 
-flip : ( a -> b -> c ) -> b -> a -> c
-flip f b a = f a b
+
+flip : (a -> b -> c) -> b -> a -> c
+flip f b a =
+    f a b

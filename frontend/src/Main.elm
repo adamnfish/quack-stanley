@@ -1,15 +1,13 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html)
-import Model exposing (Model, Lifecycle (..))
+import Model exposing (Lifecycle(..), Model)
 import Msg exposing (Msg, update, wakeServer)
-import View exposing (view)
-import Views.Main exposing (pageTemplate)
 import Ports exposing (fetchSavedGames)
+import Subs exposing (subscriptions)
 import Task exposing (Task)
 import Time exposing (Posix)
-import Subs exposing (subscriptions)
+import View exposing (view)
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -31,7 +29,7 @@ init flags =
     ( model
     , Cmd.batch
         [ wakeServer model
-        , Task.perform Msg.WelcomeTick Time.now  -- initialise model with current time
+        , Task.perform Msg.WelcomeTick Time.now -- initialise model with current time
         , fetchSavedGames ()
         ]
     )
@@ -41,7 +39,7 @@ main : Program Flags Model Msg
 main =
     Browser.element
         { init = init
-        , view = \model -> pageTemplate view model
+        , view = view
         , update = update
         , subscriptions = subscriptions
         }

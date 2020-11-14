@@ -1,25 +1,24 @@
 module Views.Error exposing (error)
 
-import Html exposing (Html, div, text, button, h1, ul)
+import Html exposing (Html, button, div, h1, text, ul)
 import Html.Attributes exposing (class, placeholder)
-import Html.Events exposing (onClick, onSubmit, onInput)
-import Model exposing (Model, Lifecycle (..))
+import Html.Events exposing (onClick, onInput, onSubmit)
+import Model exposing (Lifecycle(..), Model)
 import Msg exposing (Msg)
-import Views.Utils exposing (container, row, col, card, gameNav, lis, icon, resumeGameIfItExists, ShroudContent (..))
+import Views.Utils exposing (ShroudContent(..), card, col, container, gameNav, icon, lis, resumeGameIfItExists, row)
 
 
-error : List String -> Model -> ( List ( Html Msg ), ShroudContent, Html Msg )
+error : List String -> Model -> ( List (Html Msg), ShroudContent, Html Msg )
 error errs model =
-    (
-        [ button
+    ( [ button
             [ class "waves-effect waves-light btn green"
             , onClick Msg.NavigateHome
             ]
             [ icon "home" "left"
             , text "home"
             ]
-        , resumeGameIfItExists model
-        ]
+      , resumeGameIfItExists model
+      ]
     , NoLoadingShroud
     , container "error"
         [ row
@@ -30,7 +29,7 @@ error errs model =
                         [ text "Error" ]
                     , ul
                         []
-                        ( lis errs )
+                        (lis errs)
                     ]
                 ]
             ]
