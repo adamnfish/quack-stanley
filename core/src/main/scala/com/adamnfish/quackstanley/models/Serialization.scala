@@ -35,7 +35,9 @@ object Serialization {
   implicit val wordDecoder: Decoder[Word] = Decoder.decodeString.emap(str => Right(Word(str)))
 
   // inputs
+  implicit val setupGameDecoder: Decoder[SetupGame] = deriveDecoder[SetupGame]
   implicit val createGameDecoder: Decoder[CreateGame] = deriveDecoder[CreateGame]
+  implicit val registerHostDecoder: Decoder[RegisterHost] = deriveDecoder[RegisterHost]
   implicit val registerPlayerDecoder: Decoder[RegisterPlayer] = deriveDecoder[RegisterPlayer]
   implicit val startGameDecoder: Decoder[StartGame] = deriveDecoder[StartGame]
   implicit val becomeBuyerDecoder: Decoder[BecomeBuyer] = deriveDecoder[BecomeBuyer]
@@ -49,7 +51,9 @@ object Serialization {
   implicit val wakeDecoder: Decoder[Wake] = deriveDecoder[Wake]
   implicit val apiOperationDecoder: Decoder[ApiOperation] = Decoder.instance(c =>
     c.downField("operation").as[String].flatMap {
+      case "setup-game" => c.as[SetupGame]
       case "create-game" => c.as[CreateGame]
+      case "register-host" => c.as[RegisterHost]
       case "register-player" => c.as[RegisterPlayer]
       case "start-game" => c.as[StartGame]
       case "relinquish-buyer" => c.as[RelinquishBuyer]
@@ -68,11 +72,13 @@ object Serialization {
   // response types
   implicit val playerInfoEncoder: Encoder[PlayerInfo] = deriveEncoder[PlayerInfo]
   implicit val roundInfoEncoder: Encoder[RoundInfo] = deriveEncoder[RoundInfo]
+  implicit val newEmptyGameEncoder: Encoder[NewEmptyGame] = deriveEncoder[NewEmptyGame]
   implicit val newGameEncoder: Encoder[NewGame] = deriveEncoder[NewGame]
   implicit val registeredEncoder: Encoder[Registered] = deriveEncoder[Registered]
   implicit val okResponseEncoder: Encoder[Ok] = deriveEncoder[Ok]
   implicit val apiResponseEncoder: Encoder[ApiResponse] = Encoder.instance {
     case playerInfo: PlayerInfo => playerInfoEncoder.apply(playerInfo)
+    case newEmptyGame: NewEmptyGame => newEmptyGameEncoder.apply(newEmptyGame)
     case newGame: NewGame => newGameEncoder.apply(newGame)
     case registered: Registered => registeredEncoder.apply(registered)
     case ok: Ok => okResponseEncoder.apply(ok)

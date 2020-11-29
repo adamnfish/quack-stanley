@@ -13,11 +13,20 @@ import scala.util.Random.shuffle
 
 object Logic {
   def generateGameId(): GameId = {
-    GameId(UUID.randomUUID.toString)
+    GameId(UUID.randomUUID().toString)
   }
 
   def generatePlayerKey(): PlayerKey = {
     PlayerKey(UUID.randomUUID().toString)
+  }
+
+  def setupEmptyGame(gameName: String): GameState = {
+    val gameId = generateGameId()
+    val playerKey = generatePlayerKey()
+    GameState(
+      gameId, gameName, DateTime.now(), started = false, playerKey, None,
+      Map.empty
+    )
   }
 
   def newGame(gameName: String, playerName: String): GameState = {
@@ -164,6 +173,34 @@ object Logic {
     }
   }
 
+  def verifyHostCode(hostCode: String, gameState: GameState): Attempt[Unit] = {
+    if (hostCode.size >= 4 && gameState.host.value.startsWith(hostCode)) {
+      Attempt.unit
+    } else {
+      Attempt.Left {
+        Failure(
+          "Invalid host code",
+          "The host code you have provided is not valid",
+          400
+        )
+      }
+    }
+  }
+
+  def verifyNoHost[A](playerStates: Map[A, PlayerState]): Attempt[Unit] = {
+    if (playerStates.isEmpty) {
+      Attempt.unit
+    } else {
+      Attempt.Left {
+        Failure(
+          "Cannot add host when players already exist",
+          "This game already has a host",
+          409
+        )
+      }
+    }
+  }
+
   def updateGameWithPitch(gameState: GameState, pitcher: PlayerKey, words: (Word, Word)): Attempt[GameState] = {
     Attempt.fromOption(
       gameState.round.map { round =>
@@ -293,6 +330,10 @@ object Logic {
       }
     }
     loop(min)
+  }
+
+  def hostCodeFromKey(playerKey: PlayerKey): String = {
+    playerKey.value.take(4)
   }
 
   def gameIdFromPrefixResults(gameCode: String, results: List[String]): Attempt[GameId] = {

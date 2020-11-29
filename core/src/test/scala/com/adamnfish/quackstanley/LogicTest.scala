@@ -13,6 +13,26 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with OptionValues with HaveMatchers {
+  "setupEmptyGame" - {
+    "initialises an empty player states map" in {
+      setupEmptyGame("test-game").players shouldBe empty
+    }
+
+    "sets initial state with started = false" in {
+      setupEmptyGame("test-game").started shouldEqual false
+    }
+
+    "sets buyer to None" in {
+      setupEmptyGame("test-game").round shouldEqual None
+    }
+
+    "running twice creates two different game IDs" in {
+      val game1 = setupEmptyGame("test-game-1")
+      val game2 = setupEmptyGame("test-game-2")
+      game1.gameId should not equal game2.gameId
+    }
+  }
+
   "newGame" - {
     "populates the player states map with just the host" in {
       newGame("test-game", "test-player").players.size shouldEqual 1
@@ -34,6 +54,12 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     "submitting player is in players " in {
       val initialGameState = newGame("test-game", "test-player")
       initialGameState.host shouldEqual initialGameState.players.keys.head
+    }
+
+    "running twice creates two different game IDs" in {
+      val game1 = newGame("test-game-1", "test-player")
+      val game2 = newGame("test-game-2", "test-player")
+      game1.gameId should not equal game2.gameId
     }
   }
 
@@ -344,6 +370,37 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     }
   }
 
+  "verifyHostCode" - {
+    val gameState = setupEmptyGame("test")
+
+    "succeeds for valid input" in {
+      val hostCode = gameState.host.value.take(4)
+      verifyHostCode(hostCode, gameState).isSuccessfulAttempt() shouldEqual true
+    }
+
+    "fails if the host code is too short" in {
+      verifyHostCode("123", gameState).isFailedAttempt() shouldEqual true
+    }
+
+    "fails if the host code does not match" in {
+      val hostCode = gameState.host.value.take(4)
+      verifyHostCode(s"NOT$hostCode", gameState).isFailedAttempt() shouldEqual true
+    }
+  }
+
+  "verifyNoHost" - {
+    "succeeds if provided an empty 'player states' Map" in {
+      verifyNoHost(Map.empty).isSuccessfulAttempt() shouldEqual true
+    }
+
+    "fails if a player already exists in the 'player states' Map" in {
+      val playerStates = Map(
+        1 -> newPlayer(GameId("game-id"), "Game name", "Screen name")
+      )
+      verifyNoHost(playerStates).isFailedAttempt() shouldEqual true
+    }
+  }
+
   "updateGameWithPitch" - {
     val game = newGame("game name", "host")
     val playerKey = game.host
@@ -574,6 +631,12 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
       val expected = FailedAttempt(Failure("test", "test", 500))
       def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = Attempt.Left(expected)
       makeUniquePrefix(gameId, testPersistence, fn).leftValue() shouldEqual expected
+    }
+  }
+
+  "hostCodeFromKey" - {
+    "returns the first 4 characters of a player key" in {
+      hostCodeFromKey(PlayerKey("123456789")) shouldEqual "1234"
     }
   }
 

@@ -60,9 +60,17 @@ case class GameState(
 
 // typed JSON API operations, represent the possible client requests
 sealed trait ApiOperation
+case class SetupGame(
+  gameName: String
+) extends ApiOperation
 case class CreateGame(
   screenName: String,
   gameName: String
+) extends ApiOperation
+case class RegisterHost(
+  gameCode: String,
+  hostCode: String,
+  screenName: String
 ) extends ApiOperation
 case class RegisterPlayer(
   gameCode: String,
@@ -121,6 +129,11 @@ case class PlayerInfo(
   opponents: List[PlayerSummary],
   round: Option[RoundInfo]
   // buyer: Option[(String, Word)]
+) extends ApiResponse
+// creates new game with no players
+case class NewEmptyGame(
+  hostCode: String,
+  gameCode: String
 ) extends ApiResponse
 // creates new game and registers host
 case class NewGame(

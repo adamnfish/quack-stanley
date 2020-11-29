@@ -64,6 +64,10 @@ object Validation {
     else Attempt.Left(FailedAttempt(failures))
   }
 
+  def validate(setupGame: SetupGame)(implicit ec: ExecutionContext): Attempt[Unit] = {
+    validate(setupGame.gameName, "game name", nonEmpty)
+  }
+
   def validate(createGame: CreateGame)(implicit ec: ExecutionContext): Attempt[Unit] = {
     validate(createGame.gameName, "game name", nonEmpty) |@|
       validate(createGame.screenName, "screen name", nonEmpty)
@@ -75,6 +79,17 @@ object Validation {
 
     gameCodeFailures.firstFailure() |@|
       validate(registerPlayer.screenName, "screen name", nonEmpty)
+  }
+
+  def validate(registerHost: RegisterHost)(implicit ec: ExecutionContext): Attempt[Unit] = {
+    val gameCodeFailures = validate(registerHost.gameCode, "game code", gameCode) |@|
+      validate(registerHost.gameCode, "game code", minLength(4))
+
+    val hostCodeFailures = validate(registerHost.hostCode, "host code", gameCode) |@|
+      validate(registerHost.hostCode, "host code", minLength(4))
+
+    gameCodeFailures.firstFailure() |@| hostCodeFailures.firstFailure() |@|
+      validate(registerHost.screenName, "screen name", nonEmpty)
   }
 
   def validate(startGame: StartGame)(implicit ec: ExecutionContext): Attempt[Unit] = {

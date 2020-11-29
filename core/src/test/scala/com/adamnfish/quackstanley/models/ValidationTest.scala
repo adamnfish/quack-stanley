@@ -183,16 +183,52 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
     }
   }
 
+  "validateRegisterHost" - {
+    "fails if game code length is < 4" in {
+      validate(RegisterHost("123", "abcd", "screen name")).isFailedAttempt() shouldBe true
+    }
+
+    "fails if host code length is < 4" in {
+      validate(RegisterHost("1234", "abc", "screen name")).isFailedAttempt() shouldBe true
+    }
+
+    "fails if screen name is empty" in {
+      validate(RegisterHost("1234", "abcd", "")).isFailedAttempt() shouldBe true
+    }
+
+    "game code is not case sensitive" in {
+      validate(RegisterHost("ABCD", "1234", "screen name")).isSuccessfulAttempt() shouldBe true
+    }
+
+    "host code is not case sensitive" in {
+      validate(RegisterHost("1234", "ABCD", "screen name")).isSuccessfulAttempt() shouldBe true
+    }
+
+    "does not duplicate errors for empty game code" in {
+      val result = validate(RegisterHost("", "abcd", "screen name")).leftValue()
+      result.failures.filter(_.context.contains("game code")) should have size 1
+    }
+
+    "does not duplicate errors for empty host code" in {
+      val result = validate(RegisterHost("1234", "", "screen name")).leftValue()
+      result.failures.filter(_.context.contains("host code")) should have size 1
+    }
+  }
+
   "validateRegisterPlayer" - {
-    "fails if input length is < 4" in {
+    "fails if game code length is < 4" in {
       validate(RegisterPlayer("123", "screen name")).isFailedAttempt() shouldBe true
     }
 
-    "is not case sensitive" in {
+    "fails if screen name is empty" in {
+      validate(RegisterPlayer("123", "")).isFailedAttempt() shouldBe true
+    }
+
+    "game code is not case sensitive" in {
       validate(RegisterPlayer("ABCD", "screen name")).isSuccessfulAttempt() shouldBe true
     }
 
-    "does not how duplicate errors for empty game code" in {
+    "does not duplicate errors for empty game code" in {
       val result = validate(RegisterPlayer("", "screen name")).leftValue()
       result.failures.filter(_.context.contains("game code")) should have size 1
     }

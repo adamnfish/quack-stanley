@@ -14,7 +14,9 @@ object QuackStanley {
 
   def dispatch(apiOperation: ApiOperation, config: Config)(implicit ec: ExecutionContext): Attempt[ApiResponse] = {
     apiOperation match {
+      case data: SetupGame => setupGame(data, config)
       case data: CreateGame => createGame(data, config)
+      case data: RegisterHost => registerHost(data, config)
       case data: RegisterPlayer => registerPlayer(data, config)
       case data: StartGame => startGame(data, config)
       case data: BecomeBuyer => becomeBuyer(data, config)
@@ -30,6 +32,21 @@ object QuackStanley {
   }
 
   /**
+    * Creates a new game with no players (for 🚀🦀 integration).
+    *
+    * A host key is still created, with which a host can subsequently join.
+    */
+  def setupGame(data: SetupGame, config: Config)(implicit ec: ExecutionContext): Attempt[NewEmptyGame] = {
+    val gameState = setupEmptyGame(data.gameName)
+    for {
+      _ <- validate(data)
+      code <- makeUniquePrefix(gameState.gameId, config.persistence, checkPrefixUnique)
+      _ <- writeGameState(gameState, config.persistence)
+      hostCode = hostCodeFromKey(gameState.host)
+    } yield NewEmptyGame(hostCode, code)
+  }
+
+  /**
     * Creates a new game and automatically registers this player as the host.
     */
   def createGame(data: CreateGame, config: Config)(implicit ec: ExecutionContext): Attempt[NewGame] = {
@@ -42,6 +59,29 @@ object QuackStanley {
       _ <- writeGameState(gameState, config.persistence)
       _ <- writePlayerState(playerState, playerKey, config.persistence)
     } yield NewGame(playerState, gameState.host, code)
+  }
+
+  /**
+    * Checks host key and adds host with the provided screen name to the specified game.
+    *
+    * We check that a host does not already exist in the game, verify the host's code
+    *
+    * Because player info is only added to the game state when the game starts, we need to lookup all
+    * the players' info separately to check if the screen name is unique.
+    */
+  def registerHost(data: RegisterHost, config: Config)(implicit ec: ExecutionContext): Attempt[Registered] = {
+    for {
+      _ <- validate(data)
+      gameId <- lookupGameIdFromCode(data.gameCode, config.persistence)
+      gameState <- getGameState(gameId, config.persistence)
+      _ <- verifyNotStarted(gameState)
+      _ <- verifyHostCode(data.hostCode, gameState)
+      playerStates <- getRegisteredPlayers(gameId, config.persistence)
+      _ <- verifyNoHost(playerStates)
+      _ <- verifyUniqueScreenName(data.screenName, playerStates)
+      playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
+      _ <- writePlayerState(playerState, gameState.host, config.persistence)
+    } yield Registered(playerState, gameState.host)
   }
 
   /**
