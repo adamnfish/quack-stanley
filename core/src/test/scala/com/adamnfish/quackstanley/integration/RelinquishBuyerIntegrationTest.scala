@@ -20,21 +20,21 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence)
 
-  val creatorUUID = UUID.randomUUID().toString
+  val hostUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
   val gameDoesNotExistIdUUID = UUID.randomUUID().toString
   val playerKeyUUID = UUID.randomUUID().toString
   val playerDoesNotExistUUID = UUID.randomUUID().toString
   assert(
     Set(
-      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, playerDoesNotExistUUID
+      hostUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, playerDoesNotExistUUID
     ).size == 5,
     "Ensuring random UUID test data is distinct"
   )
 
   "relinquishBuyer" - {
     "if the game exists" - {
-      val creator = PlayerKey(creatorUUID)
+      val host = PlayerKey(hostUUID)
       val gameId = GameId(gameIdUUID)
       val gameName = "game-name"
 
@@ -43,8 +43,8 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
         val playerKey = PlayerKey(playerKeyUUID)
         val role = Role("role")
         val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, Some(role), Nil)
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Round(playerKey, role, Map.empty)),
-          Map(creator -> PlayerSummary("Creator", Nil), playerKey -> PlayerSummary(screenName, Nil))
+        val gameState = GameState(gameId, gameName, DateTime.now(), true, host, Some(Round(playerKey, role, Map.empty)),
+          Map(host -> PlayerSummary("Host", Nil), playerKey -> PlayerSummary(screenName, Nil))
         )
         GameIO.writeGameState(gameState, persistence)
         GameIO.writePlayerState(playerState, playerKey, persistence)
@@ -109,8 +109,8 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
       }
 
       "and this player is not registered, fails to auth player" in {
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
-          Map(creator -> PlayerSummary("Creator", Nil))
+        val gameState = GameState(gameId, gameName, DateTime.now(), true, host, None,
+          Map(host -> PlayerSummary("Host", Nil))
         )
         GameIO.writeGameState(gameState, persistence)
         val request = RelinquishBuyer(gameId, PlayerKey(playerDoesNotExistUUID))

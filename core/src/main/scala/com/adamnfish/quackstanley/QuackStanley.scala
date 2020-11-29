@@ -30,25 +30,25 @@ object QuackStanley {
   }
 
   /**
-    * Creates a new game and automatically registers this player as the creator.
+    * Creates a new game and automatically registers this player as the host.
     */
   def createGame(data: CreateGame, config: Config)(implicit ec: ExecutionContext): Attempt[NewGame] = {
     val gameState = newGame(data.gameName, data.screenName)
-    val playerKey = gameState.creator
+    val playerKey = gameState.host
     val playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
     for {
       _ <- validate(data)
       code <- makeUniquePrefix(gameState.gameId, config.persistence, checkPrefixUnique)
       _ <- writeGameState(gameState, config.persistence)
       _ <- writePlayerState(playerState, playerKey, config.persistence)
-    } yield NewGame(playerState, gameState.creator, code)
+    } yield NewGame(playerState, gameState.host, code)
   }
 
   /**
     * Adds a player with the provided screen name to the specified game.
     *
     * Note that this function does not update the game state to prevent race conditions, this will be
-    * done once by the creator when the game is started.
+    * done once by the host when the game is started.
     *
     * Because player info is only added to the game state when the game starts, we need to lookup all
     * the players' info separately to check if the screen name is unique.
@@ -77,7 +77,7 @@ object QuackStanley {
     for {
       _ <- validate(data)
       gameState <- getGameState(data.gameId, config.persistence)
-      _ <- authenticateCreator(data.playerKey, gameState)
+      _ <- authenticateHost(data.playerKey, gameState)
       _ <- verifyNotStarted(gameState)
       playerStates <- getRegisteredPlayers(data.gameId, config.persistence)
       _ <- validatePlayerCount(playerStates.size)
@@ -85,11 +85,11 @@ object QuackStanley {
       words <- nextWords(handSize * playerStates.size, allWords, Set.empty)
       players = playerSummaries(playerStates)
       dealtPlayers <- dealWordsToAllPlayers(words, playerStates)
-      creatorState <- lookupPlayer(dealtPlayers, data.playerKey)
+      hostState <- lookupPlayer(dealtPlayers, data.playerKey)
       updatedGameState = startGameState(gameState, players)
       _ <- writeGameState(updatedGameState, config.persistence)
       _ <- writePlayerStates(dealtPlayers, config.persistence)
-    } yield playerInfo(data.playerKey, creatorState, updatedGameState)
+    } yield playerInfo(data.playerKey, hostState, updatedGameState)
   }
 
   /**
@@ -231,7 +231,7 @@ object QuackStanley {
       fGameState = getGameState(data.gameId, config.persistence)
       fPlayerState = getPlayerState(data.playerKey, data.gameId, config.persistence)
       gameState <- fGameState
-      _ <- authenticateCreator(data.playerKey, gameState)
+      _ <- authenticateHost(data.playerKey, gameState)
       _ <- verifyNotStarted(gameState)
       playerStates <- getRegisteredPlayers(data.gameId, config.persistence)
       playerState <- fPlayerState

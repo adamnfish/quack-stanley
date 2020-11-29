@@ -14,11 +14,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with OptionValues with HaveMatchers {
   "newGame" - {
-    "populates the player states map with just the creator" in {
+    "populates the player states map with just the host" in {
       newGame("test-game", "test-player").players.size shouldEqual 1
     }
 
-    "puts creator into the player states map" in {
+    "puts host into the player states map" in {
       val (_, playerSummary) = newGame("test-game", "test-player").players.head
       playerSummary.screenName shouldEqual "test-player"
     }
@@ -33,7 +33,7 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
 
     "submitting player is in players " in {
       val initialGameState = newGame("test-game", "test-player")
-      initialGameState.creator shouldEqual initialGameState.players.keys.head
+      initialGameState.host shouldEqual initialGameState.players.keys.head
     }
   }
 
@@ -47,7 +47,7 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
   }
 
   "playerInfo" - {
-    val gameState = newGame("game name", "Creator")
+    val gameState = newGame("game name", "Host")
     val playerState1 = newPlayer(gameState.gameId, gameState.gameName, "Player 1")
     val playerKey1 = generatePlayerKey()
     val playerState2 = newPlayer(gameState.gameId, gameState.gameName, "Player 2")
@@ -75,43 +75,43 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     }
 
     "includes other players" in {
-      playerInfo(playerKey1, playerState1, gameStateWithPlayers).opponents.map(_.screenName) should contain.only("Player 2", "Creator")
+      playerInfo(playerKey1, playerState1, gameStateWithPlayers).opponents.map(_.screenName) should contain.only("Player 2", "Host")
     }
   }
 
   "lobbyPlayerInfo" - {
-    val gameState = newGame("game name", "Creator")
-    val creatorState = newPlayer(gameState.gameId, gameState.gameName, "Creator")
-    val creatorKey = gameState.creator
+    val gameState = newGame("game name", "Host")
+    val hostState = newPlayer(gameState.gameId, gameState.gameName, "Host")
+    val hostKey = gameState.host
     val playerState1 = newPlayer(gameState.gameId, gameState.gameName, "Player 1")
     val playerKey1 = generatePlayerKey()
     val playerState2 = newPlayer(gameState.gameId, gameState.gameName, "Player 2")
     val playerKey2 = generatePlayerKey()
     val allPlayers = Map(
-      creatorKey -> creatorState,
+      hostKey -> hostState,
       playerKey1 -> playerState1,
       playerKey2 -> playerState2
     )
 
     "started is false" in {
-      lobbyPlayerInfo(creatorKey, creatorState, allPlayers).started shouldEqual false
+      lobbyPlayerInfo(hostKey, hostState, allPlayers).started shouldEqual false
     }
 
     "sets player state" in {
-      lobbyPlayerInfo(creatorKey, creatorState, allPlayers).state shouldEqual creatorState
+      lobbyPlayerInfo(hostKey, hostState, allPlayers).state shouldEqual hostState
     }
 
     "excludes this player from 'otherPlayers'" in {
-      lobbyPlayerInfo(creatorKey, creatorState, allPlayers).opponents.map(_.screenName) should not contain("Creator")
+      lobbyPlayerInfo(hostKey, hostState, allPlayers).opponents.map(_.screenName) should not contain("Host")
     }
 
     "includes other players" in {
-      lobbyPlayerInfo(creatorKey, creatorState, allPlayers).opponents.map(_.screenName) should contain.only("Player 1", "Player 2")
+      lobbyPlayerInfo(hostKey, hostState, allPlayers).opponents.map(_.screenName) should contain.only("Player 1", "Player 2")
     }
   }
 
   "roundToRoundInfo" - {
-    val gameState = newGame("game name", "Creator")
+    val gameState = newGame("game name", "Host")
     val playerState1 = newPlayer(gameState.gameId, gameState.gameName, "Player 1")
     val playerKey1 = generatePlayerKey()
     val playerState2 = newPlayer(gameState.gameId, gameState.gameName, "Player 2")
@@ -160,7 +160,7 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     val playerKey = PlayerKey("player")
 
     "when user exists in player map" - {
-      val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"), None,
+      val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, host = PlayerKey("foo"), None,
         Map(
           PlayerKey("player") -> PlayerSummary("player-name", Nil),
           PlayerKey("foo") -> PlayerSummary("another-player", Nil)
@@ -173,7 +173,7 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     }
 
     "when user does not exist in player map" - {
-      val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"), None,
+      val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, host = PlayerKey("foo"), None,
         Map(
           PlayerKey("foo") -> PlayerSummary("another-player", Nil)
         )
@@ -185,8 +185,8 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     }
   }
 
-  "authenticateCreator" - {
-    val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"), None,
+  "authenticateHost" - {
+    val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, host = PlayerKey("foo"), None,
       Map(
         PlayerKey("player") -> PlayerSummary("player-name", Nil),
         PlayerKey("foo") -> PlayerSummary("another-player", Nil)
@@ -194,20 +194,20 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     )
 
     "fails if the key is not in the group" in {
-      authenticateCreator(PlayerKey("bar"), gameState).isFailedAttempt() shouldEqual true
+      authenticateHost(PlayerKey("bar"), gameState).isFailedAttempt() shouldEqual true
     }
 
-    "fails if the provided key is not the creator" in {
-      authenticateCreator(PlayerKey("player"), gameState).isFailedAttempt() shouldEqual true
+    "fails if the provided key is not the host" in {
+      authenticateHost(PlayerKey("player"), gameState).isFailedAttempt() shouldEqual true
     }
 
-    "succeeds if the provided player is the creator" in {
-      authenticateCreator(PlayerKey("foo"), gameState).isSuccessfulAttempt() shouldEqual true
+    "succeeds if the provided player is the host" in {
+      authenticateHost(PlayerKey("foo"), gameState).isSuccessfulAttempt() shouldEqual true
     }
   }
 
   "authenticateBuyer" - {
-    val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, creator = PlayerKey("foo"),
+    val gameState = GameState(GameId("game-id"), "game-name", DateTime.now(), started = true, host = PlayerKey("foo"),
       round = Some(Round(PlayerKey("foo"), Role("role"), Map.empty)),
       Map(
         PlayerKey("player") -> PlayerSummary("player-name", Nil),
@@ -282,17 +282,17 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
 
   "verifyNoBuyer" - {
     "returns sucessful attempt if there is no buyer" in {
-      val game = newGame("game name", "creator").copy(round = None)
+      val game = newGame("game name", "host").copy(round = None)
       verifyNoBuyer(game).isFailedAttempt() shouldEqual false
     }
 
     "returns failed attempt if there is already a buyer" in {
-      val game = newGame("game name", "creator").copy(round = Some(Round(PlayerKey("player"), Role("role"), Map.empty)))
+      val game = newGame("game name", "host").copy(round = Some(Round(PlayerKey("player"), Role("role"), Map.empty)))
       verifyNoBuyer(game).isFailedAttempt() shouldEqual true
     }
 
     "failure includes current buyer's name" in {
-      val game = newGame("game name", "creator")
+      val game = newGame("game name", "host")
       val gameWithBuyer = game.copy(
         round = Some(Round(PlayerKey("player"), Role("role"), Map.empty)),
         players = game.players + (PlayerKey("player") -> PlayerSummary("player name", Nil))
@@ -303,12 +303,12 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
 
   "verifyNotStarted" - {
     "succeeds if the game has started" in {
-      val gameState = newGame("test game", "creator").copy(started = true)
+      val gameState = newGame("test game", "host").copy(started = true)
       verifyNotStarted(gameState).isFailedAttempt() shouldEqual true
     }
 
     "fails if the game has not started" in {
-      val gameState = newGame("test game", "creator").copy(started = false)
+      val gameState = newGame("test game", "host").copy(started = false)
       verifyNotStarted(gameState).isSuccessfulAttempt() shouldEqual true
     }
   }
@@ -330,7 +330,7 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
   "verifyUniqueScreenName" - {
     val template = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil)
     val existing = Map(
-      PlayerKey("creator-key") -> template.copy(screenName = "creator"),
+      PlayerKey("host-key") -> template.copy(screenName = "host"),
       PlayerKey("p1-key") -> template.copy(screenName = "player 1"),
       PlayerKey("p2-key") -> template.copy(screenName = "player 2"),
     )
@@ -340,13 +340,13 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     }
 
     "fails if the name is already in use" in {
-      verifyUniqueScreenName("creator", existing).isFailedAttempt() shouldEqual true
+      verifyUniqueScreenName("host", existing).isFailedAttempt() shouldEqual true
     }
   }
 
   "updateGameWithPitch" - {
-    val game = newGame("game name", "creator")
-    val playerKey = game.creator
+    val game = newGame("game name", "host")
+    val playerKey = game.host
     val buyerKey = PlayerKey("buyer")
     val role = Role("role")
     val gameWithBuyer = game.copy(
@@ -367,7 +367,7 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
   }
 
   "updateGameWithAwardedPoint" - {
-    val game = newGame("game name", "creator")
+    val game = newGame("game name", "host")
     val playerKey = PlayerKey("player")
     val gameWithBuyer = game.copy(
       round = Some(Round(PlayerKey("buyer"), Role("role"), Map.empty)),

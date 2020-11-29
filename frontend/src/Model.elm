@@ -20,7 +20,7 @@ type Lifecycle
       -- create new game (gameName, screenName, loading)
     | Create CreateState
       -- waiting for game to start (will have game and screen name)
-    | CreatorWaiting String (List ApiError)
+    | HostWaiting String (List ApiError)
       -- join existing game (gameId, screenName)
     | Join JoinState
       -- waiting for game to start (will have game and screen name)
@@ -65,7 +65,7 @@ type alias Model =
     , savedGames : List SavedGame
     , state : Maybe PlayerState
     , playerKey : Maybe String
-    , isCreator : Bool
+    , isHost : Bool
     , opponents : List PlayerSummary
     , round : Maybe Round
     , apiRoot : String

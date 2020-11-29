@@ -22,26 +22,26 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence)
 
-  val creatorUUID = UUID.randomUUID().toString
+  val hostUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
   val gameDoesNotExistIdUUID = UUID.randomUUID().toString
   assert(
     Set(
-      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID
+      hostUUID, gameIdUUID, gameDoesNotExistIdUUID
     ).size == 3,
     "Ensuring random UUID test data is distinct"
   )
 
   "registerPlayer" - {
     "if the game exists" - {
-      val creator = PlayerKey(creatorUUID)
+      val host = PlayerKey(hostUUID)
       val gameId = GameId(gameIdUUID)
       val gameCode = gameId.value
-      val gameState = GameState(gameId, "game-name", DateTime.now(), false, creator, None,
-        Map(creator -> PlayerSummary("Creator", Nil))
+      val gameState = GameState(gameId, "game-name", DateTime.now(), false, host, None,
+        Map(host -> PlayerSummary("Host", Nil))
       )
-      val creatorState = PlayerState(gameState.gameId, gameState.gameName, "Creator", Nil, Nil, None, Nil)
-      GameIO.writePlayerState(creatorState, creator, persistence)
+      val hostState = PlayerState(gameState.gameId, gameState.gameName, "Host", Nil, Nil, None, Nil)
+      GameIO.writePlayerState(hostState, host, persistence)
       GameIO.writeGameState(gameState, persistence)
 
       "uses provided screen name" in {
@@ -79,8 +79,8 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
       }
 
       "does not allow duplicate screen names" - {
-        "player cannot use the creator's screen name" in {
-          val request = RegisterPlayer(gameCode, "Creator")
+        "player cannot use the host's screen name" in {
+          val request = RegisterPlayer(gameCode, "Host")
           registerPlayer(request, testConfig).isFailedAttempt() shouldBe true
         }
 

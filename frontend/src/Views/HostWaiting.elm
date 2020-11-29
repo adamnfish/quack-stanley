@@ -1,4 +1,4 @@
-module Views.CreatorWaiting exposing (creatorWaiting)
+module Views.HostWaiting exposing (hostWaiting)
 
 import Html exposing (Html, button, div, input, label, li, span, text, ul)
 import Html.Attributes exposing (class, disabled, for, id, type_, value)
@@ -8,11 +8,11 @@ import Msg exposing (Msg)
 import Views.Utils exposing (ShroudContent(..), card, col, container, helpText, icon, row, showErrors)
 
 
-creatorWaiting : String -> List ApiError -> Model -> ( List (Html Msg), ShroudContent, Html Msg )
-creatorWaiting gameCode errors model =
+hostWaiting : String -> List ApiError -> Model -> ( List (Html Msg), ShroudContent, Html Msg )
+hostWaiting gameCode errors model =
     ( []
     , NoLoadingShroud
-    , container "creator-waiting"
+    , container "host-waiting"
         [ row
             [ col "s12"
                 [ showErrors errors

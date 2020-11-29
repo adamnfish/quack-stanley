@@ -21,14 +21,14 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence)
 
-  val creatorUUID = UUID.randomUUID().toString
+  val hostUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
   val gameDoesNotExistIdUUID = UUID.randomUUID().toString
   val playerKeyUUID = UUID.randomUUID().toString
   val playerDoesNotExistUUID = UUID.randomUUID().toString
   assert(
     Set(
-      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, playerDoesNotExistUUID
+      hostUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, playerDoesNotExistUUID
     ).size == 5,
     "Ensuring random UUID test data is distinct"
   )
@@ -37,92 +37,92 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
     "if the game exists" - {
       val gameId = GameId(gameIdUUID)
       val gameName = "game-name"
-      val creatorScreenName = "creator"
-      val creatorKey = PlayerKey(creatorUUID)
-      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
+      val hostScreenName = "host"
+      val hostKey = PlayerKey(hostUUID)
+      val hostState = PlayerState(gameId, gameName, hostScreenName, Nil, Nil, None, Nil)
       val playerScreenName = "player"
       val playerKey = PlayerKey(playerKeyUUID)
       val playerState = PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil)
-      val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
-        Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
+      val gameState = GameState(gameId, gameName, DateTime.now(), started = false, hostKey, None,
+        Map(hostKey -> PlayerSummary(hostScreenName, Nil))
       )
       GameIO.writeGameState(gameState, persistence).value()
-      GameIO.writePlayerState(creatorState, creatorKey, persistence).value()
+      GameIO.writePlayerState(hostState, hostKey, persistence).value()
       GameIO.writePlayerState(playerState, playerKey, persistence).value()
 
-      "and this player is the creator" - {
+      "and this player is the host" - {
         "succeeds" in {
-          val request = StartGame(gameId, creatorKey)
+          val request = StartGame(gameId, hostKey)
           startGame(request, testConfig).isSuccessfulAttempt() shouldEqual true
         }
 
         "writes all players into players game state" in {
-          val request = StartGame(gameId, creatorKey)
+          val request = StartGame(gameId, hostKey)
           startGame(request, testConfig).value()
           val savedState = GameIO.getGameState(gameId, persistence).value()
-          savedState.players.keys.toSet shouldEqual Set(creatorKey, playerKey)
+          savedState.players.keys.toSet shouldEqual Set(hostKey, playerKey)
         }
 
         "includes player screen names in persisted game state" in {
-          val request = StartGame(gameId, creatorKey)
+          val request = StartGame(gameId, hostKey)
           startGame(request, testConfig).value()
           val savedState = GameIO.getGameState(gameId, persistence).value()
           savedState.players.view.mapValues(_.screenName).toMap.toSet shouldEqual Set(
-            creatorKey -> creatorScreenName,
+            hostKey -> hostScreenName,
             playerKey -> playerScreenName
           )
         }
 
         "players start with zero points" in {
-          val request = StartGame(gameId, creatorKey)
+          val request = StartGame(gameId, hostKey)
           startGame(request, testConfig).value()
           val savedState = GameIO.getGameState(gameId, persistence).value()
           all(savedState.players.values.map(_.points)) shouldEqual Nil
         }
 
         "returns other players in playerInfo" in {
-          val request = StartGame(gameId, creatorKey)
+          val request = StartGame(gameId, hostKey)
           val playerInfo = startGame(request, testConfig).value()
           playerInfo.opponents.toSet shouldEqual Set(PlayerSummary(playerScreenName, Nil))
         }
 
         "does not include current player in playerInfo's 'otherPlayers'" in {
-          val request = StartGame(gameId, creatorKey)
+          val request = StartGame(gameId, hostKey)
           val playerInfo = startGame(request, testConfig).value()
-          playerInfo.opponents.toSet should not contain creatorScreenName
+          playerInfo.opponents.toSet should not contain hostScreenName
         }
 
         "sets started to true" in {
-          val request = StartGame(gameId, creatorKey)
+          val request = StartGame(gameId, hostKey)
           val playerInfo = startGame(request, testConfig).value()
           playerInfo.started shouldEqual true
         }
 
         "persists started setting" in {
-          val request = StartGame(gameId, creatorKey)
+          val request = StartGame(gameId, hostKey)
           startGame(request, testConfig).value()
           val savedState = GameIO.getGameState(gameId, persistence).value()
           savedState.started shouldEqual true
         }
 
         "populates (and persists) each player's hand" in {
-          val request = StartGame(gameId, creatorKey)
+          val request = StartGame(gameId, hostKey)
           startGame(request, testConfig).value()
-          val savedCreatorState = GameIO.getPlayerState(creatorKey, gameId, persistence).value()
+          val savedHostState = GameIO.getPlayerState(hostKey, gameId, persistence).value()
           val savedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
-          savedCreatorState.hand.size shouldEqual QuackStanley.handSize
+          savedHostState.hand.size shouldEqual QuackStanley.handSize
           savedPlayerState.hand.size shouldEqual QuackStanley.handSize
         }
 
         "validates user input," - {
           "flags empty game id" in {
-            val request = StartGame(GameId(""), creatorKey)
+            val request = StartGame(GameId(""), hostKey)
             val failure = startGame(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "game ID"
           }
 
           "ensures GameID is the correct format" in {
-            val request = StartGame(GameId("not uuid"), creatorKey)
+            val request = StartGame(GameId("not uuid"), hostKey)
             val failure = startGame(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "game ID"
           }
@@ -152,7 +152,7 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
         startGame(request, testConfig).isFailedAttempt() shouldEqual true
       }
 
-      "if the player is not the creator, fails to perform the action" in {
+      "if the player is not the host, fails to perform the action" in {
         val request = StartGame(gameId, playerKey)
         startGame(request, testConfig).isFailedAttempt() shouldEqual true
       }
@@ -160,7 +160,7 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
       "fails if the game has already started" in {
         val startedState = gameState.copy(started = true)
         GameIO.writeGameState(startedState, persistence).value()
-        val request = StartGame(gameId, creatorKey)
+        val request = StartGame(gameId, hostKey)
         startGame(request, testConfig).isFailedAttempt() shouldEqual true
       }
     }
@@ -170,17 +170,17 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
 
       val gameId = GameId(soloGameIdUUID)
       val gameName = "game-name"
-      val creatorScreenName = "creator"
-      val creatorKey = PlayerKey(creatorUUID)
-      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
-      val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
-        Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
+      val hostScreenName = "host"
+      val hostKey = PlayerKey(hostUUID)
+      val hostState = PlayerState(gameId, gameName, hostScreenName, Nil, Nil, None, Nil)
+      val gameState = GameState(gameId, gameName, DateTime.now(), started = false, hostKey, None,
+        Map(hostKey -> PlayerSummary(hostScreenName, Nil))
       )
       GameIO.writeGameState(gameState, persistence).value()
-      GameIO.writePlayerState(creatorState, creatorKey, persistence).value()
+      GameIO.writePlayerState(hostState, hostKey, persistence).value()
 
       "fails to start the game (requires higher player count)" in {
-        val request = StartGame(gameId, creatorKey)
+        val request = StartGame(gameId, hostKey)
         startGame(request, testConfig).isFailedAttempt() shouldEqual true
       }
     }

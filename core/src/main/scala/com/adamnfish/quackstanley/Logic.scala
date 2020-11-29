@@ -70,12 +70,12 @@ object Logic {
     )
   }
 
-  def authenticateCreator(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[PlayerKey] = {
-    if (gameState.creator == playerKey) {
-      Attempt.Right(gameState.creator)
+  def authenticateHost(playerKey: PlayerKey, gameState: GameState)(implicit ec: ExecutionContext): Attempt[PlayerKey] = {
+    if (gameState.host == playerKey) {
+      Attempt.Right(gameState.host)
     } else {
       Attempt.Left {
-        Failure("Player key not found in game state", "You are not the game's creator", 404).asAttempt
+        Failure("Player key not found in game state", "You are not the game's host", 404).asAttempt
       }
     }
   }
@@ -101,7 +101,7 @@ object Logic {
 
   def lookupPlayer(states: Map[PlayerKey, PlayerState], playerKey: PlayerKey): Attempt[PlayerState] = {
     Attempt.fromOption(states.get(playerKey),
-      Failure("Couldn't lookup creator's state", "Couldn't find the player", 500, None).asAttempt
+      Failure("Couldn't lookup host's state", "Couldn't find the player", 500, None).asAttempt
     )
   }
 

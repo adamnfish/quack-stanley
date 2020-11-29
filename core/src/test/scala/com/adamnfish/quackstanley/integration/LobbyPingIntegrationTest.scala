@@ -20,7 +20,7 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence)
 
-  val creatorUUID = UUID.randomUUID().toString
+  val hostUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
   val gameDoesNotExistIdUUID = UUID.randomUUID().toString
   val playerKeyUUID = UUID.randomUUID().toString
@@ -28,7 +28,7 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
   val playerDoesNotExistUUID = UUID.randomUUID().toString
   assert(
     Set(
-      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, player2KeyUUID, playerDoesNotExistUUID
+      hostUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, player2KeyUUID, playerDoesNotExistUUID
     ).size == 6,
     "Ensuring random UUID test data is distinct"
   )
@@ -37,9 +37,9 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
     "if the game exists" - {
       val gameId = GameId(gameIdUUID)
       val gameName = "game-name"
-      val creatorScreenName = "creator"
-      val creatorKey = PlayerKey(creatorUUID)
-      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
+      val hostScreenName = "host"
+      val hostKey = PlayerKey(hostUUID)
+      val hostState = PlayerState(gameId, gameName, hostScreenName, Nil, Nil, None, Nil)
 
       val playerScreenName = "player"
       val playerKey = PlayerKey(playerKeyUUID)
@@ -48,49 +48,49 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
       val player2Key = PlayerKey(player2KeyUUID)
       val player2State = PlayerState(gameId, gameName, player2ScreenName, Nil, Nil, None, Nil)
 
-      val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
-        Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
+      val gameState = GameState(gameId, gameName, DateTime.now(), started = false, hostKey, None,
+        Map(hostKey -> PlayerSummary(hostScreenName, Nil))
       )
       GameIO.writeGameState(gameState, persistence).value()
-      GameIO.writePlayerState(creatorState, creatorKey, persistence).value()
+      GameIO.writePlayerState(hostState, hostKey, persistence).value()
       GameIO.writePlayerState(playerState, playerKey, persistence).value()
       GameIO.writePlayerState(player2State, player2Key, persistence).value()
 
-      // LOOK AT START GAME FOR CREATOR VALIDATION ETC
+      // LOOK AT START GAME FOR HOST VALIDATION ETC
 
-      "and this player is the creator" - {
+      "and this player is the host" - {
         "succeeds" in {
-          val request = LobbyPing(gameId, creatorKey)
+          val request = LobbyPing(gameId, hostKey)
           lobbyPing(request, testConfig).isSuccessfulAttempt() shouldEqual true
         }
 
-        "returns correct player info for creator" in {
-          val request = LobbyPing(gameId, creatorKey)
+        "returns correct player info for host" in {
+          val request = LobbyPing(gameId, hostKey)
           val playerInfo = lobbyPing(request, testConfig).value()
-          playerInfo.state.screenName shouldEqual creatorScreenName
+          playerInfo.state.screenName shouldEqual hostScreenName
         }
 
         "excludes correct player from 'otherPlayers'" in {
-          val request = LobbyPing(gameId, creatorKey)
+          val request = LobbyPing(gameId, hostKey)
           val playerInfo = lobbyPing(request, testConfig).value()
-          playerInfo.opponents should not contain creatorScreenName
+          playerInfo.opponents should not contain hostScreenName
         }
 
         "includes other players in 'otherPlayers'" in {
-          val request = LobbyPing(gameId, creatorKey)
+          val request = LobbyPing(gameId, hostKey)
           val playerInfo = lobbyPing(request, testConfig).value()
           playerInfo.opponents.map(_.screenName) should contain.allOf(playerScreenName, player2ScreenName)
         }
 
         "validates user input," - {
           "flags empty game id" in {
-            val request = LobbyPing(GameId(""), creatorKey)
+            val request = LobbyPing(GameId(""), hostKey)
             val failure = lobbyPing(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "game ID"
           }
 
           "ensures GameID is the correct format" in {
-            val request = LobbyPing(GameId("not uuid"), creatorKey)
+            val request = LobbyPing(GameId("not uuid"), hostKey)
             val failure = lobbyPing(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "game ID"
           }
@@ -120,7 +120,7 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
         lobbyPing(request, testConfig).isFailedAttempt() shouldEqual true
       }
 
-      "if the player is not the creator, fails to perform the action" in {
+      "if the player is not the host, fails to perform the action" in {
         val request = LobbyPing(gameId, playerKey)
         lobbyPing(request, testConfig).isFailedAttempt() shouldEqual true
       }
@@ -128,7 +128,7 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
       "fails if the game has already started" in {
         val startedState = gameState.copy(started = true)
         GameIO.writeGameState(startedState, persistence).value()
-        val request = LobbyPing(gameId, creatorKey)
+        val request = LobbyPing(gameId, hostKey)
         lobbyPing(request, testConfig).isFailedAttempt() shouldEqual true
       }
     }

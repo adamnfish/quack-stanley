@@ -20,21 +20,21 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence)
 
-  val creatorUUID = UUID.randomUUID().toString
+  val hostUUID = UUID.randomUUID().toString
   val gameIdUUID = UUID.randomUUID().toString
   val gameDoesNotExistIdUUID = UUID.randomUUID().toString
   val playerKeyUUID = UUID.randomUUID().toString
   val playerDoesNotExistUUID = UUID.randomUUID().toString
   assert(
     Set(
-      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, playerDoesNotExistUUID
+      hostUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, playerDoesNotExistUUID
     ).size == 5,
     "Ensuring random UUID test data is distinct"
   )
 
   "finishPitch" - {
     "if the game exists" - {
-      val creator = PlayerKey(creatorUUID)
+      val host = PlayerKey(hostUUID)
       val gameId = GameId(gameIdUUID)
       val gameName = "game-name"
 
@@ -43,16 +43,16 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
         val playerKey = PlayerKey(playerKeyUUID)
         val hand = Word("one") :: Word("two") :: List.fill(QuackStanley.handSize - 2)(Word("padding"))
         val playerState = PlayerState(gameId, gameName, screenName, hand, Nil, None, Nil)
-        val creatorState = PlayerState(gameId, gameName, "buyer", Nil, Nil, Some(Role("role")), Nil)
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Round(creator, Role("role"), Map.empty)),
+        val hostState = PlayerState(gameId, gameName, "buyer", Nil, Nil, Some(Role("role")), Nil)
+        val gameState = GameState(gameId, gameName, DateTime.now(), true, host, Some(Round(host, Role("role"), Map.empty)),
           Map(
-            creator -> PlayerSummary("Creator", Nil),
+            host -> PlayerSummary("Host", Nil),
             playerKey -> PlayerSummary(screenName, Nil)
           )
         )
         val request = FinishPitch(gameId, playerKey, (Word("one"), Word("two")))
         GameIO.writeGameState(gameState, persistence)
-        GameIO.writePlayerState(creatorState, creator, persistence)
+        GameIO.writePlayerState(hostState, host, persistence)
         GameIO.writePlayerState(playerState, playerKey, persistence)
 
         "fills hand" in {
@@ -147,8 +147,8 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
       }
 
       "and this player is not registered, fails to auth player" in {
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
-          Map(creator -> PlayerSummary("Creator", Nil))
+        val gameState = GameState(gameId, gameName, DateTime.now(), true, host, None,
+          Map(host -> PlayerSummary("Host", Nil))
         )
         val playerKey = PlayerKey(playerKeyUUID)
         val request = FinishPitch(gameId, playerKey, (Word("one"), Word("two")))

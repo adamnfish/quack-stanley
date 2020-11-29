@@ -39,14 +39,14 @@ UI
 GENERAL
 + track "product" to help buyer choose and for standings
 + change screen name to player name in API so error messages match UI
-+ Show joined players on CreatorWaiting screen
++ Show joined players on HostWaiting screen
 + better asset versioning (cache headers) so updates manifest?
 * error handling (minimise usage of generic error view)
 + UI tests that ensure user journey
-+ manage game screen for creator
++ manage game screen for host
   - manage buyer
   - kick players
-  - allow player to join after start (share a join link from in game / creator waiting)
+  - allow player to join after start (share a join link from in game / host waiting)
 + use flags for api endpoint config
 * display fixes
   + discarded words
@@ -137,9 +137,9 @@ GENERAL
 	+ QR code to join? Or tapphones with Android beam?
 	+ join scans QR code, inputs code?
   - joiners put their screenname in
-  - creator arranges joined people in order
+  - host arranges joined people in order
   - configures game (e.g. time limits)
-  - creator 'starts' which deals cards into the game state
+  - host 'starts' which deals cards into the game state
   - hits lambda backend for application state reads / updates
 
 * S3 state

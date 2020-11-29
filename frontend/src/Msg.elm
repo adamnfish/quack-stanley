@@ -53,7 +53,7 @@ update msg model =
                 | lifecycle = Welcome
                 , playerKey = Nothing
                 , state = Nothing
-                , isCreator = False
+                , isHost = False
                 , opponents = []
                 , round = Nothing
               }
@@ -141,10 +141,10 @@ update msg model =
 
         CreatedGame _ _ (ApiOk newGame) ->
             ( { model
-                | lifecycle = CreatorWaiting newGame.gameCode []
+                | lifecycle = HostWaiting newGame.gameCode []
                 , playerKey = Just newGame.playerKey
                 , state = Just newGame.state
-                , isCreator = True
+                , isHost = True
                 , opponents = []
                 , round = Nothing
               }
@@ -169,7 +169,7 @@ update msg model =
                 | lifecycle = Waiting
                 , playerKey = Just registered.playerKey
                 , state = Just registered.state
-                , isCreator = False
+                , isHost = False
               }
             , Cmd.none
             )
@@ -211,10 +211,10 @@ update msg model =
                         errors =
                             [ { message = "Could not start game", context = Nothing } ]
                     in
-                    ( { model | lifecycle = CreatorWaiting gameCode errors }, Cmd.none )
+                    ( { model | lifecycle = HostWaiting gameCode errors }, Cmd.none )
 
         GameStarted gameCode (ApiErr errs) ->
-            ( { model | lifecycle = CreatorWaiting gameCode errs }, Cmd.none )
+            ( { model | lifecycle = HostWaiting gameCode errs }, Cmd.none )
 
         GameStarted _ (ApiOk playerInfo) ->
             let
@@ -413,8 +413,8 @@ update msg model =
 
         LobbyPingResult (ApiErr errs) ->
             case model.lifecycle of
-                CreatorWaiting gameCode _ ->
-                    ( { model | lifecycle = CreatorWaiting gameCode errs }
+                HostWaiting gameCode _ ->
+                    ( { model | lifecycle = HostWaiting gameCode errs }
                     , Cmd.none
                     )
 
@@ -425,7 +425,7 @@ update msg model =
 
         LobbyPingResult (ApiOk playerInfo) ->
             case model.lifecycle of
-                CreatorWaiting _ _ ->
+                HostWaiting _ _ ->
                     ( { model
                         | state = Just playerInfo.state
                         , opponents = playerInfo.opponents

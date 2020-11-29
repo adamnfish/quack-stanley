@@ -42,7 +42,7 @@ waiting model =
             , col "s12 m6"
                 [ card
                     [ helpText
-                        "When all players have joined the creator can start the game."
+                        "When all players have joined the host can start the game."
                     ]
                 ]
             ]

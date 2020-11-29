@@ -6,8 +6,8 @@ import Model exposing (Lifecycle(..), Model)
 import Msg exposing (Msg)
 import Views.Buying exposing (buying)
 import Views.Create exposing (create)
-import Views.CreatorWaiting exposing (creatorWaiting)
 import Views.Error exposing (error)
+import Views.HostWaiting exposing (hostWaiting)
 import Views.Join exposing (join)
 import Views.Message exposing (message)
 import Views.Pitching exposing (pitching)
@@ -82,8 +82,8 @@ dispatchView model =
         Rejoining savedGame ->
             rejoining savedGame model
 
-        CreatorWaiting gameCode errors ->
-            creatorWaiting gameCode errors model
+        HostWaiting gameCode errors ->
+            hostWaiting gameCode errors model
 
         Starting ->
             message "Starting game" model
@@ -122,7 +122,7 @@ lifecycleTheme lifecycle =
         Create _ ->
             "teal"
 
-        CreatorWaiting _ _ ->
+        HostWaiting _ _ ->
             "teal"
 
         Join _ ->

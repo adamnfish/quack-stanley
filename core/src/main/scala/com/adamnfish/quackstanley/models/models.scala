@@ -52,7 +52,7 @@ case class GameState(
   gameName: String,
   startTime: DateTime,
   started: Boolean, // once game has started players cannot be added
-  creator: PlayerKey,
+  host: PlayerKey,
   round: Option[Round],
   players: Map[PlayerKey, PlayerSummary]
   // pitching: Option[PlayerKey]  <- required?
@@ -122,7 +122,7 @@ case class PlayerInfo(
   round: Option[RoundInfo]
   // buyer: Option[(String, Word)]
 ) extends ApiResponse
-// creates new game and registers creator
+// creates new game and registers host
 case class NewGame(
   state: PlayerState,
   playerKey: PlayerKey,

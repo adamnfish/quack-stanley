@@ -27,7 +27,7 @@ class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
       )
     }
 
-    "does not deal any words or roles to the creator" in {
+    "does not deal any words or roles to the host" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
       newGame.state should have(
@@ -54,14 +54,14 @@ class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
       newGame1.playerKey should not equal newGame2.playerKey
     }
 
-    "sets this player as the creator on the saved game state" in {
+    "sets this player as the host on the saved game state" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
       val savedGameState = GameIO.getGameState(newGame.state.gameId, persistence).value()
-      savedGameState.creator shouldEqual newGame.playerKey
+      savedGameState.host shouldEqual newGame.playerKey
     }
 
-    "puts creator into players with no points" in {
+    "puts host into players with no points" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
       val savedGameState = GameIO.getGameState(newGame.state.gameId, persistence).value()
@@ -80,7 +80,7 @@ class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).value()
       val savedGameState = GameIO.getGameState(newGame.state.gameId, persistence).value()
-      savedGameState.creator shouldEqual newGame.playerKey
+      savedGameState.host shouldEqual newGame.playerKey
       savedGameState.gameId shouldEqual newGame.state.gameId
       savedGameState should have (
         "gameName" as ("game name"),
