@@ -110,6 +110,7 @@ spectating selected errors model =
                             , span
                                 [ classList
                                     [ ( "badge", True )
+                                    , ( "point", True )
                                     , ( "new amber black-text", leadingScore == playerScore && playerScore > 0 )
                                     ]
                                 , attribute "data-badge-caption" (plural "point" (List.length points))

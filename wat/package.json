@@ -1,0 +1,25 @@
+{
+  "name": "wat",
+  "version": "0.0.1",
+  "description": "Web Automation Tests for Quack Stanley",
+  "scripts": {
+    "wat": "node ./src/wat.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adamnfish/quack-stanley.git"
+  },
+  "keywords": [
+    "game"
+  ],
+  "author": "adamnfish",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adamnfish/quack-stanley/issues"
+  },
+  "homepage": "https://github.com/adamnfish/quack-stanley#readme",
+  "devDependencies": {},
+  "dependencies": {
+    "playwright": "^1.6.2"
+  }
+}
