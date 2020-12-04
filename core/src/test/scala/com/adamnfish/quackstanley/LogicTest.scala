@@ -378,6 +378,11 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
       verifyHostCode(hostCode, gameState).isSuccessfulAttempt() shouldEqual true
     }
 
+    "is not case sensitive" in {
+      val hostCode = gameState.host.value.take(4).toUpperCase
+      verifyHostCode(hostCode, gameState).isSuccessfulAttempt() shouldEqual true
+    }
+
     "fails if the host code is too short" in {
       verifyHostCode("123", gameState).isFailedAttempt() shouldEqual true
     }

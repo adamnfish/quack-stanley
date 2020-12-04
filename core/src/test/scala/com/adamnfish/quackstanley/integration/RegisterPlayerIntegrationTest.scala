@@ -36,7 +36,7 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
     "if the game exists" - {
       val host = PlayerKey(hostUUID)
       val gameId = GameId(gameIdUUID)
-      val gameCode = gameId.value
+      val gameCode = gameId.value.take(4)
       val gameState = GameState(gameId, "game-name", DateTime.now(), false, host, None,
         Map(host -> PlayerSummary("Host", Nil))
       )
@@ -61,13 +61,13 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
         )
       }
 
-      "can register player from prefix game code" in {
-        val request = RegisterPlayer(gameCode.take(4), "player one")
+      "can register player from a longer game code prefix" in {
+        val request = RegisterPlayer(gameId.value.take(6), "player one")
         registerPlayer(request, testConfig).isSuccessfulAttempt() shouldBe true
       }
 
       "prefix game code is case-insensitive" in {
-        val request = RegisterPlayer(gameCode.take(4).toUpperCase(), "player one")
+        val request = RegisterPlayer(gameCode.toUpperCase(), "player one")
         registerPlayer(request, testConfig).isSuccessfulAttempt() shouldBe true
       }
 
@@ -85,7 +85,7 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
         }
 
         "player cannot use another player's screen name" in {
-          val firstRequest = RegisterPlayer(gameCode.take(4).toUpperCase(), "player one")
+          val firstRequest = RegisterPlayer(gameCode.toUpperCase(), "player one")
           registerPlayer(firstRequest, testConfig).isSuccessfulAttempt() shouldBe true
           val duplicateRequest = firstRequest
           registerPlayer(duplicateRequest, testConfig).isFailedAttempt() shouldBe true
@@ -132,7 +132,7 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
       }
     }
 
-    "if the game doe not exist," - {
+    "if the game does not exist," - {
       "fails" in {
         val request = RegisterPlayer(GameId(gameDoesNotExistIdUUID).value, "player name")
         registerPlayer(request, testConfig).isFailedAttempt() shouldEqual true

@@ -36,7 +36,7 @@ object GameIO {
         Attempt.Right(PlayerKey(key))
       case _ =>
         Attempt.Left(
-          Failure(s"Could not extract player key from path $path", "Faild to lookup player data", 500)
+          Failure(s"Could not extract player key from path $path", "Failed to lookup player data", 500)
         )
     }
   }

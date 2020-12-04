@@ -174,7 +174,8 @@ object Logic {
   }
 
   def verifyHostCode(hostCode: String, gameState: GameState): Attempt[Unit] = {
-    if (hostCode.size >= 4 && gameState.host.value.startsWith(hostCode)) {
+    val normalisedHostCode = hostCode.toLowerCase()
+    if (normalisedHostCode.length >= 4 && gameState.host.value.startsWith(normalisedHostCode)) {
       Attempt.unit
     } else {
       Attempt.Left {
