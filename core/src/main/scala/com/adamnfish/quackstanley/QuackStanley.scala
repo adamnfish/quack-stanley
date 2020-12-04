@@ -77,7 +77,7 @@ object QuackStanley {
       _ <- verifyNotStarted(gameState)
       _ <- verifyHostCode(data.hostCode, gameState)
       playerStates <- getRegisteredPlayers(gameId, config.persistence)
-      _ <- verifyNoHost(playerStates)
+      _ <- verifyNoHost(playerStates, gameState.host)
       _ <- verifyUniqueScreenName(data.screenName, playerStates)
       playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
       _ <- writePlayerState(playerState, gameState.host, config.persistence)

@@ -394,15 +394,24 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
   }
 
   "verifyNoHost" - {
+    val hostKey = PlayerKey("host-key")
+    val playerKey = PlayerKey("player-key")
+
     "succeeds if provided an empty 'player states' Map" in {
-      verifyNoHost(Map.empty).isSuccessfulAttempt() shouldEqual true
+      verifyNoHost(Map.empty, hostKey).isSuccessfulAttempt() shouldEqual true
     }
 
-    "fails if a player already exists in the 'player states' Map" in {
+    "succeeds if 'player states' Map does not contain the host" in {
+      verifyNoHost(Map(
+        playerKey -> newPlayer(GameId("game-id"), "Game name", "player")
+      ).empty, hostKey).isSuccessfulAttempt() shouldEqual true
+    }
+
+    "fails if the host already exists in the 'player states' Map" in {
       val playerStates = Map(
-        1 -> newPlayer(GameId("game-id"), "Game name", "Screen name")
+        hostKey -> newPlayer(GameId("game-id"), "Game name", "host")
       )
-      verifyNoHost(playerStates).isFailedAttempt() shouldEqual true
+      verifyNoHost(playerStates, hostKey).isFailedAttempt() shouldEqual true
     }
   }
 

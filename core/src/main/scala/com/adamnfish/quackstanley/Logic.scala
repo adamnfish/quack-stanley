@@ -188,10 +188,8 @@ object Logic {
     }
   }
 
-  def verifyNoHost[A](playerStates: Map[A, PlayerState]): Attempt[Unit] = {
-    if (playerStates.isEmpty) {
-      Attempt.unit
-    } else {
+  def verifyNoHost(playerStates: Map[PlayerKey, PlayerState], hostKey: PlayerKey): Attempt[Unit] = {
+    if (playerStates.keySet.contains(hostKey)) {
       Attempt.Left {
         Failure(
           "Cannot add host when players already exist",
@@ -199,6 +197,8 @@ object Logic {
           409
         )
       }
+    } else {
+      Attempt.unit
     }
   }
 
