@@ -24,6 +24,7 @@ as an [AWS Lambda Function](https://aws.amazon.com/lambda/).
 | [frontend](/frontend)             | Web application for game UI             |
 | [cloudformation](/cloudformation) | Infrastructure for AWS deployment       |
 | [dev-server](/dev-server)         | Standalone server for local development |
+| [wat](/wat)                       | Web Automation Tests                    |
 
 ### Running locally
 
