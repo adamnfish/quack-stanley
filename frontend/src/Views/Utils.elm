@@ -27,6 +27,7 @@ import Html.Events exposing (onClick, onInput, onSubmit)
 import Markdown exposing (toHtml)
 import Model exposing (ApiError, Model)
 import Msg exposing (Msg)
+import Utils exposing (flip)
 
 
 empty : Html Msg
@@ -39,7 +40,7 @@ resumeGameIfItExists model =
     case model.state of
         Just state ->
             button
-                [ class "waves-effect waves-light btn-flat"
+                [ class "waves-effect waves-light btn-flat blue"
                 , onClick Msg.NavigateSpectate
                 ]
                 [ icon "gamepad" "left"
@@ -152,6 +153,7 @@ textInput elementLabel elementName value errors attrs =
             , type_ "text"
             , autocomplete False
             , classList [ ( "invalid", showError ) ]
+            , Html.Attributes.value value
             ]
 
         errMessages =
@@ -260,8 +262,3 @@ helpText message =
     toHtml
         [ class "text--help" ]
         (stripMargin message)
-
-
-flip : (a -> b -> c) -> b -> a -> c
-flip f b a =
-    f a b

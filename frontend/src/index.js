@@ -1,21 +1,21 @@
 import './main.css';
 import { Elm } from './Main.elm';
 
+// saved games, should be in own module!
+var savedGamesKey = "QS_SAVED_GAMES";
+
+
 var app = Elm.Main.init({
     node: document.getElementById('root'),
     flags: {
-        apiRoot: deriveApiRoot(document.location)
+        apiRoot: deriveApiRoot(document.location),
+        savedGames: loadGames(localStorage.getItem(savedGamesKey))
     }
 });
 
 
-// saved games, should be in own module!
-var savedGamesKey = "QS_SAVED_GAMES";
-
 app.ports.fetchSavedGames.subscribe(function() {
-    var existingGames = JSON.parse(localStorage.getItem(savedGamesKey)) || [];
-    // clear out expired games
-    var recentGames = filterExpired(existingGames);
+    var recentGames = loadGames(localStorage.getItem(savedGamesKey));
     localStorage.setItem(savedGamesKey, JSON.stringify(recentGames));
 
     app.ports.savedGames.send(recentGames);
@@ -39,6 +39,11 @@ app.ports.removeSavedGame.subscribe(function(game) {
 
     app.ports.savedGames.send(filteredGames);
 });
+
+function loadGames(data) {
+    var existingGames = JSON.parse(data) || [];
+    return filterExpired(existingGames);
+}
 
 function filterExpired(games) {
     var now = +new Date;

@@ -1,24 +1,33 @@
-module Msg exposing (Msg(..), update, wakeServer)
+module Msg exposing (Msg(..), processUrlChange, update, wakeServer)
 
 import Api.Api exposing (sendApiCall)
-import Api.Requests exposing (awardPointRequest, becomeBuyerRequest, createGameRequest, finishPitchRequest, joinGameRequest, lobbyPingRequest, pingRequest, relinquishBuyerRequest, startGameRequest, wakeServerRequest)
+import Api.Requests exposing (awardPointRequest, becomeBuyerRequest, createGameRequest, finishPitchRequest, lobbyPingRequest, pingRequest, registerHostRequest, registerPlayerRequest, relinquishBuyerRequest, startGameRequest, wakeServerRequest)
+import Browser exposing (UrlRequest(..))
+import Browser.Navigation as Navigation
+import List.Extra
 import Model exposing (ApiError, ApiResponse(..), Lifecycle(..), Model, NewGame, PlayerInfo, Registered, SavedGame)
 import Ports exposing (fetchSavedGames, removeSavedGame, saveGame)
+import Routing exposing (gameUrl, homeUrl, parseCurrentGame, parseJoinState)
 import Time exposing (Posix)
+import Url
+import Utils exposing (gameCodeFromId, nonEmpty, tuple2)
 
 
 type Msg
     = BackendAwake (ApiResponse ())
+    | UrlRequested UrlRequest
+    | UrlChanged Url.Url
     | WelcomeTick Posix
     | LoadedGames (List SavedGame)
     | NavigateHome
     | NavigateSpectate
     | CreatingNewGame String String (List ApiError)
     | CreateNewGame String String
-    | JoiningGame String String (List ApiError)
+    | JoiningGame String String String (List ApiError)
     | JoinGame String String
+    | JoinGameAsHost String String String
     | CreatedGame String String (ApiResponse NewGame)
-    | JoinedGame String String (ApiResponse Registered)
+    | JoinedGame String String String (ApiResponse Registered)
     | RejoinGame SavedGame
     | RemoveSavedGame SavedGame
     | StartingGame String
@@ -42,23 +51,34 @@ type Msg
 
 keys : Model -> Maybe ( String, String )
 keys model =
-    Maybe.map2 (\state -> \playerKey -> ( state.gameId, playerKey )) model.state model.playerKey
+    Maybe.map2 tuple2
+        (Maybe.map .gameId model.state)
+        model.playerKey
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NavigateHome ->
-            ( { model
-                | lifecycle = Welcome
-                , playerKey = Nothing
-                , state = Nothing
-                , isHost = False
-                , opponents = []
-                , round = Nothing
-              }
-            , fetchSavedGames ()
+            ( model
+            , Navigation.pushUrl model.urlKey <|
+                homeUrl model.url
             )
+
+        UrlRequested urlRequest ->
+            case urlRequest of
+                Internal url ->
+                    ( model
+                    , Navigation.pushUrl model.urlKey (Url.toString url)
+                    )
+
+                External url ->
+                    ( model
+                    , Navigation.load url
+                    )
+
+        UrlChanged url ->
+            processUrlChange url model
 
         WelcomeTick time ->
             ( { model | time = Time.posixToMillis time }
@@ -100,10 +120,11 @@ update msg model =
             , createGame model gameName screenName
             )
 
-        JoiningGame gameId screenName errs ->
+        JoiningGame gameId hostCode screenName errs ->
             let
                 joinState =
                     { gameCode = gameId
+                    , hostCode = hostCode
                     , screenName = screenName
                     , loading = False
                     , errors = errs
@@ -113,17 +134,32 @@ update msg model =
             , Cmd.none
             )
 
-        JoinGame gameId screenName ->
+        JoinGameAsHost gameId hostCode screenName ->
             let
                 joinState =
                     { gameCode = gameId
+                    , hostCode = hostCode
                     , screenName = screenName
                     , loading = True
                     , errors = []
                     }
             in
             ( { model | lifecycle = Join joinState }
-            , joinGame model gameId screenName
+            , registerHost model gameId hostCode screenName
+            )
+
+        JoinGame gameId screenName ->
+            let
+                joinState =
+                    { gameCode = gameId
+                    , hostCode = ""
+                    , screenName = screenName
+                    , loading = True
+                    , errors = []
+                    }
+            in
+            ( { model | lifecycle = Join joinState }
+            , registerPlayer model gameId screenName
             )
 
         CreatedGame gameName screenName (ApiErr errs) ->
@@ -151,10 +187,11 @@ update msg model =
             , Cmd.none
             )
 
-        JoinedGame gameCode screenName (ApiErr errs) ->
+        JoinedGame gameCode hostCode screenName (ApiErr errs) ->
             let
                 joinState =
                     { gameCode = gameCode
+                    , hostCode = hostCode
                     , screenName = screenName
                     , loading = False
                     , errors = errs
@@ -164,9 +201,17 @@ update msg model =
             , Cmd.none
             )
 
-        JoinedGame _ _ (ApiOk registered) ->
+        JoinedGame gameCode hostCode _ (ApiOk registered) ->
+            let
+                lifecycle =
+                    if nonEmpty hostCode then
+                        HostWaiting gameCode []
+
+                    else
+                        Waiting
+            in
             ( { model
-                | lifecycle = Waiting
+                | lifecycle = lifecycle
                 , playerKey = Just registered.playerKey
                 , state = Just registered.state
                 , isHost = False
@@ -227,7 +272,11 @@ update msg model =
                     }
             in
             ( updatedModel
-            , saveGame updatedModel
+            , Cmd.batch
+                [ saveGame updatedModel
+                , Navigation.pushUrl model.urlKey <|
+                    gameUrl model.url (gameCodeFromId playerInfo.state.gameId) playerInfo.state.screenName
+                ]
             )
 
         SelectWord newWord selected ->
@@ -363,7 +412,11 @@ update msg model =
                                 }
                         in
                         ( updatedModel
-                        , saveGame updatedModel
+                        , Cmd.batch
+                            [ saveGame updatedModel
+                            , Navigation.pushUrl model.urlKey <|
+                                gameUrl model.url (gameCodeFromId playerInfo.state.gameId) playerInfo.state.screenName
+                            ]
                         )
 
                     else
@@ -384,6 +437,19 @@ update msg model =
 
                                 Nothing ->
                                     Spectating [] []
+
+                        targetUrl =
+                            gameUrl model.url (gameCodeFromId playerInfo.state.gameId) playerInfo.state.screenName
+
+                        currentUrl =
+                            Url.toString model.url
+
+                        navigateCmd =
+                            if targetUrl /= currentUrl then
+                                Navigation.pushUrl model.urlKey targetUrl
+
+                            else
+                                Cmd.none
                     in
                     ( { model
                         | lifecycle = prevLifecycle
@@ -391,7 +457,7 @@ update msg model =
                         , opponents = playerInfo.opponents
                         , round = playerInfo.round
                       }
-                    , Cmd.none
+                    , navigateCmd
                     )
 
                 _ ->
@@ -469,6 +535,107 @@ update msg model =
             )
 
 
+processUrlChange : Url.Url -> Model -> ( Model, Cmd Msg )
+processUrlChange url model =
+    -- this is separate so it can be called on navigation and when the app starts up
+    let
+        modelWithUrl =
+            { model | url = url }
+
+        maybeCurrentGame =
+            parseCurrentGame url
+
+        maybeJoinState =
+            parseJoinState url
+    in
+    case ( url.query, maybeCurrentGame, maybeJoinState ) of
+        ( Nothing, _, _ ) ->
+            -- no query means we are navigating 'home' i.e. the welcome screen
+            ( resetModelForHome modelWithUrl
+            , fetchSavedGames ()
+            )
+
+        ( _, Just ( gameCode, screenName ), _ ) ->
+            -- we are navigating to an existing game
+            let
+                alreadyNavigating =
+                    case model.lifecycle of
+                        Rejoining savedGame ->
+                            gameCode == gameCodeFromId savedGame.gameId && screenName == savedGame.screenName
+
+                        _ ->
+                            False
+
+                currentGameCode =
+                    Maybe.withDefault "" <|
+                        Maybe.map (.gameId >> gameCodeFromId) model.state
+
+                currentScreenName =
+                    Maybe.withDefault "" <|
+                        Maybe.map .screenName model.state
+            in
+            if alreadyNavigating then
+                -- we're already travelling into this game, nothing to do
+                ( modelWithUrl
+                , Cmd.none
+                )
+
+            else if gameCode == currentGameCode && screenName == currentScreenName then
+                -- we're already on this game, nothing to do
+                ( modelWithUrl
+                , Cmd.none
+                )
+
+            else
+                -- need to try and lookup the game in saved games
+                case List.Extra.find (\sg -> String.startsWith gameCode sg.gameId && screenName == sg.screenName) model.savedGames of
+                    Just savedGame ->
+                        -- we found the game registration so we can perform a rejoin
+                        update (RejoinGame savedGame) modelWithUrl
+
+                    Nothing ->
+                        -- game does not exist
+                        -- we could show an error but this is "expected" when players re-open the game after a few days
+                        -- so let's just send them home where they'll see the game they're after, or not
+                        ( resetModelForHome modelWithUrl
+                        , Cmd.batch
+                            [ fetchSavedGames ()
+
+                            -- this needs to be a replace so that back works
+                            , Navigation.replaceUrl model.urlKey <|
+                                homeUrl url
+                            ]
+                        )
+
+        ( _, _, Just joinState ) ->
+            -- if we're navigating to a join page then we can clear the current game state and show the join screen
+            let
+                blankModel =
+                    resetModelForHome model
+            in
+            ( { blankModel | lifecycle = Join joinState }
+            , Cmd.none
+            )
+
+        _ ->
+            -- no matches so let's assume this isn't a URL change we want to process
+            ( modelWithUrl
+            , Cmd.none
+            )
+
+
+resetModelForHome : Model -> Model
+resetModelForHome model =
+    { model
+        | lifecycle = Welcome
+        , playerKey = Nothing
+        , state = Nothing
+        , isHost = False
+        , opponents = []
+        , round = Nothing
+    }
+
+
 
 -- API calls
 
@@ -483,9 +650,14 @@ createGame model gameName screenName =
     sendApiCall (CreatedGame gameName screenName) (createGameRequest model gameName screenName)
 
 
-joinGame : Model -> String -> String -> Cmd Msg
-joinGame model gameCode screenName =
-    sendApiCall (JoinedGame gameCode screenName) (joinGameRequest model gameCode screenName)
+registerHost : Model -> String -> String -> String -> Cmd Msg
+registerHost model gameCode hostCode screenName =
+    sendApiCall (JoinedGame gameCode hostCode screenName) (registerHostRequest model gameCode hostCode screenName)
+
+
+registerPlayer : Model -> String -> String -> Cmd Msg
+registerPlayer model gameCode screenName =
+    sendApiCall (JoinedGame gameCode "" screenName) (registerPlayerRequest model gameCode screenName)
 
 
 startGame : Model -> String -> String -> String -> Cmd Msg

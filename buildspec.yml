@@ -30,6 +30,7 @@ phases:
     - sbt/bin/sbt -no-colors test lambda/universal:packageBin
     # frontend
     - cd frontend
+    - elm-app test
     - elm-app build
     - cd -
 

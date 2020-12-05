@@ -1,21 +1,22 @@
 module Main exposing (..)
 
 import Browser
-import Model exposing (Lifecycle(..), Model)
-import Msg exposing (Msg, update, wakeServer)
-import Ports exposing (fetchSavedGames)
+import Browser.Navigation exposing (Key)
+import Model exposing (Lifecycle(..), Model, SavedGame)
+import Msg exposing (Msg(..), processUrlChange, update, wakeServer)
 import Subs exposing (subscriptions)
 import Task exposing (Task)
 import Time exposing (Posix)
+import Url
 import View exposing (view)
 
 
-init : Flags -> ( Model, Cmd Msg )
-init flags =
+init : Flags -> Url.Url -> Key -> ( Model, Cmd Msg )
+init flags initialUrl key =
     let
         model =
             { lifecycle = Welcome
-            , savedGames = []
+            , savedGames = flags.savedGames
             , backendAwake = False
             , time = 0
             , state = Nothing
@@ -24,27 +25,35 @@ init flags =
             , opponents = []
             , round = Nothing
             , apiRoot = flags.apiRoot
+            , urlKey = key
+            , url = initialUrl
             }
+
+        ( updatedModel, urlCmd ) =
+            processUrlChange initialUrl model
     in
-    ( model
+    ( updatedModel
     , Cmd.batch
         [ wakeServer model
         , Task.perform Msg.WelcomeTick Time.now -- initialise model with current time
-        , fetchSavedGames ()
+        , urlCmd
         ]
     )
 
 
 main : Program Flags Model Msg
 main =
-    Browser.element
+    Browser.application
         { init = init
         , view = view
         , update = update
         , subscriptions = subscriptions
+        , onUrlRequest = UrlRequested
+        , onUrlChange = UrlChanged
         }
 
 
 type alias Flags =
     { apiRoot : String
+    , savedGames : List SavedGame
     }

@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Browser exposing (Document)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Model exposing (Lifecycle(..), Model)
@@ -18,7 +19,7 @@ import Views.Waiting exposing (waiting)
 import Views.Welcome exposing (welcome)
 
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model =
     let
         ( navButtons, shroudContent, content ) =
@@ -27,41 +28,45 @@ view model =
         theme =
             lifecycleTheme model.lifecycle
     in
-    div
-        [ id "app-root" ]
-        [ header
-            []
-            [ nav
-                [ class theme ]
-                [ div
-                    [ class "nav-wrapper container" ]
-                    [ a
-                        [ id "logo-container"
-                        , class theme
-                        ]
-                        [ img
-                            [ src "/images/stanley.png"
-                            , alt "Quack Stanley"
-                            , width 80
-                            , height 80
+    { title = "Quack Stanley"
+    , body =
+        [ div
+            [ id "app-root" ]
+            [ header
+                []
+                [ nav
+                    [ class theme ]
+                    [ div
+                        [ class "nav-wrapper container" ]
+                        [ a
+                            [ id "logo-container"
+                            , class theme
                             ]
-                            []
+                            [ img
+                                [ src "/images/stanley.png"
+                                , alt "Quack Stanley"
+                                , width 80
+                                , height 80
+                                ]
+                                []
+                            ]
                         ]
                     ]
                 ]
-            ]
-        , gameNav navButtons
-        , shroud shroudContent
-        , main_
-            []
-            [ content ]
-        , footer
-            [ class "page-footer" ]
-            [ div
-                [ class ("footer-color " ++ theme) ]
+            , gameNav navButtons
+            , shroud shroudContent
+            , main_
                 []
+                [ content ]
+            , footer
+                [ class "page-footer" ]
+                [ div
+                    [ class ("footer-color " ++ theme) ]
+                    []
+                ]
             ]
         ]
+    }
 
 
 dispatchView : Model -> ( List (Html Msg), ShroudContent, Html Msg )
@@ -74,7 +79,7 @@ dispatchView model =
             create createState.loading createState.gameName createState.screenName createState.errors model
 
         Join joinState ->
-            join joinState.loading joinState.gameCode joinState.screenName joinState.errors model
+            join joinState.loading joinState.gameCode joinState.hostCode joinState.screenName joinState.errors model
 
         Waiting ->
             waiting model

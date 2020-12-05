@@ -36,7 +36,7 @@ awake now savedGames isAwake =
                 [ card
                     [ button
                         [ class "waves-effect waves-light btn btn-large cyan cta__button"
-                        , onClick (Msg.JoiningGame "" "" [])
+                        , onClick (Msg.JoiningGame "" "" "" [])
                         ]
                         [ text "Join game"
                         , icon "person_add" "right"

@@ -3,9 +3,10 @@ module Api.Requests exposing
     , becomeBuyerRequest
     , createGameRequest
     , finishPitchRequest
-    , joinGameRequest
     , lobbyPingRequest
     , pingRequest
+    , registerHostRequest
+    , registerPlayerRequest
     , relinquishBuyerRequest
     , startGameRequest
     , wakeServerRequest
@@ -42,14 +43,28 @@ createGameRequest model gameName screenName =
     Http.post model.apiRoot (jsonBody json) newGameDecoder
 
 
-joinGameRequest : Model -> String -> String -> Http.Request Registered
-joinGameRequest model gameId screenName =
+registerPlayerRequest : Model -> String -> String -> Http.Request Registered
+registerPlayerRequest model gameCode screenName =
     let
         json =
             Json.Encode.object <|
                 [ ( "operation", Json.Encode.string "register-player" )
+                , ( "gameCode", Json.Encode.string gameCode )
                 , ( "screenName", Json.Encode.string screenName )
-                , ( "gameCode", Json.Encode.string gameId )
+                ]
+    in
+    Http.post model.apiRoot (jsonBody json) registeredDecoder
+
+
+registerHostRequest : Model -> String -> String -> String -> Http.Request Registered
+registerHostRequest model gameCode hostCode screenName =
+    let
+        json =
+            Json.Encode.object <|
+                [ ( "operation", Json.Encode.string "register-host" )
+                , ( "gameCode", Json.Encode.string gameCode )
+                , ( "hostCode", Json.Encode.string hostCode )
+                , ( "screenName", Json.Encode.string screenName )
                 ]
     in
     Http.post model.apiRoot (jsonBody json) registeredDecoder

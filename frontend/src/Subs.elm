@@ -12,7 +12,7 @@ subscriptions model =
         Welcome ->
             Sub.batch
                 [ savedGames LoadedGames
-                , Time.every (60 * 1000) WelcomeTick
+                , Time.every (1 * 1000) WelcomeTick
                 ]
 
         Waiting ->

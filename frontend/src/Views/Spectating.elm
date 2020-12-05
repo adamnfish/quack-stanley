@@ -140,6 +140,7 @@ playerListEntry leadingScore playerSummary =
             , span
                 [ classList
                     [ ( "badge", True )
+                    , ( "point", True )
                     , ( "amber black-text", leadingScore == score && score > 0 )
                     ]
                 , attribute "data-badge-caption" (plural "point" (List.length playerSummary.points))

@@ -1,6 +1,7 @@
 module Model exposing
     ( ApiError
     , ApiResponse(..)
+    , JoinState
     , Lifecycle(..)
     , Model
     , NewGame
@@ -12,7 +13,9 @@ module Model exposing
     , SavedGame
     )
 
+import Browser.Navigation exposing (Key)
 import Dict exposing (Dict)
+import Url
 
 
 type Lifecycle
@@ -21,7 +24,7 @@ type Lifecycle
     | Create CreateState
       -- waiting for game to start (will have game and screen name)
     | HostWaiting String (List ApiError)
-      -- join existing game (gameId, screenName)
+      -- join existing game (gameCode, screenName)
     | Join JoinState
       -- waiting for game to start (will have game and screen name)
     | Waiting
@@ -69,6 +72,8 @@ type alias Model =
     , opponents : List PlayerSummary
     , round : Maybe Round
     , apiRoot : String
+    , urlKey : Key
+    , url : Url.Url
     }
 
 
@@ -86,6 +91,7 @@ type alias CreateState =
 
 type alias JoinState =
     { gameCode : String
+    , hostCode : String
     , screenName : String
     , loading : Bool
     , errors : List ApiError
