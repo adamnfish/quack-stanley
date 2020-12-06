@@ -1,5 +1,9 @@
 const {webkit} = require('playwright');
 const fetch = require('node-fetch');
+const path = require('path');
+const fs = require('fs');
+const PNG = require('pngjs').PNG;
+const pixelmatch = require('pixelmatch');
 
 
 (async () => {
@@ -33,12 +37,12 @@ async function normalGame(appUrl, browser) {
 
   const player1Context = await browser.newContext();
   const player1 = await player1Context.newPage();
-  await player1.setViewportSize({width: 601, height: 1500});
+  await player1.setViewportSize({width: 601, height: 900});
   await player1.setDefaultTimeout(timeout);
 
   const player2Context = await browser.newContext();
   const player2 = await player2Context.newPage();
-  await player2.setViewportSize({width: 1920, height: 1500});
+  await player2.setViewportSize({width: 1920, height: 1000});
   await player2.setDefaultTimeout(timeout);
 
 
@@ -81,7 +85,6 @@ async function normalGame(appUrl, browser) {
   await screenshot(player1, 'player1', 'a02-2-join-game-with-input.png');
 
   await player1.click(buttonWithText('Join game'));
-  await screenshot(player1, 'player1', 'xx-println.png');
   await player1.waitForSelector(lifecycleHook('waiting'));
 
   await screenshot(player1, 'player1', 'a03-1-lobby.png');
@@ -202,12 +205,12 @@ async function externalGame(appUrl, apiUrl, browser) {
 
   const player1Context = await browser.newContext();
   const player1 = await player1Context.newPage();
-  await player1.setViewportSize({width: 601, height: 1500});
+  await player1.setViewportSize({width: 601, height: 900});
   await player1.setDefaultTimeout(timeout);
 
   const player2Context = await browser.newContext();
   const player2 = await player2Context.newPage();
-  await player2.setViewportSize({width: 1920, height: 1500});
+  await player2.setViewportSize({width: 1920, height: 1000});
   await player2.setDefaultTimeout(timeout);
 
   // setup game
@@ -223,7 +226,7 @@ async function externalGame(appUrl, apiUrl, browser) {
   const emptyGameData = await response.json();
 
   // host creates game
-  console.log("game creation");
+  console.log("host joining");
   await host.goto(appUrl + "?gameCode=" + emptyGameData.gameCode + "&hostCode=" + emptyGameData.hostCode + "&name=Host");
   await host.waitForSelector(lifecycleHook('join'));
 
@@ -290,6 +293,15 @@ async function screenshot(player, playerName, fileName) {
   // delay to allow transitions to complete
   await sleep(501);
   await player.screenshot({path: screenshotPath(playerName, fileName)});
+
+  // generate diff
+  fs.mkdirSync(path.dirname(screenshotDiffPath(playerName, fileName)), {recursive: true});
+  const img1 = PNG.sync.read(fs.readFileSync(screenshotPath(playerName, fileName)));
+  const img2 = PNG.sync.read(fs.readFileSync(screenshotReferencePath(playerName, fileName)));
+  const {width, height} = img1;
+  const diff = new PNG({width, height});
+  const count = pixelmatch(img1.data, img2.data, diff.data, width, height, {threshold: 0.1});
+  fs.writeFileSync(screenshotDiffPath(playerName, fileName), PNG.sync.write(diff));
 }
 
 function sleep(ms) {
@@ -308,6 +320,23 @@ function textInput(label) {
   return "xpath=//label[contains(text(), '" + label + "')]/..//input";
 }
 
+/**
+ * WAT screenshots are written here
+ */
 function screenshotPath(player, filename) {
-  return 'screenshots/' + player + '/' + filename;
+  return 'screenshots/latest/' + player + '/' + filename;
+}
+
+/**
+ * Reference screenshots are in version control
+ */
+function screenshotReferencePath(player, filename) {
+  return 'screenshots/reference/' + player + '/' + filename;
+}
+
+/**
+ * Diffs represent regressions or changes, noise aside
+ */
+function screenshotDiffPath(player, filename) {
+  return 'screenshots/diff/' + player + '/' + filename;
 }

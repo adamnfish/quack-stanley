@@ -21,6 +21,8 @@
   "devDependencies": {},
   "dependencies": {
     "node-fetch": "^2.6.1",
-    "playwright": "^1.6.2"
+    "pixelmatch": "^5.2.1",
+    "playwright": "^1.6.2",
+    "pngjs": "^6.0.0"
   }
 }
