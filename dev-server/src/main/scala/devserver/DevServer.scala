@@ -3,6 +3,7 @@ package devserver
 import com.typesafe.scalalogging.LazyLogging
 import devserver.ApiService.devQuackStanley
 import io.javalin.Javalin
+import io.javalin.http.{Context, Handler}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -17,18 +18,15 @@ object DevServer extends LazyLogging {
     }
 
     app.start(9001)
-    app.post("/api", { ctx =>
-      println("[TRACE] /api")
-      val fResult = devQuackStanley(ctx.body)
-      val (statusCode, responseBody) = Await.result(fResult, 10.seconds)
+    app.post("/api", new Handler {
+      def handle(ctx: Context): Unit = {
+        println("[TRACE] /api")
+        val fResult = devQuackStanley(ctx.body)
+        val (statusCode, responseBody) = Await.result(fResult, 10.seconds)
 
-      ctx.status(statusCode)
-      ctx.result(responseBody)
+        ctx.status(statusCode)
+        ctx.result(responseBody)
+      }
     })
-
-    Runtime.getRuntime.addShutdownHook(new Thread(() => {
-      println("[INFO] Stopping...")
-      app.stop()
-    }))
   }
 }

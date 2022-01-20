@@ -1,6 +1,6 @@
 ThisBuild / organization := "com.adamnfish"
 ThisBuild / version := "0.1-SNAPSHOT"
-ThisBuild / scalaVersion := "2.13.3"
+ThisBuild / scalaVersion := "2.13.8"
 ThisBuild / scalacOptions ++= Seq(
   "-deprecation",
   "-Xfatal-warnings",
@@ -9,7 +9,7 @@ ThisBuild / scalacOptions ++= Seq(
   "-Ywarn-dead-code"
 )
 
-val awsSdkVersion = "1.11.900"
+val awsSdkVersion = "1.12.143"
 
 lazy val root = (project in file("."))
   .settings(
@@ -21,10 +21,10 @@ lazy val core = (project in file("core"))
   .settings(
     name := "core",
     libraryDependencies ++= Seq(
-      "joda-time" % "joda-time" % "2.10.8",
-      "io.circe" %% "circe-parser" % "0.12.3",
-      "io.circe" %% "circe-generic" % "0.12.3",
-      "org.scalatest" %% "scalatest" % "3.2.2" % Test,
+      "joda-time" % "joda-time" % "2.10.13",
+      "io.circe" %% "circe-parser" % "0.14.1",
+      "io.circe" %% "circe-generic" % "0.14.1",
+      "org.scalatest" %% "scalatest" % "3.2.10" % Test,
     ),
   )
 
@@ -36,12 +36,12 @@ lazy val lambda = (project in file("lambda"))
       "com.amazonaws" % "aws-lambda-java-core" % "1.2.1",
       "com.amazonaws" % "aws-java-sdk-iam" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
-      "org.scalatest" %% "scalatest" % "3.2.2" % Test,
+      "ch.qos.logback" % "logback-classic" % "1.2.10",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
+      "org.scalatest" %% "scalatest" % "3.2.10" % Test,
     ),
-    topLevelDirectory in Universal := None,
-    packageName in Universal := "quack-stanley",
+    Universal / topLevelDirectory := None,
+    Universal / packageName := "quack-stanley",
   )
   .dependsOn(core % "compile->compile;test->test")
 
@@ -49,12 +49,12 @@ lazy val devServer = (project in file("dev-server"))
   .settings(
     name := "dev-server",
     libraryDependencies ++= Seq(
-      "io.javalin" % "javalin" % "3.11.0",
-      "ch.qos.logback" % "logback-classic" % "1.2.3",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+      "io.javalin" % "javalin" % "4.3.0",
+      "ch.qos.logback" % "logback-classic" % "1.2.10",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
     ),
-    fork in run := true,
-    connectInput in run := true,
+    run / fork := true,
+    run / connectInput := true,
     outputStrategy := Some(StdoutOutput),
   )
   .dependsOn(core)
