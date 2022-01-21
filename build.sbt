@@ -13,6 +13,7 @@ ThisBuild / libraryDependencies +=
 
 val awsSdkVersion = "1.12.143"
 val catsEffectVersion = "3.3.4"
+val http4sVersion = "1.0.0-M30"
 
 lazy val root = (project in file("."))
   .settings(
@@ -54,8 +55,10 @@ lazy val devServer = (project in file("dev-server"))
   .settings(
     name := "dev-server",
     libraryDependencies ++= Seq(
-      "io.javalin" % "javalin" % "4.3.0",
       "org.typelevel" %% "cats-effect" % catsEffectVersion,
+      "org.http4s" %% "http4s-dsl" % http4sVersion,
+      "org.http4s" %% "http4s-blaze-server" % http4sVersion,
+      "org.http4s" %% "http4s-blaze-client" % http4sVersion,
       "ch.qos.logback" % "logback-classic" % "1.2.10",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
     ),
