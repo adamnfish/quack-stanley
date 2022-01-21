@@ -1,14 +1,12 @@
 package com.adamnfish.quackstanley.models
 
-import java.util.UUID
-
 import com.adamnfish.quackstanley.AttemptValues
 import com.adamnfish.quackstanley.models.Validation._
-import org.scalatest.{OptionValues}
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 
 class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with OptionValues {
@@ -116,28 +114,34 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
     }
   }
 
-  "validate" - {
+  "combineFailures" - {
     "for a single validation" - {
       "returns success if the input passes validation" in {
-        validate("input", "context", nonEmpty).isSuccessfulAttempt() shouldBe true
+        combineFailures(nonEmpty("input", "context")).isSuccessfulAttempt()
       }
 
       "returns failure if the input does not pass validation" in {
-        validate("", "context", nonEmpty).isFailedAttempt() shouldBe true
+        combineFailures(nonEmpty("", "context")).isFailedAttempt()
       }
     }
 
-    "can be combined with |@|" - {
+    "combines provided failures" - {
       "returns success if both validators pass" in {
-        val result = validate("input1", "context1", nonEmpty) |@| validate("input2", "context2", nonEmpty)
-        result.isSuccessfulAttempt() shouldBe true
+        val result = combineFailures(
+          nonEmpty("input1", "context1"),
+          nonEmpty("input2", "context2"),
+        )
+        result.isSuccessfulAttempt()
       }
 
       "if both validators fail" - {
-        val result = validate("", "context1", nonEmpty) |@| validate("", "context2", nonEmpty)
+        val result = combineFailures(
+          nonEmpty("", "context1"),
+          nonEmpty("", "context2")
+        )
 
         "returns failure" in {
-          result.isFailedAttempt() shouldBe true
+          result.isFailedAttempt()
         }
 
         "contains all failures" in {
@@ -150,10 +154,13 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
       }
 
       "if the first validator fails" - {
-        val result = validate("", "context1", nonEmpty) |@| validate("not empty", "context2", nonEmpty)
+        val result = combineFailures(
+          nonEmpty("", "context1"),
+          nonEmpty("not empty", "context2")
+        )
 
         "returns failure" in {
-          result.isFailedAttempt() shouldBe true
+          result.isFailedAttempt()
         }
 
         "contains all failures" in {
@@ -166,10 +173,13 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
       }
 
       "if the second validator fails" - {
-        val result = validate("not empty", "context1", nonEmpty) |@| validate("", "context2", nonEmpty)
+        val result = combineFailures(
+          nonEmpty("not empty", "context1"),
+          nonEmpty("", "context2")
+        )
 
         "returns failure" in {
-          result.isFailedAttempt() shouldBe true
+          result.isFailedAttempt()
         }
 
         "contains all failures" in {
@@ -185,11 +195,11 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
 
   "validateRegisterPlayer" - {
     "fails if input length is < 4" in {
-      validate(RegisterPlayer("123", "screen name")).isFailedAttempt() shouldBe true
+      validate(RegisterPlayer("123", "screen name")).isFailedAttempt()
     }
 
     "is not case sensitive" in {
-      validate(RegisterPlayer("ABCD", "screen name")).isSuccessfulAttempt() shouldBe true
+      validate(RegisterPlayer("ABCD", "screen name")).isSuccessfulAttempt()
     }
 
     "does not how duplicate errors for empty game code" in {

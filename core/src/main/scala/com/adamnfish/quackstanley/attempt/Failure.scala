@@ -27,5 +27,5 @@ case class Failure(
   context: Option[String] = None,
   exception: Option[Throwable] = None
 ) {
-  def asAttempt = FailedAttempt(this)
+  def asFailedAttempt = FailedAttempt(this)
 }

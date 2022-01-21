@@ -1,19 +1,15 @@
 package com.adamnfish.quackstanley.integration
 
-import java.util.UUID
-
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.{AttemptValues, HaveMatchers, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{OneInstancePerTest, OptionValues}
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{OneInstancePerTest, OptionValues}
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 
 class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
@@ -46,13 +42,13 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
 
       "uses provided screen name" in {
         val request = RegisterPlayer(gameCode, "player one")
-        val registered = registerPlayer(request, testConfig).value()
+        val registered = registerPlayer(request, testConfig).run()
         registered.state.screenName shouldEqual "player one"
       }
 
       "new player has no role, words or points" in {
         val request = RegisterPlayer(gameCode, "player one")
-        val registered = registerPlayer(request, testConfig).value()
+        val registered = registerPlayer(request, testConfig).run()
         registered.state should have(
           "role" as (None),
           "hand" as (Nil),
@@ -63,32 +59,32 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
 
       "can register player from prefix game code" in {
         val request = RegisterPlayer(gameCode.take(4), "player one")
-        registerPlayer(request, testConfig).isSuccessfulAttempt() shouldBe true
+        registerPlayer(request, testConfig).isSuccessfulAttempt()
       }
 
       "prefix game code is case-insensitive" in {
         val request = RegisterPlayer(gameCode.take(4).toUpperCase(), "player one")
-        registerPlayer(request, testConfig).isSuccessfulAttempt() shouldBe true
+        registerPlayer(request, testConfig).isSuccessfulAttempt()
       }
 
       "correctly persists player state" in {
         val request = RegisterPlayer(gameCode, "player one")
-        val registered = registerPlayer(request, testConfig).value()
-        val savedState = GameIO.getPlayerState(registered.playerKey, gameId, persistence).value()
+        val registered = registerPlayer(request, testConfig).run()
+        val savedState = GameIO.getPlayerState(registered.playerKey, gameId, persistence).run()
         registered.state shouldEqual savedState
       }
 
       "does not allow duplicate screen names" - {
         "player cannot use the creator's screen name" in {
           val request = RegisterPlayer(gameCode, "Creator")
-          registerPlayer(request, testConfig).isFailedAttempt() shouldBe true
+          registerPlayer(request, testConfig).isFailedAttempt()
         }
 
         "player cannot use another player's screen name" in {
           val firstRequest = RegisterPlayer(gameCode.take(4).toUpperCase(), "player one")
-          registerPlayer(firstRequest, testConfig).isSuccessfulAttempt() shouldBe true
+          registerPlayer(firstRequest, testConfig).isSuccessfulAttempt()
           val duplicateRequest = firstRequest
-          registerPlayer(duplicateRequest, testConfig).isFailedAttempt() shouldBe true
+          registerPlayer(duplicateRequest, testConfig).isFailedAttempt()
         }
       }
 
@@ -126,16 +122,16 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
 
       "fails if the game has already started" in {
         val startedState = gameState.copy(started = true)
-        GameIO.writeGameState(startedState, persistence).value()
+        GameIO.writeGameState(startedState, persistence).run()
         val request = RegisterPlayer(gameCode, "player two")
-        registerPlayer(request, testConfig).isFailedAttempt() shouldEqual true
+        registerPlayer(request, testConfig).isFailedAttempt()
       }
     }
 
     "if the game doe not exist," - {
       "fails" in {
         val request = RegisterPlayer(GameId(gameDoesNotExistIdUUID).value, "player name")
-        registerPlayer(request, testConfig).isFailedAttempt() shouldEqual true
+        registerPlayer(request, testConfig).isFailedAttempt()
       }
     }
   }

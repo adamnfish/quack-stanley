@@ -8,8 +8,11 @@ ThisBuild / scalacOptions ++= Seq(
   "-target:jvm-1.8",
   "-Ywarn-dead-code"
 )
+ThisBuild / libraryDependencies +=
+  compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
 val awsSdkVersion = "1.12.143"
+val catsEffectVersion = "3.3.4"
 
 lazy val root = (project in file("."))
   .settings(
@@ -24,6 +27,7 @@ lazy val core = (project in file("core"))
       "joda-time" % "joda-time" % "2.10.13",
       "io.circe" %% "circe-parser" % "0.14.1",
       "io.circe" %% "circe-generic" % "0.14.1",
+      "org.typelevel" %% "cats-effect" % catsEffectVersion,
       "org.scalatest" %% "scalatest" % "3.2.10" % Test,
     ),
   )
@@ -36,6 +40,7 @@ lazy val lambda = (project in file("lambda"))
       "com.amazonaws" % "aws-lambda-java-core" % "1.2.1",
       "com.amazonaws" % "aws-java-sdk-iam" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
+      "org.typelevel" %% "cats-effect" % catsEffectVersion,
       "ch.qos.logback" % "logback-classic" % "1.2.10",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
       "org.scalatest" %% "scalatest" % "3.2.10" % Test,
@@ -50,6 +55,7 @@ lazy val devServer = (project in file("dev-server"))
     name := "dev-server",
     libraryDependencies ++= Seq(
       "io.javalin" % "javalin" % "4.3.0",
+      "org.typelevel" %% "cats-effect" % catsEffectVersion,
       "ch.qos.logback" % "logback-classic" % "1.2.10",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
     ),
