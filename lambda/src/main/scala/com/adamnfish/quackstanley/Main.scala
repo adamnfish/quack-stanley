@@ -1,7 +1,10 @@
 package com.adamnfish.quackstanley
 
-import java.io._
+import cats.data.EitherT
+import cats.effect.IO
+import cats.effect.unsafe.IORuntime
 
+import java.io._
 import com.adamnfish.quackstanley.LambdaIntegration._
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
@@ -10,24 +13,24 @@ import com.adamnfish.quackstanley.models.Serialization._
 import com.adamnfish.quackstanley.models._
 import com.amazonaws.services.lambda.runtime.Context
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Properties, Try}
 
 
 class Main {
+  implicit val runtime = IORuntime.global
+
   def handleRequest(in: InputStream, out: OutputStream, context: Context): Unit = {
     val allowedOrigin = Properties.envOrNone("ORIGIN_LOCATION")
     val result = Try {
       for {
         config <- configFromEnvironment()
-        opAndRequest <- parseBody[ApiOperation](in)
-        (apiOperation, _) = opAndRequest
+        (apiOperation, _) <- parseBody[ApiOperation](in)
         response <- dispatch(apiOperation, config)
       } yield response
     }.fold(
       { e =>
         context.getLogger.log(s"Fatal error: ${e.getMessage} ${e.getStackTrace.mkString("; ")}")
-        Attempt.Left(Failure(e.getMessage, "Unexpected server error", 500).asAttempt)
+        EitherT.leftT[IO, ApiResponse](Failure(e.getMessage, "Unexpected server error", 500).asFailedAttempt)
       },
       identity
     )
@@ -36,11 +39,11 @@ class Main {
 
   def configFromEnvironment(): Attempt[Config] = {
     for {
-      bucket <- Attempt.fromOption(Properties.envOrNone("APP_DATA_S3_BUCKET"), {
-        Failure("Couldn't read S3 bucket name for configuration", "Quack Stanley failed because it is missing configuration", 500, Some("APP_DATA_S3_BUCKET")).asAttempt
+      bucket <- EitherT.fromOption[IO](Properties.envOrNone("APP_DATA_S3_BUCKET"), {
+        Failure("Couldn't read S3 bucket name for configuration", "Quack Stanley failed because it is missing configuration", 500, Some("APP_DATA_S3_BUCKET")).asFailedAttempt
       })
-      stage <- Attempt.fromOption(Properties.envOrNone("APP_STAGE"), {
-        Failure("Couldn't read stage configuration", "Quack Stanley failed because it is missing configuration", 500, Some("APP_STAGE")).asAttempt
+      stage <- EitherT.fromOption[IO](Properties.envOrNone("APP_STAGE"), {
+        Failure("Couldn't read stage configuration", "Quack Stanley failed because it is missing configuration", 500, Some("APP_STAGE")).asFailedAttempt
       })
       persistence = new S3(bucket)
     } yield Config(stage, persistence)

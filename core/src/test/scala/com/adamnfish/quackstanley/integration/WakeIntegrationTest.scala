@@ -3,11 +3,9 @@ package com.adamnfish.quackstanley.integration
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.{AttemptValues, TestPersistence}
-import org.scalatest.{OneInstancePerTest}
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.OneInstancePerTest
 import org.scalatest.freespec.AnyFreeSpec
-
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.scalatest.matchers.should.Matchers
 
 
 class WakeIntegrationTest extends AnyFreeSpec with Matchers with OneInstancePerTest with AttemptValues {
@@ -17,7 +15,7 @@ class WakeIntegrationTest extends AnyFreeSpec with Matchers with OneInstancePerT
   "wake" - {
     "returns ok" in {
       val data = Wake()
-      val response = wake(data, testConfig).value()
+      val response = wake(data, testConfig).run()
       response.status shouldEqual "ok"
     }
   }

@@ -1,17 +1,15 @@
 package com.adamnfish.quackstanley.integration
 
-import java.util.UUID
-
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.{AttemptValues, QuackStanley, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{OneInstancePerTest, OptionValues}
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{OneInstancePerTest, OptionValues}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 
 class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
@@ -56,48 +54,48 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
         GameIO.writePlayerState(playerState, playerKey, persistence)
 
         "fills hand" in {
-          val playerInfo = finishPitch(request, testConfig).value()
+          val playerInfo = finishPitch(request, testConfig).run()
           playerInfo.state.hand.size shouldEqual QuackStanley.handSize
         }
 
         "new hand contains the non-discarded words" in {
-          val playerInfo = finishPitch(request, testConfig).value()
+          val playerInfo = finishPitch(request, testConfig).run()
           playerInfo.state.hand.count(_ == Word("padding")) shouldEqual (QuackStanley.handSize - 2)
         }
 
         "new hand contains replacement words" in {
-          val playerInfo = finishPitch(request, testConfig).value()
+          val playerInfo = finishPitch(request, testConfig).run()
           playerInfo.state.hand.count(_ != Word("padding")) shouldEqual 2
         }
 
         "new game state includes this pitch" in {
-          val playerInfo = finishPitch(request, testConfig).value()
+          val playerInfo = finishPitch(request, testConfig).run()
           val roundInfo = playerInfo.round.value
           roundInfo.products.get(screenName).value shouldEqual (Word("one"), Word("two"))
         }
 
         "persists new hand in player state" in {
-          val playerInfo = finishPitch(request, testConfig).value()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
+          val playerInfo = finishPitch(request, testConfig).run()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).run()
           persistedPlayerState.hand shouldEqual playerInfo.state.hand
         }
 
         "persists discarded words to player's state" in {
-          val playerInfo = finishPitch(request, testConfig).value()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
+          val playerInfo = finishPitch(request, testConfig).run()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).run()
           persistedPlayerState.discardedWords shouldEqual List(Word("one"), Word("two"))
         }
 
         "persists pitched product to the game state's round" in {
-          finishPitch(request, testConfig).value()
-          val persistedGameState = GameIO.getGameState(gameId, persistence).value()
+          finishPitch(request, testConfig).run()
+          val persistedGameState = GameIO.getGameState(gameId, persistence).run()
           persistedGameState
             .round.value
             .products.get(playerKey).value shouldEqual (Word("one"), Word("two"))
         }
 
         "returned playerInfo's otherPlayers excludes current player" in {
-          val playerInfo = finishPitch(request, testConfig).value()
+          val playerInfo = finishPitch(request, testConfig).run()
           playerInfo.opponents should not contain screenName
         }
 
@@ -154,13 +152,13 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
         val request = FinishPitch(gameId, playerKey, (Word("one"), Word("two")))
 
         GameIO.writeGameState(gameState, persistence)
-        finishPitch(request, testConfig).isFailedAttempt() shouldEqual true
+        finishPitch(request, testConfig).isFailedAttempt()
       }
     }
 
     "if the game does not exist, fails to auth the player" in {
       val request = FinishPitch(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID), (Word("one"), Word("two")))
-      finishPitch(request, testConfig).isFailedAttempt() shouldEqual true
+      finishPitch(request, testConfig).isFailedAttempt()
     }
   }
 }

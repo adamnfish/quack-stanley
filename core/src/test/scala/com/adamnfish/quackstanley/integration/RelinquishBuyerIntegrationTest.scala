@@ -1,17 +1,15 @@
 package com.adamnfish.quackstanley.integration
 
-import java.util.UUID
-
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.{AttemptValues, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{OneInstancePerTest, OptionValues}
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{OneInstancePerTest, OptionValues}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 
 class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
@@ -51,27 +49,27 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
 
         "returns no role in player info" in {
           val request = RelinquishBuyer(gameId, playerKey)
-          val playerInfo = relinquishBuyer(request, testConfig).value()
+          val playerInfo = relinquishBuyer(request, testConfig).run()
           playerInfo.state.role.isEmpty shouldEqual true
         }
 
         "persists no role in player state" in {
           val request = RelinquishBuyer(gameId, playerKey)
-          val playerInfo = relinquishBuyer(request, testConfig).value()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
+          val playerInfo = relinquishBuyer(request, testConfig).run()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).run()
           persistedPlayerState.role.isEmpty shouldEqual true
         }
 
         "persists no buyer in game state" in {
           val request = RelinquishBuyer(gameId, playerKey)
-          val playerInfo = relinquishBuyer(request, testConfig).value()
-          val persistedState = GameIO.getGameState(gameId, persistence).value()
+          val playerInfo = relinquishBuyer(request, testConfig).run()
+          val persistedState = GameIO.getGameState(gameId, persistence).run()
           persistedState.round.isEmpty shouldEqual true
         }
 
         "excludes current player from otherPlayers" in {
           val request = RelinquishBuyer(gameId, playerKey)
-          val playerInfo = relinquishBuyer(request, testConfig).value()
+          val playerInfo = relinquishBuyer(request, testConfig).run()
           playerInfo.opponents should not contain screenName
         }
 
@@ -114,7 +112,7 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
         )
         GameIO.writeGameState(gameState, persistence)
         val request = RelinquishBuyer(gameId, PlayerKey(playerDoesNotExistUUID))
-        relinquishBuyer(request, testConfig).isFailedAttempt() shouldEqual true
+        relinquishBuyer(request, testConfig).isFailedAttempt()
       }
 
       "and this player is not the buyer, fails to relinquish buyer" ignore {
@@ -124,7 +122,7 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
 
     "if the game does not exist, fails to auth the player" in {
       val request = RelinquishBuyer(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID))
-      relinquishBuyer(request, testConfig).isFailedAttempt() shouldEqual true
+      relinquishBuyer(request, testConfig).isFailedAttempt()
     }
   }
 }

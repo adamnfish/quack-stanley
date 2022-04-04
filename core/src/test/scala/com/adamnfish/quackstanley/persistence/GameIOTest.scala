@@ -2,10 +2,8 @@ package com.adamnfish.quackstanley.persistence
 
 import com.adamnfish.quackstanley.AttemptValues
 import com.adamnfish.quackstanley.models.{GameId, PlayerKey}
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
-
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.scalatest.matchers.should.Matchers
 
 
 class GameIOTest extends AnyFreeSpec with Matchers with AttemptValues {
@@ -40,14 +38,14 @@ class GameIOTest extends AnyFreeSpec with Matchers with AttemptValues {
 
   "playerKeyFromPath" - {
     "extracts player key from valid path" in {
-      val playerKey = GameIO.playerKeyFromPath(s"data/game-id/players/player-key.json").value()
+      val playerKey = GameIO.playerKeyFromPath(s"data/game-id/players/player-key.json").run()
       playerKey shouldEqual PlayerKey("player-key")
     }
 
     "fails to extract player key from invalid path" in {
-      GameIO.playerKeyFromPath(s"data/game-id/players/player-key.json.json").isFailedAttempt() shouldEqual true
+      GameIO.playerKeyFromPath(s"data/game-id/players/player-key.json.json").isFailedAttempt()
 
-      GameIO.playerKeyFromPath("").isFailedAttempt() shouldEqual true
+      GameIO.playerKeyFromPath("").isFailedAttempt()
     }
   }
 }
