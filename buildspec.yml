@@ -1,26 +1,24 @@
 version: 0.2
 
+env:
+  shell: bash
+
 phases:
   install:
+    runtime-versions:
+      nodejs: 12
+      java: corretto8
     commands:
     - echo Install started at `date`
     - echo Current directory is `pwd`
 
     # Install software for API build
     - echo Installing sbt
-    - wget https://github.com/sbt/sbt/releases/download/v1.4.2/sbt-1.4.2.zip
-    - unzip sbt-1.4.2.zip
+    - wget https://github.com/sbt/sbt/releases/download/v1.6.2/sbt-1.6.2.zip
+    - unzip sbt-1.6.2.zip
 
     # Install software for frontend build
-    - echo Installing node, npm and frontend build dependencies
-    - curl -sL https://deb.nodesource.com/setup_12.x | bash
-    - apt-get install -y nodejs build-essential
-
-    - export NPM_ROOT=$HOME/npm-global
-    - export PATH=$NPM_ROOT/bin:$PATH
-    - mkdir -p $NPM_ROOT
-    - npm config set prefix $NPM_ROOT
-
+    - echo Installing frontend build dependencies
     - npm install -g create-elm-app@4.2.3 --unsafe-perm=true --allow-root
 
   build:
