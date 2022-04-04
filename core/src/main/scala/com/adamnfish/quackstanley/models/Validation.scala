@@ -1,12 +1,17 @@
 package com.adamnfish.quackstanley.models
 
+import cats.data.EitherT
 import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt, Failure}
-
-import scala.concurrent.ExecutionContext
 
 
 object Validation {
   type Validator[A] = (A, String) => List[Failure]
+
+  private[models] def combineFailures(fss: List[Failure]*): Attempt[Unit] = {
+    val failures = fss.flatten.toList
+    if (failures.isEmpty) EitherT.pure(())
+    else EitherT.leftT(FailedAttempt(fss.flatten.toList))
+  }
 
   val nonEmpty: Validator[String] = { (iter, context) =>
     if (iter.isEmpty) {
@@ -58,72 +63,88 @@ object Validation {
     else Nil
   }
 
-  private[models] def validate[A](a: A, context: String, validator: Validator[A]): Attempt[Unit] = {
-    val failures = validator(a, context)
-    if (failures.isEmpty) Attempt.unit
-    else Attempt.Left(FailedAttempt(failures))
+  def validate(createGame: CreateGame): Attempt[Unit] = {
+    combineFailures(
+      nonEmpty(createGame.gameName, "game name"),
+      nonEmpty(createGame.screenName, "screen name"),
+    )
   }
 
-  def validate(createGame: CreateGame)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(createGame.gameName, "game name", nonEmpty) |@|
-      validate(createGame.screenName, "screen name", nonEmpty)
+  def validate(registerPlayer: RegisterPlayer): Attempt[Unit] = {
+    val gameCodeFailures =
+      gameCode(registerPlayer.gameCode, "game code") ++ minLength(4)(registerPlayer.gameCode, "game code")
+
+    combineFailures(
+      gameCodeFailures.headOption.toList,
+      nonEmpty(registerPlayer.screenName, "screen name"),
+    )
   }
 
-  def validate(registerPlayer: RegisterPlayer)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    val gameCodeFailures = validate(registerPlayer.gameCode, "game code", gameCode) |@|
-      validate(registerPlayer.gameCode, "game code", minLength(4))
-
-    gameCodeFailures.firstFailure() |@|
-      validate(registerPlayer.screenName, "screen name", nonEmpty)
+  def validate(startGame: StartGame): Attempt[Unit] = {
+    combineFailures(
+      isUUID(startGame.gameId.value, "game ID"),
+      isUUID(startGame.playerKey.value, "player key"),
+    )
   }
 
-  def validate(startGame: StartGame)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(startGame.gameId.value, "game ID", isUUID) |@|
-      validate(startGame.playerKey.value, "player key", isUUID)
+  def validate(becomeBuyer: BecomeBuyer): Attempt[Unit] = {
+    combineFailures(
+      isUUID(becomeBuyer.gameId.value, "game ID"),
+      isUUID(becomeBuyer.playerKey.value, "player key"),
+    )
   }
 
-  def validate(becomeBuyer: BecomeBuyer)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(becomeBuyer.gameId.value, "game ID", isUUID) |@|
-      validate(becomeBuyer.playerKey.value, "player key", isUUID)
+  def validate(relinquishBuyer: RelinquishBuyer): Attempt[Unit] = {
+    combineFailures(
+      isUUID(relinquishBuyer.gameId.value, "game ID"),
+      isUUID(relinquishBuyer.playerKey.value, "player key"),
+    )
   }
 
-  def validate(relinquishBuyer: RelinquishBuyer)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(relinquishBuyer.gameId.value, "game ID", isUUID) |@|
-      validate(relinquishBuyer.playerKey.value, "player key", isUUID)
+  def validate(startPitch: StartPitch): Attempt[Unit] = {
+    combineFailures(
+      isUUID(startPitch.gameId.value, "game ID"),
+      isUUID(startPitch.playerKey.value, "player key"),
+    )
   }
 
-  def validate(startPitch: StartPitch)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(startPitch.gameId.value, "game ID", isUUID) |@|
-      validate(startPitch.playerKey.value, "player key", isUUID)
+  def validate(finishPitch: FinishPitch): Attempt[Unit] = {
+    combineFailures(
+      isUUID(finishPitch.gameId.value, "game ID"),
+      isUUID(finishPitch.playerKey.value, "player key"),
+      nonEmpty(finishPitch.words._1.value, "first word"),
+      nonEmpty(finishPitch.words._2.value, "second word"),
+    )
   }
 
-  def validate(finishPitch: FinishPitch)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(finishPitch.gameId.value, "game ID", isUUID) |@|
-      validate(finishPitch.playerKey.value, "player key", isUUID) |@|
-      validate(finishPitch.words._1.value, "first word", nonEmpty) |@|
-      validate(finishPitch.words._2.value, "second word", nonEmpty)
+  def validate(awardPoint: AwardPoint): Attempt[Unit] = {
+    combineFailures(
+      isUUID(awardPoint.gameId.value, "game ID"),
+      isUUID(awardPoint.playerKey.value, "player key"),
+      nonEmpty(awardPoint.role.value, "role"),
+      nonEmpty(awardPoint.awardToPlayerWithName, "winning player"),
+    )
   }
 
-  def validate(awardPoint: AwardPoint)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(awardPoint.gameId.value, "game ID", isUUID) |@|
-      validate(awardPoint.playerKey.value, "player key", isUUID) |@|
-      validate(awardPoint.role.value, "role", nonEmpty) |@|
-      validate(awardPoint.awardToPlayerWithName, "winning player", nonEmpty)
+  def validate(ping: Ping): Attempt[Unit] = {
+    combineFailures(
+      isUUID(ping.gameId.value, "game ID"),
+      isUUID(ping.playerKey.value, "player key"),
+    )
   }
 
-  def validate(ping: Ping)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(ping.gameId.value, "game ID", isUUID) |@|
-      validate(ping.playerKey.value, "player key", isUUID)
+  def validate(lobbyPing: LobbyPing): Attempt[Unit] = {
+    combineFailures(
+      isUUID(lobbyPing.gameId.value, "game ID"),
+      isUUID(lobbyPing.playerKey.value, "player key"),
+    )
   }
 
-  def validate(lobbyPing: LobbyPing)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(lobbyPing.gameId.value, "game ID", isUUID) |@|
-      validate(lobbyPing.playerKey.value, "player key", isUUID)
-  }
-
-  def validate(mulligan: Mulligan)(implicit ec: ExecutionContext): Attempt[Unit] = {
-    validate(mulligan.gameId.value, "game ID", isUUID) |@|
-      validate(mulligan.playerKey.value, "player key", isUUID) |@|
-      validate(mulligan.role.value, "role", nonEmpty)
+  def validate(mulligan: Mulligan): Attempt[Unit] = {
+    combineFailures(
+      isUUID(mulligan.gameId.value, "game ID"),
+      isUUID(mulligan.playerKey.value, "player key"),
+      nonEmpty(mulligan.role.value, "role")
+    )
   }
 }

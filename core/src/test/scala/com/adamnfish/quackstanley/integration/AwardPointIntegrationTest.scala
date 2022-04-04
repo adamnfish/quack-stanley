@@ -1,17 +1,15 @@
 package com.adamnfish.quackstanley.integration
 
-import java.util.UUID
-
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.{AttemptValues, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{OneInstancePerTest, OptionValues}
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{OneInstancePerTest, OptionValues}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 
 class AwardPointIntegrationTest extends AnyFreeSpec with Matchers
@@ -59,59 +57,59 @@ class AwardPointIntegrationTest extends AnyFreeSpec with Matchers
 
         "returns player info without role" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
-          val playerInfo = awardPoint(request, testConfig).value()
+          val playerInfo = awardPoint(request, testConfig).run()
           playerInfo.state.role.isEmpty shouldEqual true
         }
 
         "returns state includes new point in winners summary" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
-          val playerInfo = awardPoint(request, testConfig).value()
+          val playerInfo = awardPoint(request, testConfig).run()
           val winnerSummary = playerInfo.opponents.find(_.screenName == winnerScreenName).value
           winnerSummary.points should contain(Role("role"))
         }
 
         "persists point in winner's state" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
-          val playerInfo = awardPoint(request, testConfig).value()
-          val persistedWinnerState = GameIO.getPlayerState(winningPlayerKey, gameId, persistence).value()
+          val playerInfo = awardPoint(request, testConfig).run()
+          val persistedWinnerState = GameIO.getPlayerState(winningPlayerKey, gameId, persistence).run()
           persistedWinnerState.points should contain(Role("role"))
         }
 
         "persists point in winner's player summary in game's state" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
-          val playerInfo = awardPoint(request, testConfig).value()
-          val persistedGameState = GameIO.getGameState(gameId, persistence).value()
+          val playerInfo = awardPoint(request, testConfig).run()
+          val persistedGameState = GameIO.getGameState(gameId, persistence).run()
           persistedGameState.players.get(winningPlayerKey).value.points should contain(Role("role"))
         }
 
         "persists removal of role from player's state" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
-          val playerInfo = awardPoint(request, testConfig).value()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
+          val playerInfo = awardPoint(request, testConfig).run()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).run()
           persistedPlayerState.role.isEmpty shouldEqual true
         }
 
         "persists removal of buyer from game state" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
-          val playerInfo = awardPoint(request, testConfig).value()
-          val persistedState = GameIO.getGameState(gameId, persistence).value()
+          val playerInfo = awardPoint(request, testConfig).run()
+          val persistedState = GameIO.getGameState(gameId, persistence).run()
           persistedState.round.isEmpty shouldEqual true
         }
 
         "excludes current player from otherPlayers" in {
           val request = AwardPoint(gameId, playerKey, Role("role"), winnerScreenName)
-          val playerInfo = awardPoint(request, testConfig).value()
+          val playerInfo = awardPoint(request, testConfig).run()
           playerInfo.opponents should not contain screenName
         }
 
         "fails if the player does not have the role to award" in {
           val request = AwardPoint(gameId, playerKey, Role("different-role"), winnerScreenName)
-          awardPoint(request, testConfig).isFailedAttempt() shouldEqual true
+          awardPoint(request, testConfig).isFailedAttempt()
         }
 
         "fails if the player is not the buyer" in {
           val request = AwardPoint(gameId, creator, Role("role"), winnerScreenName)
-          awardPoint(request, testConfig).isFailedAttempt() shouldEqual true
+          awardPoint(request, testConfig).isFailedAttempt()
         }
 
         "validates user input," - {
@@ -159,13 +157,13 @@ class AwardPointIntegrationTest extends AnyFreeSpec with Matchers
         )
         GameIO.writeGameState(gameState, persistence)
         val request = AwardPoint(gameId, PlayerKey(playerDoesNotExistUUID), Role("role"), "winner")
-        awardPoint(request, testConfig).isFailedAttempt() shouldEqual true
+        awardPoint(request, testConfig).isFailedAttempt()
       }
     }
 
     "if the game does not exist, fails to auth the player" in {
       val request = AwardPoint(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID), Role("role"), "winner")
-      awardPoint(request, testConfig).isFailedAttempt() shouldEqual true
+      awardPoint(request, testConfig).isFailedAttempt()
     }
   }
 }

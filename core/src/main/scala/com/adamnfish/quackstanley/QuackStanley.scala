@@ -1,38 +1,50 @@
 package com.adamnfish.quackstanley
 
+import cats.data.EitherT
+import cats.implicits._
 import com.adamnfish.quackstanley.Logic._
 import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
-import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.models.Validation._
+import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO._
-
-import scala.concurrent.ExecutionContext
 
 
 object QuackStanley {
   val handSize = 6
 
-  def dispatch(apiOperation: ApiOperation, config: Config)(implicit ec: ExecutionContext): Attempt[ApiResponse] = {
+  def dispatch(apiOperation: ApiOperation, config: Config): Attempt[ApiResponse] = {
     apiOperation match {
-      case data: CreateGame => createGame(data, config)
-      case data: RegisterPlayer => registerPlayer(data, config)
-      case data: StartGame => startGame(data, config)
-      case data: BecomeBuyer => becomeBuyer(data, config)
-      case data: RelinquishBuyer => relinquishBuyer(data, config)
-      case data: StartPitch => startPitch(data, config)
-      case data: FinishPitch => finishPitch(data, config)
-      case data: AwardPoint => awardPoint(data, config)
-      case data: Mulligan => mulligan(data, config)
-      case data: Ping => ping(data, config)
-      case data: LobbyPing => lobbyPing(data, config)
-      case data: Wake => wake(data, config)
+      case data: CreateGame =>
+        createGame(data, config).widen[ApiResponse]
+      case data: RegisterPlayer =>
+        registerPlayer(data, config).widen[ApiResponse]
+      case data: StartGame =>
+        startGame(data, config).widen[ApiResponse]
+      case data: BecomeBuyer =>
+        becomeBuyer(data, config).widen[ApiResponse]
+      case data: RelinquishBuyer =>
+        relinquishBuyer(data, config).widen[ApiResponse]
+      case data: StartPitch =>
+        startPitch(data, config).widen[ApiResponse]
+      case data: FinishPitch =>
+        finishPitch(data, config).widen[ApiResponse]
+      case data: AwardPoint =>
+        awardPoint(data, config).widen[ApiResponse]
+      case data: Mulligan =>
+        mulligan(data, config).widen[ApiResponse]
+      case data: Ping =>
+        ping(data, config).widen[ApiResponse]
+      case data: LobbyPing =>
+        lobbyPing(data, config).widen[ApiResponse]
+      case data: Wake =>
+        wake(data, config).widen[ApiResponse]
     }
   }
 
   /**
     * Creates a new game and automatically registers this player as the creator.
     */
-  def createGame(data: CreateGame, config: Config)(implicit ec: ExecutionContext): Attempt[NewGame] = {
+  def createGame(data: CreateGame, config: Config): Attempt[NewGame] = {
     val gameState = newGame(data.gameName, data.screenName)
     val playerKey = gameState.creator
     val playerState = newPlayer(gameState.gameId, gameState.gameName, data.screenName)
@@ -53,7 +65,7 @@ object QuackStanley {
     * Because player info is only added to the game state when the game starts, we need to lookup all
     * the players' info separately to check if the screen name is unique.
     */
-  def registerPlayer(data: RegisterPlayer, config: Config)(implicit ec: ExecutionContext): Attempt[Registered] = {
+  def registerPlayer(data: RegisterPlayer, config: Config): Attempt[Registered] = {
     for {
       _ <- validate(data)
       gameId <- lookupGameIdFromCode(data.gameCode, config.persistence)
@@ -73,7 +85,7 @@ object QuackStanley {
     * This is also the chance to write the player names/keys into the game state.
     * Doing it from here prevents race hazards since reading and writing S3 files is not atomic.
     */
-  def startGame(data: StartGame, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+  def startGame(data: StartGame, config: Config): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
       gameState <- getGameState(data.gameId, config.persistence)
@@ -96,7 +108,7 @@ object QuackStanley {
     * Signals that the player would like to be the next "buyer".
     * We can deal them a role and wait for people to pitch to that player.
     */
-  def becomeBuyer(data: BecomeBuyer, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+  def becomeBuyer(data: BecomeBuyer, config: Config): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
       gameState <- getGameState(data.gameId, config.persistence)
@@ -116,7 +128,7 @@ object QuackStanley {
   /**
     * Allows player to stop being the game's "buyer" without granting a point to another player.
     */
-  def relinquishBuyer(data: RelinquishBuyer, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+  def relinquishBuyer(data: RelinquishBuyer, config: Config): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
       gameState <- getGameState(data.gameId, config.persistence)
@@ -135,20 +147,20 @@ object QuackStanley {
     *
     * Is this necessary?
    */
-  def startPitch(data: StartPitch, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+  def startPitch(data: StartPitch, config: Config): Attempt[PlayerInfo] = {
     // auth
     // validate no one else is pitching
     // write player state
     // update game state
-    Attempt.Left(
-      Failure("start pitch is not implemented", "'start pitch' functionality has not yet been created", 404)
+    EitherT.leftT(
+      Failure("start pitch is not implemented", "'start pitch' functionality has not yet been created", 404).asFailedAttempt
     )
   }
 
   /**
     * Discards player's words, replaces them with new ones.
     */
-  def finishPitch(data: FinishPitch, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+  def finishPitch(data: FinishPitch, config: Config): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
       gameState <- getGameState(data.gameId, config.persistence)
@@ -169,7 +181,7 @@ object QuackStanley {
   /**
     * Ends the round and gives the point (word) to another player.
     */
-  def awardPoint(data: AwardPoint, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+  def awardPoint(data: AwardPoint, config: Config): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
       gameState <- getGameState(data.gameId, config.persistence)
@@ -178,8 +190,7 @@ object QuackStanley {
       playerState <- lookupPlayer(players, data.playerKey)
       _ <- playerHasRole(playerState, data.role)
       updatedPlayerState = playerState.copy(role = None)
-      winningPlayerDetails <- lookupPlayerByName(players, data.awardToPlayerWithName)
-      (winningPlayerKey, winningPlayer) = winningPlayerDetails
+      (winningPlayerKey, winningPlayer) <- lookupPlayerByName(players, data.awardToPlayerWithName)
       updatedGameState <- updateGameWithAwardedPoint(gameState, winningPlayerKey, data.role)
       updatedWinningPlayer = addRoleToPoints(winningPlayer, data.role)
       _ <- writePlayerState(updatedPlayerState, data.playerKey, config.persistence)
@@ -192,13 +203,13 @@ object QuackStanley {
     * Player discards a point (if they have one) and their current hand.
     * Player is given a new hand of words.
     */
-  def mulligan(data: Mulligan, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+  def mulligan(data: Mulligan, config: Config): Attempt[PlayerInfo] = {
     // auth
     // verify role is provided if they have any points
     // discard words
     // get new words for the player
-    Attempt.Left(
-      Failure("mulligan is not implemented", "'mulligan' functionality has not yet been created", 404)
+    EitherT.leftT(
+      Failure("mulligan is not implemented", "'mulligan' functionality has not yet been created", 404).asFailedAttempt
     )
   }
 
@@ -207,7 +218,7 @@ object QuackStanley {
     *
     * Ping is called very regularly so optimisations are in place to reduce costs.
     */
-  def ping(data: Ping, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+  def ping(data: Ping, config: Config): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
       // kick off requests in parallel to speed up response
@@ -224,7 +235,7 @@ object QuackStanley {
     *
     * LobbyPing is called regularly so optimisations are in place to reduce costs.
     */
-  def lobbyPing(data: LobbyPing, config: Config)(implicit ec: ExecutionContext): Attempt[PlayerInfo] = {
+  def lobbyPing(data: LobbyPing, config: Config): Attempt[PlayerInfo] = {
     for {
       _ <- validate(data)
       // kick off requests in parallel to speed up response
@@ -241,7 +252,7 @@ object QuackStanley {
   /**
     * No-op to wake the Lambda.
     */
-  def wake(data: Wake, config: Config)(implicit ec: ExecutionContext): Attempt[Ok] = {
-    Attempt.Right(Ok("ok"))
+  def wake(data: Wake, config: Config): Attempt[Ok] = {
+    EitherT.pure(Ok("ok"))
   }
 }

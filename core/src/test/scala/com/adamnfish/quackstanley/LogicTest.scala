@@ -1,15 +1,14 @@
 package com.adamnfish.quackstanley
 
+import cats.data.EitherT
 import com.adamnfish.quackstanley.Logic._
 import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt, Failure}
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.{GameIO, Persistence}
 import org.joda.time.DateTime
 import org.scalatest.OptionValues
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
-
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.scalatest.matchers.should.Matchers
 
 
 class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with OptionValues with HaveMatchers {
@@ -168,7 +167,7 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
       )
 
       "returns the user's summary" in {
-        authenticate(playerKey, gameState).value().screenName shouldEqual "player-name"
+        authenticate(playerKey, gameState).run().screenName shouldEqual "player-name"
       }
     }
 
@@ -194,15 +193,15 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     )
 
     "fails if the key is not in the group" in {
-      authenticateCreator(PlayerKey("bar"), gameState).isFailedAttempt() shouldEqual true
+      authenticateCreator(PlayerKey("bar"), gameState).isFailedAttempt()
     }
 
     "fails if the provided key is not the creator" in {
-      authenticateCreator(PlayerKey("player"), gameState).isFailedAttempt() shouldEqual true
+      authenticateCreator(PlayerKey("player"), gameState).isFailedAttempt()
     }
 
     "succeeds if the provided player is the creator" in {
-      authenticateCreator(PlayerKey("foo"), gameState).isSuccessfulAttempt() shouldEqual true
+      authenticateCreator(PlayerKey("foo"), gameState).isSuccessfulAttempt()
     }
   }
 
@@ -216,15 +215,15 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     )
 
     "fails if the key is not in the group" in {
-      authenticateBuyer(PlayerKey("bar"), gameState).isFailedAttempt() shouldEqual true
+      authenticateBuyer(PlayerKey("bar"), gameState).isFailedAttempt()
     }
 
     "fails if the provided key is not the buyer" in {
-      authenticateBuyer(PlayerKey("player"), gameState).isFailedAttempt() shouldEqual true
+      authenticateBuyer(PlayerKey("player"), gameState).isFailedAttempt()
     }
 
     "succeeds if the provided player is the buyer" in {
-      authenticateBuyer(PlayerKey("foo"), gameState).isSuccessfulAttempt() shouldEqual true
+      authenticateBuyer(PlayerKey("foo"), gameState).isSuccessfulAttempt()
     }
   }
 
@@ -237,11 +236,11 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     )
 
     "fails if the name is not found" in {
-      lookupPlayerByName(players, "name-not-in-game").isFailedAttempt() shouldEqual true
+      lookupPlayerByName(players, "name-not-in-game").isFailedAttempt()
     }
 
     "returns the player details if the player is found" in {
-      val (key, playerState) = lookupPlayerByName(players, "screen-name").value()
+      val (key, playerState) = lookupPlayerByName(players, "screen-name").run()
       key shouldEqual playerKey
       playerState shouldEqual playerState
     }
@@ -250,17 +249,17 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
   "playerHasRole" - {
     "fails if the player has no role" in {
       val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, None, Nil)
-      playerHasRole(playerState, Role("role")).isFailedAttempt() shouldEqual true
+      playerHasRole(playerState, Role("role")).isFailedAttempt()
     }
 
     "fails if the player does not have the provided role" in {
       val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, Some(Role("role")), Nil)
-      playerHasRole(playerState, Role("test")).isFailedAttempt() shouldEqual true
+      playerHasRole(playerState, Role("test")).isFailedAttempt()
     }
 
     "succeeds if we provide the player's current role" in {
       val playerState = PlayerState(GameId("game"), "game name", "", Nil, Nil, Some(Role("role")), Nil)
-      playerHasRole(playerState, Role("role")).isSuccessfulAttempt() shouldEqual true
+      playerHasRole(playerState, Role("role")).isSuccessfulAttempt()
     }
   }
 
@@ -283,12 +282,12 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
   "verifyNoBuyer" - {
     "returns sucessful attempt if there is no buyer" in {
       val game = newGame("game name", "creator").copy(round = None)
-      verifyNoBuyer(game).isFailedAttempt() shouldEqual false
+      verifyNoBuyer(game).isSuccessfulAttempt()
     }
 
     "returns failed attempt if there is already a buyer" in {
       val game = newGame("game name", "creator").copy(round = Some(Round(PlayerKey("player"), Role("role"), Map.empty)))
-      verifyNoBuyer(game).isFailedAttempt() shouldEqual true
+      verifyNoBuyer(game).isFailedAttempt()
     }
 
     "failure includes current buyer's name" in {
@@ -304,26 +303,26 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
   "verifyNotStarted" - {
     "succeeds if the game has started" in {
       val gameState = newGame("test game", "creator").copy(started = true)
-      verifyNotStarted(gameState).isFailedAttempt() shouldEqual true
+      verifyNotStarted(gameState).isFailedAttempt()
     }
 
     "fails if the game has not started" in {
       val gameState = newGame("test game", "creator").copy(started = false)
-      verifyNotStarted(gameState).isSuccessfulAttempt() shouldEqual true
+      verifyNotStarted(gameState).isSuccessfulAttempt()
     }
   }
 
   "validatePlayerCount" - {
     "succeeds if there are enough players" in {
-      validatePlayerCount(3).isSuccessfulAttempt() shouldEqual true
+      validatePlayerCount(3).isSuccessfulAttempt()
     }
 
     "fails if there are too few players" in {
-      validatePlayerCount(1).isFailedAttempt() shouldEqual true
+      validatePlayerCount(1).isFailedAttempt()
     }
 
     "we'll allow 2 players because it's useful for quick testing" in {
-      validatePlayerCount(2).isSuccessfulAttempt() shouldEqual true
+      validatePlayerCount(2).isSuccessfulAttempt()
     }
   }
 
@@ -336,11 +335,11 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     )
 
     "succeeds if the name is not already used" in {
-      verifyUniqueScreenName("unique name", existing).value() shouldEqual ()
+      verifyUniqueScreenName("unique name", existing).run() shouldEqual ()
     }
 
     "fails if the name is already in use" in {
-      verifyUniqueScreenName("creator", existing).isFailedAttempt() shouldEqual true
+      verifyUniqueScreenName("creator", existing).isFailedAttempt()
     }
   }
 
@@ -356,11 +355,11 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
 
     "fails if there is no round in progress" in {
       val gameWithNoRound = gameWithBuyer.copy(round = None)
-      updateGameWithPitch(gameWithNoRound, playerKey, (Word("word1"), Word("word2"))).isFailedAttempt() shouldEqual true
+      updateGameWithPitch(gameWithNoRound, playerKey, (Word("word1"), Word("word2"))).isFailedAttempt()
     }
 
     "adds the pitch to the round" in {
-      val gameState = updateGameWithPitch(gameWithBuyer, playerKey, (Word("word1"), Word("word2"))).value()
+      val gameState = updateGameWithPitch(gameWithBuyer, playerKey, (Word("word1"), Word("word2"))).run()
       val round = gameState.round.value
       round.products.get(playerKey).value shouldEqual (Word("word1"), Word("word2"))
     }
@@ -377,15 +376,15 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
 
     "adds point to nominated player's summary" in {
       val updatedGame = updateGameWithAwardedPoint(gameWithBuyer, playerKey, role)
-      updatedGame.value().players.get(playerKey).value.points should contain(role)
+      updatedGame.run().players.get(playerKey).value.points should contain(role)
     }
 
     "removes current buyer" in {
-      updateGameWithAwardedPoint(gameWithBuyer, playerKey, role).value().round shouldBe None
+      updateGameWithAwardedPoint(gameWithBuyer, playerKey, role).run().round shouldBe None
     }
 
     "fails if the player cannot be found in the game state's players" in {
-      updateGameWithAwardedPoint(gameWithBuyer, PlayerKey("not playing"), role).isFailedAttempt() shouldEqual true
+      updateGameWithAwardedPoint(gameWithBuyer, PlayerKey("not playing"), role).isFailedAttempt()
     }
   }
 
@@ -414,19 +413,19 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     "fails if no words are provided" in {
       val words = Nil
       val usedWords = Set.empty[Word]
-      nextWords(1, words, usedWords).isFailedAttempt() shouldEqual true
+      nextWords(1, words, usedWords).isFailedAttempt()
     }
 
     "fails if remaining words have been used" in {
       val words = List(Word("one"), Word("two"), Word("three"))
       val usedWords = Set(Word("one"), Word("two"), Word("three"))
-      nextWords(1, words, usedWords).isFailedAttempt() shouldEqual true
+      nextWords(1, words, usedWords).isFailedAttempt()
     }
 
     "returns an unused word" in {
       val words = List(Word("one"), Word("two"), Word("three"))
       val usedWords = Set(Word("one"), Word("two"))
-      nextWords(1, words, usedWords).value() shouldEqual List(Word("three"))
+      nextWords(1, words, usedWords).run() shouldEqual List(Word("three"))
     }
   }
 
@@ -455,19 +454,19 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     "fails if no roles are provided" in {
       val roles = Nil
       val usedRoles = Set.empty[Role]
-      nextRole(roles, usedRoles).isFailedAttempt() shouldEqual true
+      nextRole(roles, usedRoles).isFailedAttempt()
     }
 
     "fails if remaining roles have been used" in {
       val roles = List(Role("one"), Role("two"), Role("three"))
       val usedRoles = Set(Role("one"), Role("two"), Role("three"))
-      nextRole(roles, usedRoles).isFailedAttempt() shouldEqual true
+      nextRole(roles, usedRoles).isFailedAttempt()
     }
 
     "returns an unused role" in {
       val roles = List(Role("one"), Role("two"), Role("three"))
       val usedRoles = Set(Role("one"), Role("two"))
-      nextRole(roles, usedRoles).value() shouldEqual Role("three")
+      nextRole(roles, usedRoles).run() shouldEqual Role("three")
     }
   }
 
@@ -479,12 +478,12 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     )
 
     "fails if there aren't enough words provided" in {
-      dealWordsToAllPlayers(Nil, players).isFailedAttempt() shouldEqual true
+      dealWordsToAllPlayers(Nil, players).isFailedAttempt()
     }
 
     "deals each player 'hand size' words" in {
       val words = List.fill(QuackStanley.handSize * 2)(Word("test"))
-      dealWordsToAllPlayers(words, players).value().forall { case (_, state) =>
+      dealWordsToAllPlayers(words, players).run().forall { case (_, state) =>
         state.hand.size == QuackStanley.handSize
       } shouldEqual true
     }
@@ -513,18 +512,18 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     }
 
     "if both words are present, returns the updated player state" in {
-      val updatedPlayerState = discardWords((Word("one"), Word("two")), playerState).value()
+      val updatedPlayerState = discardWords((Word("one"), Word("two")), playerState).run()
       updatedPlayerState.hand shouldEqual List(Word("three"), Word("four"))
     }
 
     "puts the discarded words into the returned player state" in {
-      val updatedPlayerState = discardWords((Word("one"), Word("two")), playerState).value()
+      val updatedPlayerState = discardWords((Word("one"), Word("two")), playerState).run()
       updatedPlayerState.discardedWords shouldEqual List(Word("one"), Word("two"))
     }
 
     "adds the discarded words to the existing player state" in {
       val discardedPlayerState = playerState.copy(discardedWords = List(Word("foo"), Word("bar")))
-      val updatedPlayerState = discardWords((Word("one"), Word("two")), discardedPlayerState).value()
+      val updatedPlayerState = discardWords((Word("one"), Word("two")), discardedPlayerState).run()
       updatedPlayerState.discardedWords shouldEqual List(Word("foo"), Word("bar"), Word("one"), Word("two"))
     }
   }
@@ -532,12 +531,12 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
   "fillHand" - {
     "fails if we don't provide enough words" in {
       val result = fillHand(Nil, PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil))
-      result.isFailedAttempt() shouldEqual true
+      result.isFailedAttempt()
     }
 
     "returns filled hand if we provide enough words" in {
       val words = List.fill(QuackStanley.handSize)(Word("one"))
-      val updatedPlayerState = fillHand(words, PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil)).value()
+      val updatedPlayerState = fillHand(words, PlayerState(GameId("game-id"), "game name", "screen name", Nil, Nil, None, Nil)).run()
       updatedPlayerState.hand shouldEqual words
     }
   }
@@ -556,23 +555,23 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
     val testPersistence = new TestPersistence
 
     "returns default prefix if it is clear" in {
-      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = Attempt.Right(true)
-      makeUniquePrefix(gameId, testPersistence, fn).value() shouldEqual "1234"
+      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = EitherT.pure(true)
+      makeUniquePrefix(gameId, testPersistence, fn).run() shouldEqual "1234"
     }
 
     "returns longer prefix if first one was not clear" in {
-      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = Attempt.Right(n > 4)
-      makeUniquePrefix(gameId, testPersistence, fn).value() shouldEqual "12345"
+      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = EitherT.pure(n > 4)
+      makeUniquePrefix(gameId, testPersistence, fn).run() shouldEqual "12345"
     }
 
     "fails if thea unique prefix cannot be found" in {
-      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = Attempt.Right(false)
-      makeUniquePrefix(gameId, testPersistence, fn).isFailedAttempt() shouldEqual true
+      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = EitherT.pure(false)
+      makeUniquePrefix(gameId, testPersistence, fn).isFailedAttempt()
     }
 
     "fails if the provided fn fails" in {
       val expected = FailedAttempt(Failure("test", "test", 500))
-      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = Attempt.Left(expected)
+      def fn(gid: GameId, n: Int, c: Persistence): Attempt[Boolean] = EitherT.leftT(expected)
       makeUniquePrefix(gameId, testPersistence, fn).leftValue() shouldEqual expected
     }
   }
@@ -588,17 +587,17 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
       )
 
       "returns ID of matching game" in {
-        gameIdFromPrefixResults(gameCode, results).value().value shouldEqual "abcdef1234"
+        gameIdFromPrefixResults(gameCode, results).run().value shouldEqual "abcdef1234"
       }
 
       "returns ID of game if prefix code is the entire ID" in {
-        gameIdFromPrefixResults(gameId.value, results).value().value shouldEqual "abcdef1234"
+        gameIdFromPrefixResults(gameId.value, results).run().value shouldEqual "abcdef1234"
       }
     }
 
     "fails if no matches are found" in {
       val noMatches = List("abc", "def")
-      gameIdFromPrefixResults(gameCode, noMatches).isFailedAttempt() shouldEqual true
+      gameIdFromPrefixResults(gameCode, noMatches).isFailedAttempt()
     }
 
     "fails if more than one game matches" in {
@@ -609,7 +608,7 @@ class LogicTest extends AnyFreeSpec with Matchers with AttemptValues with Option
         GameIO.playerStatePath(badMatch, PlayerKey("player-key")),
         GameIO.gameStatePath(badMatch)
       )
-      gameIdFromPrefixResults(gameCode, multiMatches).isFailedAttempt() shouldEqual true
+      gameIdFromPrefixResults(gameCode, multiMatches).isFailedAttempt()
     }
   }
 }
