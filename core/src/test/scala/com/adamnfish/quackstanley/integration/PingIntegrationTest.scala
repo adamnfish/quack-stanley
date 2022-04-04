@@ -1,17 +1,15 @@
 package com.adamnfish.quackstanley.integration
 
-import java.util.UUID
-
 import com.adamnfish.quackstanley.QuackStanley._
-import com.adamnfish.quackstanley.{AttemptValues, TestPersistence}
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
+import com.adamnfish.quackstanley.{AttemptValues, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{OneInstancePerTest, OptionValues}
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{OneInstancePerTest, OptionValues}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 
 class PingIntegrationTest extends AnyFreeSpec with Matchers
@@ -50,13 +48,13 @@ class PingIntegrationTest extends AnyFreeSpec with Matchers
 
         "returns correct player info for player" in {
           val request = Ping(gameId, playerKey)
-          val playerInfo = ping(request, testConfig).value()
+          val playerInfo = ping(request, testConfig).run()
           playerInfo.state.screenName shouldEqual screenName
         }
 
         "excludes correct player from 'otherPlayers'" in {
           val request = Ping(gameId, playerKey)
-          val playerInfo = ping(request, testConfig).value()
+          val playerInfo = ping(request, testConfig).run()
           playerInfo.opponents should not contain screenName
         }
 
@@ -99,13 +97,13 @@ class PingIntegrationTest extends AnyFreeSpec with Matchers
         )
         GameIO.writeGameState(gameState, persistence)
         val request = Ping(gameId, PlayerKey(playerDoesNotExistUUID))
-        ping(request, testConfig).isFailedAttempt() shouldEqual true
+        ping(request, testConfig).isFailedAttempt()
       }
     }
 
     "if the game does not exist, fails to auth the player" in {
       val request = Ping(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID))
-      ping(request, testConfig).isFailedAttempt() shouldEqual true
+      ping(request, testConfig).isFailedAttempt()
     }
   }
 }

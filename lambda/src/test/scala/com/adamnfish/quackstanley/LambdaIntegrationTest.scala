@@ -1,7 +1,5 @@
 package com.adamnfish.quackstanley
 
-import java.io.InputStream
-
 import com.adamnfish.quackstanley.LambdaIntegration.{headers, parseBody}
 import com.adamnfish.quackstanley.Utils._
 import com.adamnfish.quackstanley.models.ApiOperation
@@ -10,7 +8,7 @@ import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.io.InputStream
 
 
 class LambdaIntegrationTest extends AnyFreeSpec with Matchers with AttemptValues with OptionValues with HaveMatchers {
@@ -31,7 +29,7 @@ class LambdaIntegrationTest extends AnyFreeSpec with Matchers with AttemptValues
   "parseBody" - {
     "parses a create game request" in {
       val data = """"{ \"operation\": \"create-game\", \"gameName\": \"test-game\", \"screenName\": \"player-one\" }""""
-      val (operation, _) = parseBody[ApiOperation](asLambdaRequest(data)).value()
+      val (operation, _) = parseBody[ApiOperation](asLambdaRequest(data)).run()
       operation should have(
         "gameName" as ("test-game"),
         "screenName" as ("player-one")

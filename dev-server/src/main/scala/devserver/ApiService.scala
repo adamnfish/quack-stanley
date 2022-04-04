@@ -1,30 +1,28 @@
 package devserver
 
-import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
+import cats.data.EitherT
+import cats.effect.IO
+import com.adamnfish.quackstanley.QuackStanley
+import com.adamnfish.quackstanley.attempt.Failure
 import com.adamnfish.quackstanley.models.Serialization._
 import com.adamnfish.quackstanley.models.{ApiOperation, Config, Serialization}
-import com.adamnfish.quackstanley.QuackStanley
 import com.typesafe.scalalogging.LazyLogging
+import io.circe._
 import io.circe.parser._
 import io.circe.syntax._
-import io.circe._
-
-import scala.concurrent.Future
 
 
 object ApiService extends LazyLogging {
-  implicit val ec = scala.concurrent.ExecutionContext.global
-
   val fakeConfig = Config("dev", new FakePersistence)
 
-  def devQuackStanley(body: String): Future[(Int, String)] = {
+  def devQuackStanley(body: String): IO[(Int, String)] = {
     (for {
-      jsonBody <- Attempt.fromEither(parse(body).left.map { e =>
-        Failure(e.getMessage(), "Failed to parse request", 400).asAttempt
+      jsonBody <- EitherT.fromEither[IO](parse(body).left.map { e =>
+        Failure(e.getMessage(), "Failed to parse request", 400).asFailedAttempt
       })
       apiOp <- Serialization.extractJson[ApiOperation](jsonBody)
       statusAndResponse <- QuackStanley.dispatch(apiOp, fakeConfig)
-    } yield statusAndResponse).asFuture.map {
+    } yield statusAndResponse).value.map {
       case Right(out) =>
         (200, out.asJson.noSpaces)
       case Left(failures) =>

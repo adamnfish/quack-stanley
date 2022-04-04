@@ -1,5 +1,6 @@
 package com.adamnfish.quackstanley.models
 
+import cats.data.EitherT
 import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe._
@@ -92,8 +93,8 @@ object Serialization {
   implicit val gameStateDecoder: Decoder[GameState] = deriveDecoder[GameState]
 
   def extractJson[A](json: Json)(implicit decoder: Decoder[A]): Attempt[A] = {
-    Attempt.fromEither(json.as[A].left.map { decodingFailure =>
-      Failure(s"Failed to parse request body as expected type: ${decodingFailure.message}", "Failed to parse request JSON", 400, Some(decodingFailure.history.mkString("|"))).asAttempt
+    EitherT.fromEither(json.as[A].left.map { decodingFailure =>
+      Failure(s"Failed to parse request body as expected type: ${decodingFailure.message}", "Failed to parse request JSON", 400, Some(decodingFailure.history.mkString("|"))).asFailedAttempt
     })
   }
 

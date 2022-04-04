@@ -1,17 +1,15 @@
 package com.adamnfish.quackstanley.integration
 
-import java.util.UUID
-
 import com.adamnfish.quackstanley.QuackStanley._
-import com.adamnfish.quackstanley.{AttemptValues, TestPersistence}
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
+import com.adamnfish.quackstanley.{AttemptValues, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{OneInstancePerTest, OptionValues}
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{OneInstancePerTest, OptionValues}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 
 class BecomeBuyerIntegrationTest extends AnyFreeSpec with Matchers
@@ -50,27 +48,27 @@ class BecomeBuyerIntegrationTest extends AnyFreeSpec with Matchers
 
         "returns role in player info" in {
           val request = BecomeBuyer(gameId, playerKey)
-          val playerInfo = becomeBuyer(request, testConfig).value()
+          val playerInfo = becomeBuyer(request, testConfig).run()
           playerInfo.state.role.isDefined shouldEqual true
         }
 
         "persists role in player state" in {
           val request = BecomeBuyer(gameId, playerKey)
-          val playerInfo = becomeBuyer(request, testConfig).value()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).value()
+          val playerInfo = becomeBuyer(request, testConfig).run()
+          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).run()
           persistedPlayerState.role.isDefined shouldEqual true
         }
 
         "persists buyer in game state" in {
           val request = BecomeBuyer(gameId, playerKey)
-          val playerInfo = becomeBuyer(request, testConfig).value()
-          val persistedState = GameIO.getGameState(gameId, persistence).value()
+          val playerInfo = becomeBuyer(request, testConfig).run()
+          val persistedState = GameIO.getGameState(gameId, persistence).run()
           persistedState.round.isDefined shouldEqual true
         }
 
         "excludes current player from otherPlayers" in {
           val request = BecomeBuyer(gameId, playerKey)
-          val playerInfo = becomeBuyer(request, testConfig).value()
+          val playerInfo = becomeBuyer(request, testConfig).run()
           playerInfo.opponents should not contain screenName
         }
 
@@ -113,7 +111,7 @@ class BecomeBuyerIntegrationTest extends AnyFreeSpec with Matchers
         )
         GameIO.writeGameState(gameState, persistence)
         val request = BecomeBuyer(gameId, PlayerKey(playerDoesNotExistUUID))
-        becomeBuyer(request, testConfig).isFailedAttempt() shouldEqual true
+        becomeBuyer(request, testConfig).isFailedAttempt()
       }
 
       "and this player is already the buyer, fails to become buyer" ignore {
@@ -123,7 +121,7 @@ class BecomeBuyerIntegrationTest extends AnyFreeSpec with Matchers
 
     "if the game does not exist, fails to auth the player" in {
       val request = BecomeBuyer(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID))
-      becomeBuyer(request, testConfig).isFailedAttempt() shouldEqual true
+      becomeBuyer(request, testConfig).isFailedAttempt()
     }
   }
 }

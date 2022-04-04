@@ -1,29 +1,38 @@
 package com.adamnfish.quackstanley
 
+import cats.effect.unsafe.IORuntime
 import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt}
-import org.scalatest.EitherValues
+import org.scalactic.source.Position
+import org.scalatest.{Assertion, EitherValues, Failed, Succeeded}
+import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
-
-import scala.concurrent.{Await, ExecutionContext}
-import scala.concurrent.duration._
 
 
 trait AttemptValues extends EitherValues with RightValues with Matchers {
+  implicit val runtime: IORuntime = IORuntime.global
+
   implicit class RichAttmpt[A](attempt: Attempt[A]) {
-    def value()(implicit ec: ExecutionContext): A = {
-      val result = Await.result(attempt.asFuture, 5.seconds)
+    def run()(implicit pos: Position): A = {
+      val result = attempt.value.unsafeRunSync()
       withClue {
         result.fold(
           fa => s"${fa.logString}",
           _ => ""
         )
       } {
-        result.value
+        result match {
+          case Right(value) => value
+          case Left(fa) =>
+            throw new TestFailedException(
+              _ => Some(s"Expected successful attempt, got failure: ${fa.logString}"),
+              None, pos
+            )
+        }
       }
     }
 
-    def leftValue()(implicit ec: ExecutionContext): FailedAttempt = {
-      val result = Await.result(attempt.asFuture, 5.seconds)
+    def leftValue()(implicit pos: Position): FailedAttempt = {
+      val result = attempt.value.unsafeRunSync()
       withClue {
         result.fold(
           fa => s"${fa.logString}",
@@ -34,16 +43,26 @@ trait AttemptValues extends EitherValues with RightValues with Matchers {
       }
     }
 
-    def isSuccessfulAttempt()(implicit ec: ExecutionContext): Boolean = {
-      val result = Await.result(attempt.asFuture, 5.seconds)
-      result.fold(
-        fa => false,
-        _ => true
+    def isSuccessfulAttempt()(implicit pos: Position): Assertion = {
+      attempt.value.unsafeRunSync().fold(
+        { fa =>
+          Failed(s"Expected successful attempt, got failures: ${fa.logString}").toSucceeded
+        },
+        { _ =>
+          Succeeded
+        }
       )
     }
 
-    def isFailedAttempt()(implicit ec: ExecutionContext): Boolean = {
-      !isSuccessfulAttempt()
+    def isFailedAttempt()(implicit pos: Position): Assertion = {
+      attempt.value.unsafeRunSync().fold(
+        { _ =>
+          Succeeded
+        },
+        { a =>
+          Failed(s"Expected failed attempt, got successful value: $a").toSucceeded
+        }
+      )
     }
   }
 }

@@ -1,17 +1,15 @@
 package com.adamnfish.quackstanley.integration
 
-import java.util.UUID
-
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
 import com.adamnfish.quackstanley.{AttemptValues, TestPersistence}
 import org.joda.time.DateTime
-import org.scalatest.{OneInstancePerTest, OptionValues}
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{OneInstancePerTest, OptionValues}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 
 class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
@@ -51,34 +49,34 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
       val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
         Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
       )
-      GameIO.writeGameState(gameState, persistence).value()
-      GameIO.writePlayerState(creatorState, creatorKey, persistence).value()
-      GameIO.writePlayerState(playerState, playerKey, persistence).value()
-      GameIO.writePlayerState(player2State, player2Key, persistence).value()
+      GameIO.writeGameState(gameState, persistence).run()
+      GameIO.writePlayerState(creatorState, creatorKey, persistence).run()
+      GameIO.writePlayerState(playerState, playerKey, persistence).run()
+      GameIO.writePlayerState(player2State, player2Key, persistence).run()
 
       // LOOK AT START GAME FOR CREATOR VALIDATION ETC
 
       "and this player is the creator" - {
         "succeeds" in {
           val request = LobbyPing(gameId, creatorKey)
-          lobbyPing(request, testConfig).isSuccessfulAttempt() shouldEqual true
+          lobbyPing(request, testConfig).isSuccessfulAttempt()
         }
 
         "returns correct player info for creator" in {
           val request = LobbyPing(gameId, creatorKey)
-          val playerInfo = lobbyPing(request, testConfig).value()
+          val playerInfo = lobbyPing(request, testConfig).run()
           playerInfo.state.screenName shouldEqual creatorScreenName
         }
 
         "excludes correct player from 'otherPlayers'" in {
           val request = LobbyPing(gameId, creatorKey)
-          val playerInfo = lobbyPing(request, testConfig).value()
+          val playerInfo = lobbyPing(request, testConfig).run()
           playerInfo.opponents should not contain creatorScreenName
         }
 
         "includes other players in 'otherPlayers'" in {
           val request = LobbyPing(gameId, creatorKey)
-          val playerInfo = lobbyPing(request, testConfig).value()
+          val playerInfo = lobbyPing(request, testConfig).run()
           playerInfo.opponents.map(_.screenName) should contain.allOf(playerScreenName, player2ScreenName)
         }
 
@@ -117,25 +115,25 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
 
       "and this player is not registered, fails to auth player" in {
         val request = LobbyPing(gameId, PlayerKey(playerDoesNotExistUUID))
-        lobbyPing(request, testConfig).isFailedAttempt() shouldEqual true
+        lobbyPing(request, testConfig).isFailedAttempt()
       }
 
       "if the player is not the creator, fails to perform the action" in {
         val request = LobbyPing(gameId, playerKey)
-        lobbyPing(request, testConfig).isFailedAttempt() shouldEqual true
+        lobbyPing(request, testConfig).isFailedAttempt()
       }
 
       "fails if the game has already started" in {
         val startedState = gameState.copy(started = true)
-        GameIO.writeGameState(startedState, persistence).value()
+        GameIO.writeGameState(startedState, persistence).run()
         val request = LobbyPing(gameId, creatorKey)
-        lobbyPing(request, testConfig).isFailedAttempt() shouldEqual true
+        lobbyPing(request, testConfig).isFailedAttempt()
       }
     }
 
     "if the game does not exist, fails to auth the player" in {
       val request = LobbyPing(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID))
-      lobbyPing(request, testConfig).isFailedAttempt() shouldEqual true
+      lobbyPing(request, testConfig).isFailedAttempt()
     }
   }
 }
