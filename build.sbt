@@ -1,6 +1,6 @@
 ThisBuild / organization := "com.adamnfish"
 ThisBuild / version := "0.1-SNAPSHOT"
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.14"
 ThisBuild / scalacOptions ++= Seq(
   "-deprecation",
   "-Xfatal-warnings",
