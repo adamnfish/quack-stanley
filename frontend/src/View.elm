@@ -40,7 +40,7 @@ view model =
                         , class theme
                         ]
                         [ img
-                            [ src "/images/stanley.png"
+                            [ src model.stanleyLogoUrl
                             , alt "Quack Stanley"
                             , width 80
                             , height 80

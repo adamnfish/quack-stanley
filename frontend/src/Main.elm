@@ -24,6 +24,7 @@ init flags =
             , opponents = []
             , round = Nothing
             , apiRoot = flags.apiRoot
+            , stanleyLogoUrl = flags.stanleyLogoUrl
             }
     in
     ( model
@@ -47,4 +48,5 @@ main =
 
 type alias Flags =
     { apiRoot : String
+    , stanleyLogoUrl : String
     }
