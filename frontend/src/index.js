@@ -1,10 +1,13 @@
 import './main.css';
 import { Elm } from './Main.elm';
 
+const stanleyLogoUrl = new URL("../static/images/stanley.png", import.meta.url);
+
 var app = Elm.Main.init({
     node: document.getElementById('root'),
     flags: {
-        apiRoot: deriveApiRoot(document.location)
+        apiRoot: deriveApiRoot(document.location),
+        stanleyLogoUrl: stanleyLogoUrl.toString(),
     }
 });
 

@@ -1,7 +1,7 @@
-frontend/app.js
-
 .idea
 .bsp
+
+.parcel-cache/
 
 # Created by https://www.gitignore.io/api/sbt,scala,emacs,intellij
 

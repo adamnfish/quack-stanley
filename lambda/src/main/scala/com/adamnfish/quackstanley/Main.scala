@@ -17,7 +17,7 @@ import scala.util.{Properties, Try}
 
 
 class Main {
-  implicit val runtime = IORuntime.global
+  implicit val runtime: IORuntime = IORuntime.global
 
   def handleRequest(in: InputStream, out: OutputStream, context: Context): Unit = {
     val allowedOrigin = Properties.envOrNone("ORIGIN_LOCATION")

@@ -1,0 +1,27 @@
+{
+  "name": "quack-stanley-web-frontend",
+  "version": "0.0.1",
+  "description": "Web party game",
+  "source": [
+    "index.html",
+    "static/images/stanley.png"
+  ],
+  "scripts": {
+    "start": "parcel --port 3000",
+    "build": "parcel build",
+    "test": "elm-test"
+  },
+  "author": "adamnfish",
+  "devDependencies": {
+    "@parcel/packager-raw-url": "^2.12.0",
+    "@parcel/transformer-elm": "^2.12.0",
+    "@parcel/transformer-webmanifest": "^2.12.0",
+    "elm": "^0.19.1-6",
+    "elm-format": "^0.8.7",
+    "elm-json": "^0.2.13",
+    "elm-review": "^2.12.0",
+    "elm-test": "^0.19.1-revision12",
+    "parcel": "^2.12.0",
+    "svgo": "^3.3.2"
+  }
+}
