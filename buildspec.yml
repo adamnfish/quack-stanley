@@ -6,7 +6,7 @@ env:
 phases:
   install:
     runtime-versions:
-      nodejs: 20
+      nodejs: 22
       java: corretto17
     commands:
     - echo Install started at `date`
@@ -14,12 +14,8 @@ phases:
 
     # Install software for API build
     - echo Installing sbt
-    - wget https://github.com/sbt/sbt/releases/download/v1.9.8/sbt-1.9.8.zip
-    - unzip sbt-1.9.8.zip
-
-    # Install software for frontend build
-    - echo Installing frontend build dependencies
-    - npm install -g create-elm-app@4.2.3 --unsafe-perm=true --allow-root
+    - wget https://github.com/sbt/sbt/releases/download/v1.10.5/sbt-1.10.5.zip
+    - unzip sbt-1.10.5.zip
 
   build:
     commands:
@@ -28,7 +24,8 @@ phases:
     - sbt/bin/sbt -no-colors test lambda/Universal/packageBin
     # frontend
     - cd frontend
-    - elm-app build
+    - npm install
+    - npm run build
     - cd -
 
   post_build:
