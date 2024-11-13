@@ -31,7 +31,7 @@ To run Quack Stanley locally, you will need the following installed:
 
 * [A scala-compatible JDK](https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html)
 * [sbt](https://www.scala-sbt.org/)
-* [create-elm-app](https://github.com/halfzebra/create-elm-app)
+* [node and npm](https://nodejs.org/)
 
 You can then run the api and frontend using the helper scripts in the
 root of the repository.

@@ -69,6 +69,7 @@ type alias Model =
     , opponents : List PlayerSummary
     , round : Maybe Round
     , apiRoot : String
+    , stanleyLogoUrl : String
     }
 
 
