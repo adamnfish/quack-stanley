@@ -3,7 +3,7 @@ package com.adamnfish.quackstanley.integration
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models.{Config, CreateGame, PlayerSummary}
 import com.adamnfish.quackstanley.persistence.GameIO
-import com.adamnfish.quackstanley.{AttemptValues, HaveMatchers, TestPersistence}
+import com.adamnfish.quackstanley.{AttemptValues, HaveMatchers, TestPersistence, TestWordSource}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{OneInstancePerTest, OptionValues}
@@ -13,7 +13,7 @@ class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
   with OneInstancePerTest with AttemptValues with OptionValues with HaveMatchers {
 
   val persistence = new TestPersistence
-  val testConfig = Config("test", persistence)
+  val testConfig = Config("test", persistence, new TestWordSource)
 
   "createGame" - {
     "uses provided names" in {

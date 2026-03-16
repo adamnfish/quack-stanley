@@ -93,8 +93,7 @@ object QuackStanley {
       _ <- verifyNotStarted(gameState)
       playerStates <- getRegisteredPlayers(data.gameId, config.persistence)
       _ <- validatePlayerCount(playerStates.size)
-      allWords <- Resources.words
-      words <- nextWords(handSize * playerStates.size, allWords, Set.empty)
+      words <- nextWords(handSize * playerStates.size, config.wordSource.words, Set.empty)
       players = playerSummaries(playerStates)
       dealtPlayers <- dealWordsToAllPlayers(words, playerStates)
       creatorState <- lookupPlayer(dealtPlayers, data.playerKey)
@@ -116,8 +115,7 @@ object QuackStanley {
       _ <- verifyNoBuyer(gameState)
       players <- getRegisteredPlayers(data.gameId, config.persistence)
       player <- lookupPlayer(players, data.playerKey)
-      allRoles <- Resources.roles
-      role <- nextRole(allRoles, usedRoles(players.values.toList))
+      role <- nextRole(config.wordSource.roles, usedRoles(players.values.toList))
       playerWithRole = player.copy(role = Some(role))
       gameWithBuyer = gameState.copy(round = Some(Round(data.playerKey, role, Map.empty)))
       _ <- writeGameState(gameWithBuyer, config.persistence)
@@ -167,9 +165,8 @@ object QuackStanley {
       _ <- authenticate(data.playerKey, gameState)
       players <- getRegisteredPlayers(data.gameId, config.persistence)
       playerState <- lookupPlayer(players, data.playerKey)
-      allWords <- Resources.words
       used = usedWords(players.values.toList)
-      refillWords <- nextWords(2, allWords, used)
+      refillWords <- nextWords(2, config.wordSource.words, used)
       discardedPlayerState <- discardWords(data.words, playerState)
       refilledPlayerState <- fillHand(refillWords, discardedPlayerState)
       gameStateWithPitch <- updateGameWithPitch(gameState, data.playerKey, data.words)

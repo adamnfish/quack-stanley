@@ -1,0 +1,154 @@
+name: Build, Test and Deploy
+
+# Requires the following to be configured for each GitHub Environment (prod, etc.):
+#   Secrets:
+#     AWS_ROLE_ARN  - ARN of the OIDC role to assume for this environment
+#   Variables:
+#     AWS_REGION    - AWS region to deploy into (e.g. eu-west-1)
+#
+# Requires the following repository-level secret (shared across environments):
+#   Secrets:
+#     DIST_BUCKET   - S3 bucket used to stage deployment artifacts
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deployment environment
+        required: true
+        type: environment
+
+concurrency:
+  group: deploy-${{ inputs.environment || (github.ref == 'refs/heads/main' && 'prod') }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-test:
+    uses: ./.github/workflows/build-and-test.yml
+    with:
+      upload-artifacts: true
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    environment: ${{ inputs.environment || (github.ref == 'refs/heads/main' && 'prod') }}
+
+    env:
+      STAGE: ${{ inputs.environment || (github.ref == 'refs/heads/main' && 'prod') }}
+
+    steps:
+      - name: Download lambda artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: lambda-artifact
+          path: lambda-artifact/
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-artifact
+          path: frontend-dist/
+
+      # AWS credentials - configured as late as possible to limit scope
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # Discover resources by tags
+      - name: Discover resources
+        id: discover
+        run: |
+          # Mask AWS account ID
+          ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+          echo "::add-mask::${ACCOUNT_ID}"
+
+          echo "Looking up resources for app:quack-stanley stage:${STAGE}"
+
+          # Lambda function
+          FUNCTION_ARN=$(aws resourcegroupstaggingapi get-resources \
+            --tag-filters Key=app,Values=quack-stanley Key=stage,Values=${STAGE} Key=resource,Values=backend \
+            --resource-type-filters lambda:function \
+            --query 'ResourceTagMappingList[0].ResourceARN' \
+            --output text)
+          if [ "$FUNCTION_ARN" = "None" ] || [ -z "$FUNCTION_ARN" ]; then
+            echo "::error::Failed to discover Lambda function for stage ${STAGE}"
+            exit 1
+          fi
+          FUNCTION_NAME=$(echo "$FUNCTION_ARN" | awk -F: '{print $NF}')
+          echo "function_name=${FUNCTION_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Discovered lambda: ${FUNCTION_NAME}"
+
+          # Webroot S3 bucket
+          WWW_ARN=$(aws resourcegroupstaggingapi get-resources \
+            --tag-filters Key=app,Values=quack-stanley Key=stage,Values=${STAGE} Key=resource,Values=webroot \
+            --resource-type-filters s3:bucket \
+            --query 'ResourceTagMappingList[0].ResourceARN' \
+            --output text)
+          if [ "$WWW_ARN" = "None" ] || [ -z "$WWW_ARN" ]; then
+            echo "::error::Failed to discover webroot S3 bucket for stage ${STAGE}"
+            exit 1
+          fi
+          WWW_BUCKET=$(echo "$WWW_ARN" | awk -F::: '{print $NF}')
+          echo "www_bucket=${WWW_BUCKET}" >> "$GITHUB_OUTPUT"
+          echo "Discovered webroot bucket: ${WWW_BUCKET}"
+
+          # CloudFront distribution
+          DIST_ARN=$(aws resourcegroupstaggingapi get-resources \
+            --tag-filters Key=app,Values=quack-stanley Key=stage,Values=${STAGE} Key=resource,Values=cdn \
+            --resource-type-filters cloudfront:distribution \
+            --query 'ResourceTagMappingList[0].ResourceARN' \
+            --region us-east-1 \
+            --output text)
+          if [ "$DIST_ARN" = "None" ] || [ -z "$DIST_ARN" ]; then
+            echo "::error::Failed to discover CloudFront distribution for stage ${STAGE}"
+            exit 1
+          fi
+          DIST_ID=$(echo "$DIST_ARN" | awk -F/ '{print $NF}')
+          echo "distribution_id=${DIST_ID}" >> "$GITHUB_OUTPUT"
+          echo "Discovered CloudFront distribution: ${DIST_ID}"
+
+      # Deploy backend
+      - name: Upload lambda artifact to S3
+        run: |
+          aws s3 cp lambda-artifact/quack-stanley.zip \
+            s3://${{ secrets.DIST_BUCKET }}/quack-stanley/${STAGE}/quack-stanley.zip
+
+      - name: Wait for lambda to be ready
+        run: |
+          aws lambda wait function-updated \
+            --function-name ${{ steps.discover.outputs.function_name }}
+
+      - name: Update lambda function code
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ steps.discover.outputs.function_name }} \
+            --s3-bucket ${{ secrets.DIST_BUCKET }} \
+            --s3-key quack-stanley/${STAGE}/quack-stanley.zip
+
+      - name: Wait for lambda update
+        run: |
+          aws lambda wait function-updated \
+            --function-name ${{ steps.discover.outputs.function_name }}
+
+      # Deploy frontend
+      - name: Sync frontend to S3
+        run: |
+          aws s3 sync frontend-dist/ \
+            s3://${{ steps.discover.outputs.www_bucket }}
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.discover.outputs.distribution_id }} \
+            --paths "/*"
+
+
+

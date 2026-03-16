@@ -1,12 +1,13 @@
 package com.adamnfish.quackstanley.models
 
-import com.adamnfish.quackstanley.persistence.Persistence
+import com.adamnfish.quackstanley.persistence.{Persistence, WordSource}
 import org.joda.time.DateTime
 
 
 case class Config(
   stage: String,
-  persistence: Persistence
+  persistence: Persistence,
+  wordSource: WordSource
 )
 
 case class Role(value: String) extends AnyVal

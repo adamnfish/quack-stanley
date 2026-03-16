@@ -3,24 +3,29 @@ package com.adamnfish.quackstanley.aws
 import cats.data.EitherT
 import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
 import com.adamnfish.quackstanley.persistence.Persistence
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.{GetObjectRequest, PutObjectRequest, ListObjectsV2Request}
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.core.sync.RequestBody
 import io.circe.Json
 import io.circe.parser.parse
 
 import scala.jdk.CollectionConverters._
-import scala.io.Source
 import scala.util.control.NonFatal
 
 
-class S3(s3Bucket: String) extends Persistence {
-  val s3Client = S3.client()
+class S3(s3Bucket: String, val s3Client: S3Client) extends Persistence {
 
   // TODO maybe run in a Future? Would allow parallel reqests...
   override def getJson(path: String): Attempt[Json] = {
     try {
-      val s3obj = s3Client.getObject(s3Bucket, path)
-      val objStream = s3obj.getObjectContent
-      EitherT.fromEither(parse(Source.fromInputStream(objStream, "UTF-8").mkString).left.map { parsingFailure =>
+      val getRequest = GetObjectRequest.builder()
+        .bucket(s3Bucket)
+        .key(path)
+        .build()
+      val responseBytes = s3Client.getObjectAsBytes(getRequest)
+      val content = responseBytes.asUtf8String()
+      EitherT.fromEither(parse(content).left.map { _ =>
         Failure(s"Failed to parse JSON from S3 object $path", "Failed to parse persistent data", 500).asFailedAttempt
       })
     } catch {
@@ -34,7 +39,11 @@ class S3(s3Bucket: String) extends Persistence {
   override def writeJson(json: Json, path: String): Attempt[Unit] = {
     try {
       EitherT.pure {
-        s3Client.putObject(s3Bucket, path, json.noSpaces)
+        val putRequest = PutObjectRequest.builder()
+          .bucket(s3Bucket)
+          .key(path)
+          .build()
+        s3Client.putObject(putRequest, RequestBody.fromString(json.noSpaces))
       }
     } catch {
       case NonFatal(e) =>
@@ -47,8 +56,12 @@ class S3(s3Bucket: String) extends Persistence {
   override def listFiles(path: String): Attempt[List[String]] = {
     try {
       EitherT.pure {
-        val objectListings = s3Client.listObjects(s3Bucket, path)
-        objectListings.getObjectSummaries.asScala.toList.map(_.getKey)
+        val listRequest = ListObjectsV2Request.builder()
+          .bucket(s3Bucket)
+          .prefix(path)
+          .build()
+        val listResponse = s3Client.listObjectsV2(listRequest)
+        listResponse.contents().asScala.toList.map(_.key())
       }
     } catch {
       case NonFatal(e) =>
@@ -59,10 +72,9 @@ class S3(s3Bucket: String) extends Persistence {
   }
 }
 object S3 {
-  def client(): AmazonS3 = {
-    AmazonS3ClientBuilder
-      .standard()
-      .withRegion("eu-west-1")
+  def client(): S3Client = {
+    S3Client.builder()
+      .region(Region.EU_WEST_1)
       .build()
   }
 }

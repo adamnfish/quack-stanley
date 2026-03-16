@@ -10,7 +10,7 @@ ThisBuild / scalacOptions ++= Seq(
 ThisBuild / libraryDependencies +=
   compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
-val awsSdkVersion = "1.12.470"
+val awsSdkVersion = "2.34.0"
 val catsEffectVersion = "3.4.8"
 val http4sVersion = "1.0.0-M30"
 
@@ -37,9 +37,8 @@ lazy val lambda = (project in file("lambda"))
   .settings(
     name := "lambda",
     libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-lambda-java-core" % "1.2.2",
-      "com.amazonaws" % "aws-java-sdk-iam" % awsSdkVersion,
-      "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
+      "com.amazonaws" % "aws-lambda-java-core" % "1.4.0",
+      "software.amazon.awssdk" % "s3" % awsSdkVersion,
       "org.typelevel" %% "cats-effect" % catsEffectVersion,
       "ch.qos.logback" % "logback-classic" % "1.4.7",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",

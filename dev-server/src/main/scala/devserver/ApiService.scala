@@ -11,9 +11,8 @@ import io.circe._
 import io.circe.parser._
 import io.circe.syntax._
 
-
 object ApiService extends LazyLogging {
-  val fakeConfig = Config("dev", new FakePersistence)
+  val fakeConfig = Config("dev", new FakePersistence, new ResourcesWordSource)
 
   def devQuackStanley(body: String): IO[(Int, String)] = {
     (for {
