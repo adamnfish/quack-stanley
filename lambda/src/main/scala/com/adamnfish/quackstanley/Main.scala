@@ -8,7 +8,7 @@ import java.io._
 import com.adamnfish.quackstanley.LambdaIntegration._
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.attempt.{Attempt, Failure}
-import com.adamnfish.quackstanley.aws.S3
+import com.adamnfish.quackstanley.aws.{S3, S3WordSource}
 import com.adamnfish.quackstanley.models.Serialization._
 import com.adamnfish.quackstanley.models._
 import com.amazonaws.services.lambda.runtime.Context
@@ -45,7 +45,8 @@ class Main {
       stage <- EitherT.fromOption[IO](Properties.envOrNone("APP_STAGE"), {
         Failure("Couldn't read stage configuration", "Quack Stanley failed because it is missing configuration", 500, Some("APP_STAGE")).asFailedAttempt
       })
-      persistence = new S3(bucket)
-    } yield Config(stage, persistence)
+      persistence = new S3(bucket, S3.client())
+      wordSource = new S3WordSource(bucket, persistence.s3Client)
+    } yield Config(stage, persistence, wordSource)
   }
 }

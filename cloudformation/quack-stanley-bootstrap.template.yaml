@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  Trivial bootstrap stack for quack-stanley.
+  Create this first to get the stack registered with all its parameters, then
+  update in-place with quack-stanley.template.yaml once the stack exists.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Configuration
+      Parameters:
+      - DomainName
+      - TLSCert
+      - Stage
+    - Label:
+        default: Application Storage
+      Parameters:
+      - DistBucket
+      - DataStorageBucket
+      - WebrootBucket
+      - WebrootAccessIdentityID
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: Domain for the application (hosted zone must exist and be registered)
+    Default: quackstanley.net
+  Stage:
+    Type: String
+    Description: Environment name
+    Default: prod
+  TLSCert:
+    Type: String
+    Description: ARN of TLS certificate in US-EAST-1 (must work for `${DomainName}` and `api.${DomainName}`)
+  WebrootAccessIdentityID:
+    Type: String
+    Description: ID of CloudFront origin access identity for webroot bucket access (check output of storage stack)
+  DistBucket:
+    Type: String
+    Description: S3 Bucket that will contain the backend artifacts
+  DataStorageBucket:
+    Type: String
+    Description: Name of the S3 bucket that will store application data
+  WebrootBucket:
+    Type: String
+    Description: Name of the S3 bucket that stores application static assets
+
+Resources:
+  # Placeholder resource - replaced when updating to quack-stanley.template.yaml
+  BootstrapMarker:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/quack-stanley/${Stage}/bootstrap"
+      Type: String
+      Value: !Sub "bootstrap placeholder for quack-stanley ${Stage}"
+

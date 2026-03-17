@@ -71,6 +71,11 @@ Resources:
       StageName: !Ref Stage
       Variables:
         ServerlessExpressLambdaFunctionName: !Ref Backend
+      PropagateTags: true
+      Tags:
+        app: quack-stanley
+        stage: !Ref Stage
+        resource: api-gateway
 
   BackendDomainName:
     Type: AWS::ApiGateway::DomainName
@@ -95,9 +100,9 @@ Resources:
       Description: Backend for Quack Stanley application
       CodeUri:
         Bucket: !Ref DistBucket
-        Key: !Sub quack-stanley/${Stage}/quack-stanley.zip
+        Key: !Sub "quack-stanley/${Stage}/quack-stanley.zip"
       Handler: com.adamnfish.quackstanley.Main::handleRequest
-      Runtime: java17
+      Runtime: java21
       Timeout: 20
       MemorySize: 1024
       Environment:
@@ -118,15 +123,16 @@ Resources:
         - Effect: Allow
           Action:
           - s3:ListBucket
-          Resource: !Sub arn:aws:s3:::${DataStorageBucket}
+          Resource: !Sub "arn:aws:s3:::${DataStorageBucket}"
         - Effect: Allow
           Action:
           - s3:GetObject
           - s3:PutObject
-          Resource: !Sub arn:aws:s3:::${DataStorageBucket}/*
+          Resource: !Sub "arn:aws:s3:::${DataStorageBucket}/*"
       Tags:
         app: quack-stanley
         stage: !Ref Stage
+        resource: backend
 
   CDN:
     Type: AWS::CloudFront::Distribution
@@ -136,9 +142,9 @@ Resources:
         - !Ref DomainName
         Origins:
         - Id: quack-stanley-static
-          DomainName: !Sub ${WebrootBucket}.s3.amazonaws.com
+          DomainName: !Sub "${WebrootBucket}.s3.${AWS::Region}.amazonaws.com"
           S3OriginConfig:
-            OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${WebrootAccessIdentityID}
+            OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${WebrootAccessIdentityID}"
         DefaultCacheBehavior:
           AllowedMethods: [DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT]
           CachedMethods: [HEAD, GET]
@@ -164,13 +170,15 @@ Resources:
         Value: quack-stanley
       - Key: stage
         Value: !Ref Stage
+      - Key: resource
+        Value: cdn
 
   DNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneName: !Sub ${DomainName}.
+      HostedZoneName: !Sub "${DomainName}."
       RecordSets:
-      - Name: !Sub ${DomainName}.
+      - Name: !Sub "${DomainName}."
         Type: A
         AliasTarget:
           # Zone ID is a magic string for CloudFront
@@ -180,6 +188,7 @@ Resources:
         Type: A
         AliasTarget:
           # Zone ID is a magic string for CloudFront
+          # This is correct for the EDGE type used by the API Gateway domain
           HostedZoneId: Z2FDTNDATAQYW2
           DNSName: !GetAtt BackendDomainName.DistributionDomainName
 
@@ -187,6 +196,20 @@ Outputs:
   ApiUrl:
     Description: Root URL for Quack Stanley's API
     Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
+
   ApiEdgeDns:
     Description: DNS name for the API Gateway's domain
     Value: !GetAtt BackendDomainName.DistributionDomainName
+
+  BackendLambdaArn:
+    Description: Backend Lambda ARN
+    Value: !GetAtt Backend.Arn
+
+  BackendLambdaName:
+    Description: Backend Lambda function name
+    Value: !Ref Backend
+
+  DistributionId:
+    Description: Distribution ID for the static www CloudFront Distribution
+    Value: !Ref CDN
+

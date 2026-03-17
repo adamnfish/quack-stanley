@@ -1,18 +1,33 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Persistent resources for quack-stanley application
 
-
 Parameters:
   Stage:
     Type: String
     Default: prod
+  GitHubOIDCProviderArn:
+    Type: String
+    Description: ARN of the GitHub OIDC identity provider in this account
+  GitHubOrg:
+    Type: String
+    Default: adamnfish
+    Description: GitHub organisation or username for CI/CD (e.g. adamnfish)
+  GitHubRepo:
+    Type: String
+    Default: quack-stanley
+    Description: GitHub repository name for CI/CD (e.g. quack-stanley)
+  DistBucket:
+    Type: String
+    Description: Name of the S3 bucket that holds API build artifacts (to scope OIDC access for CI/CD)
+
 
 Resources:
   AppDataBucket:
     Type: AWS::S3::Bucket
     Properties:
-      AccessControl: Private
-      BucketName: !Sub quack-stanley-data-${Stage}
+      # BucketNamePrefix + account-regional namespace automatically appends -${AccountId}-${Region}-an
+      BucketNamePrefix: !Sub "quack-stanley-data-${Stage}"
+      BucketNamespace: "account-regional"
       LifecycleConfiguration:
         Rules:
         - ExpirationInDays: 7
@@ -22,6 +37,8 @@ Resources:
         Value: quack-stanley
       - Key: stage
         Value: !Ref Stage
+      - Key: resource
+        Value: app-data
 
   WebrootAccessIdentityID:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
@@ -32,12 +49,16 @@ Resources:
   WebrootBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub quack-stanley-www-${Stage}
+      # BucketNamePrefix + account-regional namespace automatically appends -${AccountId}-${Region}-an
+      BucketNamePrefix: !Sub "quack-stanley-www-${Stage}"
+      BucketNamespace: "account-regional"
       Tags:
       - Key: app
         Value: quack-stanley
       - Key: stage
         Value: !Ref Stage
+      - Key: resource
+        Value: webroot
 
   WebrootBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -48,11 +69,87 @@ Resources:
         - Effect: Allow
           Action:
           - s3:GetObject
-          Resource: !Sub arn:aws:s3:::${WebrootBucket}/*
+          Resource: !Sub "arn:aws:s3:::${WebrootBucket}/*"
           Principal:
-            AWS: !Sub arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${WebrootAccessIdentityID}
+            AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${WebrootAccessIdentityID}"
+
+  # GitHub Actions OIDC role for CI/CD deployments
+  GitHubActionsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "quack-stanley-gha-deploy-${Stage}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOIDCProviderArn
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub "repo:${GitHubOrg}/${GitHubRepo}:*"
+      Policies:
+        - PolicyName: quack-stanley-deploy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Discover resources by tag
+              - Effect: Allow
+                Action:
+                  - tag:GetResources
+                Resource: "*"
+              # Upload lambda artifact to dist bucket
+              - Effect: Allow
+                Action:
+                  - s3:GetObject # for the lambda:update-function command
+                  - s3:PutObject # for saving the lambda artifact to the dist bucket
+                Resource: !Sub "arn:aws:s3:::${DistBucket}/quack-stanley/${Stage}/*"
+              # Sync frontend assets to webroot bucket
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub "arn:aws:s3:::${WebrootBucket}"
+                  - !Sub "arn:aws:s3:::${WebrootBucket}/*"
+              # Update lambda function code
+              - Effect: Allow
+                Action:
+                  - lambda:UpdateFunctionCode
+                  - lambda:GetFunctionConfiguration
+                Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*"
+                Condition:
+                  StringEquals:
+                    aws:ResourceTag/app: quack-stanley
+                    aws:ResourceTag/stage: !Ref Stage
+                    aws:ResourceTag/resource: backend
+              # Invalidate CloudFront distribution
+              - Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                Resource: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/*"
+      Tags:
+        - Key: "app"
+          Value: "quack-stanley"
+        - Key: "stage"
+          Value: !Ref Stage
 
 Outputs:
   WebrootAccessIdentityID:
     Description: ID of CloudFront origin access identity for webroot bucket access
     Value: !Ref WebrootAccessIdentityID
+
+  AppDataBucketName:
+    Description: "App data bucket's name"
+    Value: !Ref AppDataBucket
+
+  WebrootBucketName:
+    Description: "Webroot bucket's name"
+    Value: !Ref WebrootBucket
+
+  GitHubActionsRoleArn:
+    Description: "ARN of the GitHub Actions deployment role (use in GHA workflow)"
+    Value: !GetAtt GitHubActionsRole.Arn
