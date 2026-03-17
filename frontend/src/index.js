@@ -63,8 +63,6 @@ function deriveApiRoot(location) {
     if (location.hostname === "localhost" || devHost.test(location.hostname)) {
         return location.protocol + "//" + location.hostname + ":9001/api";
     } else {
-        // hard-coded for now
-        // TODO: move API route to /api in CloudFormation
-        return "https://api.quackstanley.net/";
+        return location.protocol + "//api." + location.hostname + "/";
     }
 }
