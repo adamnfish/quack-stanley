@@ -11,8 +11,8 @@ name: Build, Test and Deploy
 #     DIST_BUCKET   - S3 bucket used to stage deployment artifacts
 
 on:
-  # Automatic deploys from main are disabled until the storage stack has been updated in all environments.
-  # Re-enable by adding: push: { branches: [ main ] }
+  push:
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       environment:
