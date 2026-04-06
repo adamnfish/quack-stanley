@@ -1,8 +1,11 @@
 import { defineConfig } from '@playwright/test';
+import path from 'path';
+
+const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:3000';
 
 export default defineConfig({
-  testDir: './tests',
-  outputDir: './test-results',
+  testDir: path.join(__dirname, 'tests'),
+  outputDir: path.join(__dirname, 'test-results'),
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
@@ -12,7 +15,7 @@ export default defineConfig({
   ],
   timeout: 3 * 60 * 1000,
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL,
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
     reducedMotion: 'reduce',
@@ -20,7 +23,7 @@ export default defineConfig({
   projects: [
     { name: 'game-flow', use: {} },
   ],
-  webServer: [
+  webServer: process.env.E2E_BASE_URL ? undefined : [
     {
       command: 'npx serve ../frontend/dist -p 3000 -s',
       url: 'http://localhost:3000',
