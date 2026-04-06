@@ -66,7 +66,7 @@ npm run e2e
 To view the test report with all screenshots:
 
 ```
-npm run e2e:report
+npm run --workspace e2e report
 ```
 
 The report is also uploaded as a `playwright-report` artifact on every CI run.

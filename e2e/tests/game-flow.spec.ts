@@ -43,8 +43,9 @@ async function waitForSpectating(page: Page) {
 // (#logo-container, z-index:10, position:absolute) overflows the nav and can
 // sit above right-column word buttons, causing the hit-test to spin forever.
 async function selectTwoWords(page: Page) {
-  await page.locator('.hand__card button:not([disabled])').first().click({ force: true });
-  await page.locator('.hand__card button:not([disabled])').first().click({ force: true });
+  const enabledCards = page.locator('.hand__card button:not([disabled])');
+  await enabledCards.nth(0).click({ force: true });
+  await enabledCards.nth(1).click({ force: true });
 }
 
 test('complete game flow', async ({ browser }, testInfo) => {

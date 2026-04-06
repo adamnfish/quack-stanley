@@ -10,7 +10,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: [
-    ['html', { outputFolder: 'playwright-report', open: 'never' }],
+    ['html', { outputFolder: path.join(__dirname, 'playwright-report'), open: 'never' }],
     ['list'],
   ],
   timeout: 3 * 60 * 1000,
@@ -25,18 +25,19 @@ export default defineConfig({
   ],
   webServer: process.env.E2E_BASE_URL ? undefined : [
     {
-      command: 'npx serve ../frontend/dist -p 3000 -s',
+      command: 'npx serve frontend/dist -p 3000 -s',
       url: 'http://localhost:3000',
       reuseExistingServer: !process.env.CI,
       stdout: 'ignore',
       stderr: 'pipe',
+      cwd: path.join(__dirname, '..'),
     },
     {
       command: 'sbt devServer/run',
       url: 'http://localhost:9001/healthcheck',
       reuseExistingServer: !process.env.CI,
       timeout: 30_000,
-      cwd: '..',
+      cwd: path.join(__dirname, '..'),
     },
   ],
 });
