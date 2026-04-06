@@ -1,0 +1,101 @@
+name: E2E Tests (Environment)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: environment
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.environment }}
+
+    env:
+      STAGE: ${{ inputs.environment }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('package-lock.json') }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+        working-directory: e2e
+
+      - name: Install Playwright system deps (cached)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+        working-directory: e2e
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Discover domain
+        id: discover
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+          echo "::add-mask::${ACCOUNT_ID}"
+
+          echo "Looking up CDN for app:quack-stanley stage:${STAGE}"
+
+          DIST_ARN=$(aws resourcegroupstaggingapi get-resources \
+            --tag-filters Key=app,Values=quack-stanley Key=stage,Values=${STAGE} Key=resource,Values=cdn \
+            --resource-type-filters cloudfront:distribution \
+            --query 'ResourceTagMappingList[0].ResourceARN' \
+            --region us-east-1 \
+            --output text)
+          if [ "$DIST_ARN" = "None" ] || [ -z "$DIST_ARN" ]; then
+            echo "::error::Failed to discover CloudFront distribution for stage ${STAGE}"
+            exit 1
+          fi
+          DIST_ID=$(echo "$DIST_ARN" | awk -F/ '{print $NF}')
+          echo "Discovered CloudFront distribution: ${DIST_ID}"
+
+          DOMAIN=$(aws cloudfront get-distribution \
+            --id "${DIST_ID}" \
+            --query 'Distribution.DistributionConfig.Aliases.Items[0]' \
+            --output text)
+          if [ "$DOMAIN" = "None" ] || [ -z "$DOMAIN" ]; then
+            echo "::error::No alias found on CloudFront distribution ${DIST_ID}"
+            exit 1
+          fi
+          echo "domain=${DOMAIN}" >> "$GITHUB_OUTPUT"
+          echo "Discovered domain: ${DOMAIN}"
+
+      - name: Run E2E tests
+        run: npm run e2e
+        env:
+          CI: true
+          E2E_BASE_URL: https://${{ steps.discover.outputs.domain }}
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: playwright-report-${{ inputs.environment }}
+          path: e2e/playwright-report/
+          retention-days: 14

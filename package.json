@@ -1,0 +1,9 @@
+{
+  "name": "quack-stanley",
+  "private": true,
+  "workspaces": ["e2e"],
+  "scripts": {
+    "build:frontend": "npm run build --prefix frontend",
+    "e2e": "npx playwright test --config=e2e/playwright.config.ts"
+  }
+}
