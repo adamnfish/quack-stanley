@@ -34,11 +34,11 @@ To run Quack Stanley locally, you will need the following installed:
 * [sbt](https://www.scala-sbt.org/)
 * [node and npm](https://nodejs.org/)
 
-Install all npm dependencies from the repository root (this covers both the
-frontend and e2e workspaces):
+Install npm dependencies:
 
 ```
-npm install
+npm install           # e2e workspace
+npm install --prefix frontend
 ```
 
 You can then run the api and frontend using the helper scripts in the

@@ -49,9 +49,10 @@ async function selectTwoWords(page: Page) {
 }
 
 test('complete game flow', async ({ browser }, testInfo) => {
-  const creatorCtx = await browser.newContext(DEVICES.creator);
-  const player2Ctx = await browser.newContext(DEVICES.player2);
-  const player3Ctx = await browser.newContext(DEVICES.player3);
+  const baseURL = testInfo.project.use.baseURL;
+  const creatorCtx = await browser.newContext({ ...DEVICES.creator, baseURL });
+  const player2Ctx = await browser.newContext({ ...DEVICES.player2, baseURL });
+  const player3Ctx = await browser.newContext({ ...DEVICES.player3, baseURL });
   const [cp, p2, p3] = [
     await creatorCtx.newPage(),
     await player2Ctx.newPage(),

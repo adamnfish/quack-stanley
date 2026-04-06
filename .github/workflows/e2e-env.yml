@@ -31,7 +31,9 @@ jobs:
         with:
           node-version-file: .tool-versions
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
 
       - name: Install npm dependencies
         run: npm ci
