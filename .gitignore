@@ -1,7 +1,15 @@
 .idea
 .bsp
 
+# npm workspace dependencies
+node_modules/
+
 .parcel-cache/
+
+# Playwright e2e test output
+playwright-report/
+e2e/playwright-report/
+e2e/test-results/
 
 # Created by https://www.gitignore.io/api/sbt,scala,emacs,intellij
 

@@ -1,0 +1,14 @@
+{
+  "name": "quack-stanley-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report playwright-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "serve": "^14.2.0"
+  }
+}

@@ -24,6 +24,7 @@ as an [AWS Lambda Function](https://aws.amazon.com/lambda/).
 | [frontend](/frontend)             | Web application for game UI             |
 | [cloudformation](/cloudformation) | Infrastructure for AWS deployment       |
 | [dev-server](/dev-server)         | Standalone server for local development |
+| [e2e](/e2e)                       | Playwright end-to-end tests             |
 
 ### Running locally
 
@@ -33,6 +34,13 @@ To run Quack Stanley locally, you will need the following installed:
 * [sbt](https://www.scala-sbt.org/)
 * [node and npm](https://nodejs.org/)
 
+Install all npm dependencies from the repository root (this covers both the
+frontend and e2e workspaces):
+
+```
+npm install
+```
+
 You can then run the api and frontend using the helper scripts in the
 root of the repository.
 
@@ -41,6 +49,27 @@ root of the repository.
 
 The development server stores game data in-memory. This data will not
 persist through a restart of the API.
+
+### Running E2E tests
+
+The end-to-end tests exercise a complete three-player game session, capturing
+screenshots at each step across multiple device sizes.
+
+Prerequisites: the API dev server must be running, and the frontend must be built.
+
+```
+./devapi.sh &         # start the Scala dev server in the background
+npm run build:frontend
+npm run e2e
+```
+
+To view the test report with all screenshots:
+
+```
+npm run e2e:report
+```
+
+The report is also uploaded as a `playwright-report` artifact on every CI run.
 
 ### Running in AWS
 

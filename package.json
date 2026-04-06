@@ -1,0 +1,10 @@
+{
+  "name": "quack-stanley",
+  "private": true,
+  "workspaces": ["frontend", "e2e"],
+  "scripts": {
+    "build:frontend": "npm run build --workspace=frontend",
+    "e2e": "npm run test --workspace=e2e",
+    "e2e:report": "npx playwright show-report e2e/playwright-report"
+  }
+}

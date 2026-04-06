@@ -12,6 +12,9 @@ import org.http4s.{HttpRoutes, Response, Status, Uri}
 
 object DevServer extends IOApp {
   private val http4sApp = HttpRoutes.of[IO] {
+    case GET -> Root / "healthcheck" =>
+      IO.pure(Response(Status.Ok))
+
     case req @ POST -> Root / "api" =>
       for {
         body <- req.as[String]
