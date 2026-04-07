@@ -25,12 +25,13 @@ export default defineConfig({
   ],
   webServer: process.env.E2E_BASE_URL ? undefined : [
     {
-      command: 'npx serve frontend/dist -p 3000 -s',
+      command: 'npm run build --prefix frontend && npx serve frontend/dist -p 3000 -s',
       url: 'http://localhost:3000',
       reuseExistingServer: !process.env.CI,
       stdout: 'ignore',
       stderr: 'pipe',
       cwd: path.join(__dirname, '..'),
+      env: { CI: 'true' },
     },
     {
       command: 'sbt devServer/run',

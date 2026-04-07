@@ -11,7 +11,7 @@ class ResourcesWordSource extends WordSource {
       .fromResource("words.txt")
       .getLines()
       .filter(_.nonEmpty)
-      .map(Word)
+      .map(Word(_))
       .toList
 
   override val roles: List[Role] =
@@ -19,6 +19,6 @@ class ResourcesWordSource extends WordSource {
       .fromResource("roles.txt")
       .getLines()
       .filter(_.nonEmpty)
-      .map(Role)
+      .map(Role(_))
       .toList
 }

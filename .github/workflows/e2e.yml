@@ -48,8 +48,6 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Build frontend
-        run: npm run build:frontend
 
       - name: Compile dev server
         run: sbt devServer/compile
@@ -58,8 +56,9 @@ jobs:
         run: npm run e2e
         env:
           CI: true
-        # Playwright starts sbt devServer/run via webServer config (timeout: 30s)
-        # Classes are already compiled above so startup is JVM + HTTP4S binding only
+        # Playwright webServer config builds the frontend, then serves frontend/dist on :3000
+        # Playwright also starts sbt devServer/run via webServer config (timeout: 30s)
+        # Dev server classes are already compiled above so startup is JVM + HTTP4S binding only
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v7
