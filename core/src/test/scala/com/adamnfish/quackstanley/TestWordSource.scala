@@ -15,10 +15,10 @@ object TestWordSource {
     "foxtrot", "golf", "hotel", "india", "juliet",
     "kilo", "lima", "mike", "november", "oscar",
     "papa", "quebec", "romeo", "sierra", "tango"
-  ).map(Word)
+  ).map(Word(_))
 
   val roles: List[Role] = List(
     "role-one", "role-two", "role-three", "role-four", "role-five",
     "role-six", "role-seven", "role-eight", "role-nine", "role-ten"
-  ).map(Role)
+  ).map(Role(_))
 }

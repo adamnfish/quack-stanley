@@ -1,21 +1,19 @@
 ThisBuild / organization := "com.adamnfish"
 ThisBuild / version := "0.1-SNAPSHOT"
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion := "3.8.3"
 ThisBuild / scalacOptions ++= Seq(
+  // format: off
   "-deprecation",
-  "-Xfatal-warnings",
-  "-encoding",
-  "UTF-8",
-  "-Ywarn-dead-code"
+  "-Werror",
+  "-encoding", "UTF-8",
+  // format: on
 )
-ThisBuild / libraryDependencies +=
-  compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
-val awsSdkVersion = "2.42.28"
+val awsSdkVersion = "2.42.29"
 val catsEffectVersion = "3.7.0"
 val http4sVersion = "1.0.0-M44"
 val http4sBlazeVersion = "1.0.0-M41"
-val log4catsVersion = "2.7.0"
+val log4catsVersion = "2.8.0"
 
 lazy val root = (project in file("."))
   .settings(

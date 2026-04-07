@@ -12,8 +12,8 @@ class S3WordSource(s3Bucket: String, s3Client: S3Client) extends WordSource {
   private val wordsPath = "config/words.txt"
   private val rolesPath = "config/roles.txt"
 
-  override val words: List[Word] = loadLines(wordsPath).map(Word)
-  override val roles: List[Role] = loadLines(rolesPath).map(Role)
+  override val words: List[Word] = loadLines(wordsPath).map(Word(_))
+  override val roles: List[Role] = loadLines(rolesPath).map(Role(_))
 
   private def loadLines(path: String): List[String] = {
     try {
