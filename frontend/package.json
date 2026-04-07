@@ -13,15 +13,14 @@
   },
   "author": "adamnfish",
   "devDependencies": {
-    "@parcel/packager-raw-url": "^2.12.0",
-    "@parcel/transformer-elm": "^2.12.0",
-    "@parcel/transformer-webmanifest": "^2.12.0",
+    "@parcel/packager-raw-url": "^2.16.4",
+    "@parcel/transformer-elm": "^2.16.4",
+    "@parcel/transformer-webmanifest": "^2.16.4",
     "elm": "^0.19.1-6",
-    "elm-format": "^0.8.7",
+    "elm-format": "^0.8.8",
     "elm-json": "^0.2.13",
-    "elm-review": "^2.12.0",
-    "elm-test": "^0.19.1-revision12",
-    "parcel": "^2.12.0",
-    "svgo": "^3.3.2"
+    "elm-test": "^0.19.1-revision17",
+    "parcel": "^2.16.4",
+    "svgo": "^3.3.3"
   }
 }
