@@ -126,9 +126,10 @@ Resources:
                     aws:ResourceTag/app: quack-stanley
                     aws:ResourceTag/stage: !Ref Stage
                     aws:ResourceTag/resource: backend
-              # Invalidate CloudFront distribution
+              # CloudFront distribution management
               - Effect: Allow
                 Action:
+                  - cloudfront:GetDistribution
                   - cloudfront:CreateInvalidation
                 Resource: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/*"
       Tags:
