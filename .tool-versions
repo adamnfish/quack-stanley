@@ -2,3 +2,4 @@ java corretto-21
 node 22
 sbt 1
 aqua:aws/aws-cli 2
+github:zwilias/elm-json latest

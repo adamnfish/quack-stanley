@@ -1,9 +1,17 @@
 {
   "name": "quack-stanley",
   "private": true,
-  "workspaces": ["e2e"],
+  "workspaces": [
+    "e2e"
+  ],
   "scripts": {
     "build:frontend": "npm run build --prefix frontend",
     "e2e": "npx playwright test --config=e2e/playwright.config.ts"
+  },
+  "devDependencies": {
+    "@parcel/packager-raw-url": "^2.16.4",
+    "@parcel/transformer-elm": "^2.16.4",
+    "@parcel/transformer-webmanifest": "^2.16.4",
+    "elm": "^0.19.1-5"
   }
 }
