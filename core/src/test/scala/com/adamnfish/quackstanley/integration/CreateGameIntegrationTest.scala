@@ -3,14 +3,23 @@ package com.adamnfish.quackstanley.integration
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models.{Config, CreateGame, PlayerSummary}
 import com.adamnfish.quackstanley.persistence.GameIO
-import com.adamnfish.quackstanley.{AttemptValues, HaveMatchers, TestPersistence, TestWordSource}
+import com.adamnfish.quackstanley.{
+  AttemptValues,
+  HaveMatchers,
+  TestPersistence,
+  TestWordSource
+}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{OneInstancePerTest, OptionValues}
 
-
-class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
-  with OneInstancePerTest with AttemptValues with OptionValues with HaveMatchers {
+class CreateGameIntegrationTest
+    extends AnyFreeSpec
+    with Matchers
+    with OneInstancePerTest
+    with AttemptValues
+    with OptionValues
+    with HaveMatchers {
 
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence, new TestWordSource)
@@ -55,21 +64,25 @@ class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
     "sets this player as the creator on the saved game state" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).run()
-      val savedGameState = GameIO.getGameState(newGame.state.gameId, persistence).run()
+      val savedGameState =
+        GameIO.getGameState(newGame.state.gameId, persistence).run()
       savedGameState.creator shouldEqual newGame.playerKey
     }
 
     "puts creator into players with no points" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).run()
-      val savedGameState = GameIO.getGameState(newGame.state.gameId, persistence).run()
-      savedGameState.players shouldEqual Map(newGame.playerKey -> PlayerSummary("screen name", Nil))
+      val savedGameState =
+        GameIO.getGameState(newGame.state.gameId, persistence).run()
+      savedGameState.players shouldEqual Map(
+        newGame.playerKey -> PlayerSummary("screen name", Nil)
+      )
     }
 
     "successfully generates a unique prefix code for the game" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).run()
-      newGame.state.gameId.value should startWith (newGame.gameCode)
+      newGame.state.gameId.value should startWith(newGame.gameCode)
     }
 
     "hard to test random UUIDs that clash for longer prefix codes" ignore {}
@@ -77,20 +90,25 @@ class CreateGameIntegrationTest extends AnyFreeSpec with Matchers
     "correctly persists game state" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).run()
-      val savedGameState = GameIO.getGameState(newGame.state.gameId, persistence).run()
+      val savedGameState =
+        GameIO.getGameState(newGame.state.gameId, persistence).run()
       savedGameState.creator shouldEqual newGame.playerKey
       savedGameState.gameId shouldEqual newGame.state.gameId
-      savedGameState should have (
+      savedGameState should have(
         "gameName" as ("game name"),
         "started" as (false)
       )
-      savedGameState.players shouldEqual Map(newGame.playerKey -> PlayerSummary("screen name", Nil))
+      savedGameState.players shouldEqual Map(
+        newGame.playerKey -> PlayerSummary("screen name", Nil)
+      )
     }
 
     "correctly persists player state" in {
       val request = CreateGame("screen name", "game name")
       val newGame = createGame(request, testConfig).run()
-      val savedPlayerState = GameIO.getPlayerState(newGame.playerKey, newGame.state.gameId, persistence).run()
+      val savedPlayerState = GameIO
+        .getPlayerState(newGame.playerKey, newGame.state.gameId, persistence)
+        .run()
       savedPlayerState shouldEqual newGame.state
     }
 

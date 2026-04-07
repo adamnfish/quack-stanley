@@ -3,7 +3,11 @@ package com.adamnfish.quackstanley.integration
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
-import com.adamnfish.quackstanley.{AttemptValues, TestPersistence, TestWordSource}
+import com.adamnfish.quackstanley.{
+  AttemptValues,
+  TestPersistence,
+  TestWordSource
+}
 import org.joda.time.DateTime
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
@@ -11,9 +15,12 @@ import org.scalatest.{OneInstancePerTest, OptionValues}
 
 import java.util.UUID
 
-
-class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
-  with OneInstancePerTest with AttemptValues with OptionValues {
+class RelinquishBuyerIntegrationTest
+    extends AnyFreeSpec
+    with Matchers
+    with OneInstancePerTest
+    with AttemptValues
+    with OptionValues {
 
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence, new TestWordSource)
@@ -25,7 +32,11 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
   val playerDoesNotExistUUID = UUID.randomUUID().toString
   assert(
     Set(
-      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, playerDoesNotExistUUID
+      creatorUUID,
+      gameIdUUID,
+      gameDoesNotExistIdUUID,
+      playerKeyUUID,
+      playerDoesNotExistUUID
     ).size == 5,
     "Ensuring random UUID test data is distinct"
   )
@@ -40,9 +51,26 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
         val screenName = "player name"
         val playerKey = PlayerKey(playerKeyUUID)
         val role = Role("role")
-        val playerState = PlayerState(gameId, gameName, screenName, List(Word("test")), Nil, Some(role), Nil)
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Round(playerKey, role, Map.empty)),
-          Map(creator -> PlayerSummary("Creator", Nil), playerKey -> PlayerSummary(screenName, Nil))
+        val playerState = PlayerState(
+          gameId,
+          gameName,
+          screenName,
+          List(Word("test")),
+          Nil,
+          Some(role),
+          Nil
+        )
+        val gameState = GameState(
+          gameId,
+          gameName,
+          DateTime.now(),
+          true,
+          creator,
+          Some(Round(playerKey, role, Map.empty)),
+          Map(
+            creator -> PlayerSummary("Creator", Nil),
+            playerKey -> PlayerSummary(screenName, Nil)
+          )
         )
         GameIO.writeGameState(gameState, persistence)
         GameIO.writePlayerState(playerState, playerKey, persistence)
@@ -56,7 +84,8 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
         "persists no role in player state" in {
           val request = RelinquishBuyer(gameId, playerKey)
           val playerInfo = relinquishBuyer(request, testConfig).run()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).run()
+          val persistedPlayerState =
+            GameIO.getPlayerState(playerKey, gameId, persistence).run()
           persistedPlayerState.role.isEmpty shouldEqual true
         }
 
@@ -107,7 +136,13 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
       }
 
       "and this player is not registered, fails to auth player" in {
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
+        val gameState = GameState(
+          gameId,
+          gameName,
+          DateTime.now(),
+          true,
+          creator,
+          None,
           Map(creator -> PlayerSummary("Creator", Nil))
         )
         GameIO.writeGameState(gameState, persistence)
@@ -121,7 +156,10 @@ class RelinquishBuyerIntegrationTest extends AnyFreeSpec with Matchers
     }
 
     "if the game does not exist, fails to auth the player" in {
-      val request = RelinquishBuyer(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID))
+      val request = RelinquishBuyer(
+        GameId(gameDoesNotExistIdUUID),
+        PlayerKey(playerDoesNotExistUUID)
+      )
       relinquishBuyer(request, testConfig).isFailedAttempt()
     }
   }

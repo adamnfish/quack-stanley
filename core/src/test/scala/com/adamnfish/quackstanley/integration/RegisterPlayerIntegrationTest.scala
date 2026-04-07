@@ -3,7 +3,12 @@ package com.adamnfish.quackstanley.integration
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
-import com.adamnfish.quackstanley.{AttemptValues, HaveMatchers, TestPersistence, TestWordSource}
+import com.adamnfish.quackstanley.{
+  AttemptValues,
+  HaveMatchers,
+  TestPersistence,
+  TestWordSource
+}
 import org.joda.time.DateTime
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
@@ -11,9 +16,13 @@ import org.scalatest.{OneInstancePerTest, OptionValues}
 
 import java.util.UUID
 
-
-class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
-  with OneInstancePerTest with AttemptValues with OptionValues with HaveMatchers {
+class RegisterPlayerIntegrationTest
+    extends AnyFreeSpec
+    with Matchers
+    with OneInstancePerTest
+    with AttemptValues
+    with OptionValues
+    with HaveMatchers {
 
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence, new TestWordSource)
@@ -23,7 +32,9 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
   val gameDoesNotExistIdUUID = UUID.randomUUID().toString
   assert(
     Set(
-      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID
+      creatorUUID,
+      gameIdUUID,
+      gameDoesNotExistIdUUID
     ).size == 3,
     "Ensuring random UUID test data is distinct"
   )
@@ -33,10 +44,24 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
       val creator = PlayerKey(creatorUUID)
       val gameId = GameId(gameIdUUID)
       val gameCode = gameId.value
-      val gameState = GameState(gameId, "game-name", DateTime.now(), false, creator, None,
+      val gameState = GameState(
+        gameId,
+        "game-name",
+        DateTime.now(),
+        false,
+        creator,
+        None,
         Map(creator -> PlayerSummary("Creator", Nil))
       )
-      val creatorState = PlayerState(gameState.gameId, gameState.gameName, "Creator", Nil, Nil, None, Nil)
+      val creatorState = PlayerState(
+        gameState.gameId,
+        gameState.gameName,
+        "Creator",
+        Nil,
+        Nil,
+        None,
+        Nil
+      )
       GameIO.writePlayerState(creatorState, creator, persistence)
       GameIO.writeGameState(gameState, persistence)
 
@@ -63,14 +88,16 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
       }
 
       "prefix game code is case-insensitive" in {
-        val request = RegisterPlayer(gameCode.take(4).toUpperCase(), "player one")
+        val request =
+          RegisterPlayer(gameCode.take(4).toUpperCase(), "player one")
         registerPlayer(request, testConfig).isSuccessfulAttempt()
       }
 
       "correctly persists player state" in {
         val request = RegisterPlayer(gameCode, "player one")
         val registered = registerPlayer(request, testConfig).run()
-        val savedState = GameIO.getPlayerState(registered.playerKey, gameId, persistence).run()
+        val savedState =
+          GameIO.getPlayerState(registered.playerKey, gameId, persistence).run()
         registered.state shouldEqual savedState
       }
 
@@ -81,7 +108,8 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
         }
 
         "player cannot use another player's screen name" in {
-          val firstRequest = RegisterPlayer(gameCode.take(4).toUpperCase(), "player one")
+          val firstRequest =
+            RegisterPlayer(gameCode.take(4).toUpperCase(), "player one")
           registerPlayer(firstRequest, testConfig).isSuccessfulAttempt()
           val duplicateRequest = firstRequest
           registerPlayer(duplicateRequest, testConfig).isFailedAttempt()
@@ -130,7 +158,8 @@ class RegisterPlayerIntegrationTest extends AnyFreeSpec with Matchers
 
     "if the game doe not exist," - {
       "fails" in {
-        val request = RegisterPlayer(GameId(gameDoesNotExistIdUUID).value, "player name")
+        val request =
+          RegisterPlayer(GameId(gameDoesNotExistIdUUID).value, "player name")
         registerPlayer(request, testConfig).isFailedAttempt()
       }
     }

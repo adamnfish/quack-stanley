@@ -8,7 +8,6 @@ import com.adamnfish.quackstanley.models._
 import io.circe.syntax._
 import cats.implicits._
 
-
 object GameIO {
   private val root = "data"
 
@@ -24,11 +23,15 @@ object GameIO {
   def playerStateDir(gameId: GameId): String =
     s"$root/${gameId.value}/players"
 
-  def writeGameState(gameState: GameState, persistence: Persistence): Attempt[Unit] = {
+  def writeGameState(
+      gameState: GameState,
+      persistence: Persistence
+  ): Attempt[Unit] = {
     persistence.writeJson(gameState.asJson, gameStatePath(gameState.gameId))
   }
 
-  private val PlayerKeyFromPath = (root ++ "/[a-z0-9\\-]+/players/([a-z0-9\\-]+).json").r
+  private val PlayerKeyFromPath =
+    (root ++ "/[a-z0-9\\-]+/players/([a-z0-9\\-]+).json").r
 
   def playerKeyFromPath(path: String): Attempt[PlayerKey] = {
     path match {
@@ -36,19 +39,29 @@ object GameIO {
         EitherT.pure(PlayerKey(key))
       case _ =>
         EitherT.leftT(
-          Failure(s"Could not extract player key from path $path", "Failed to lookup player data", 500).asFailedAttempt
+          Failure(
+            s"Could not extract player key from path $path",
+            "Failed to lookup player data",
+            500
+          ).asFailedAttempt
         )
     }
   }
 
-  def getGameState(gameId: GameId, persistence: Persistence): Attempt[GameState] = {
+  def getGameState(
+      gameId: GameId,
+      persistence: Persistence
+  ): Attempt[GameState] = {
     for {
       json <- persistence.getJson(gameStatePath(gameId))
       gameState <- Serialization.extractJson[GameState](json)
     } yield gameState
   }
 
-  def lookupGameIdFromCode(gameCode: String, persistence: Persistence): Attempt[GameId] = {
+  def lookupGameIdFromCode(
+      gameCode: String,
+      persistence: Persistence
+  ): Attempt[GameId] = {
     val normalisedGameCode = gameCode.toLowerCase
     for {
       paths <- persistence.listFiles(gameCodePath(normalisedGameCode))
@@ -56,24 +69,43 @@ object GameIO {
     } yield gameId
   }
 
-  def writePlayerState(playerState: PlayerState, playerKey: PlayerKey, persistence: Persistence): Attempt[Unit] = {
-    persistence.writeJson(playerState.asJson, playerStatePath(playerState.gameId, playerKey))
+  def writePlayerState(
+      playerState: PlayerState,
+      playerKey: PlayerKey,
+      persistence: Persistence
+  ): Attempt[Unit] = {
+    persistence.writeJson(
+      playerState.asJson,
+      playerStatePath(playerState.gameId, playerKey)
+    )
   }
 
-  def writePlayerStates(playerState: Map[PlayerKey, PlayerState], persistence: Persistence): Attempt[Unit] = {
-    playerState.toList.traverse { case (key, state) =>
-      writePlayerState(state, key, persistence)
-    }.as(())
+  def writePlayerStates(
+      playerState: Map[PlayerKey, PlayerState],
+      persistence: Persistence
+  ): Attempt[Unit] = {
+    playerState.toList
+      .traverse { case (key, state) =>
+        writePlayerState(state, key, persistence)
+      }
+      .as(())
   }
 
-  def getPlayerState(playerKey: PlayerKey, gameId: GameId, persistence: Persistence): Attempt[PlayerState] = {
+  def getPlayerState(
+      playerKey: PlayerKey,
+      gameId: GameId,
+      persistence: Persistence
+  ): Attempt[PlayerState] = {
     for {
       json <- persistence.getJson(playerStatePath(gameId, playerKey))
       playerState <- Serialization.extractJson[PlayerState](json)
     } yield playerState
   }
 
-  def getRegisteredPlayers(gameId: GameId, persistence: Persistence): Attempt[Map[PlayerKey, PlayerState]] = {
+  def getRegisteredPlayers(
+      gameId: GameId,
+      persistence: Persistence
+  ): Attempt[Map[PlayerKey, PlayerState]] = {
     for {
       paths <- persistence.listFiles(playerStateDir(gameId))
       playerKeys <- paths.traverse(playerKeyFromPath)
@@ -83,7 +115,11 @@ object GameIO {
     } yield playerStates.toMap
   }
 
-  def checkPrefixUnique(gameId: GameId, prefixLength: Int, persistence: Persistence): Attempt[Boolean] = {
+  def checkPrefixUnique(
+      gameId: GameId,
+      prefixLength: Int,
+      persistence: Persistence
+  ): Attempt[Boolean] = {
     val prefix = s"$root/${gameId.value.take(prefixLength)}"
     for {
       matches <- persistence.listFiles(prefix)

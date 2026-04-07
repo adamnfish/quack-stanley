@@ -3,7 +3,6 @@ package com.adamnfish.quackstanley.models
 import cats.data.EitherT
 import com.adamnfish.quackstanley.attempt.{Attempt, FailedAttempt, Failure}
 
-
 object Validation {
   type Validator[A] = (A, String) => List[Failure]
 
@@ -16,12 +15,18 @@ object Validation {
   val nonEmpty: Validator[String] = { (iter, context) =>
     if (iter.isEmpty) {
       List(
-        Failure("Validation failure: empty", s"$context is required", 400, Some(context))
+        Failure(
+          "Validation failure: empty",
+          s"$context is required",
+          400,
+          Some(context)
+        )
       )
     } else Nil
   }
 
-  private val uuidPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}".r
+  private val uuidPattern =
+    "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}".r
   val isUUID: Validator[String] = { (str, context) =>
     val wasEmpty = nonEmpty(str, context).headOption
     val wasUUID =
@@ -29,14 +34,18 @@ object Validation {
         None
       } else {
         Some(
-          Failure(s"Validation failure: $str not UUID", s"$context was not in the correct format", 400, Some(context))
+          Failure(
+            s"Validation failure: $str not UUID",
+            s"$context was not in the correct format",
+            400,
+            Some(context)
+          )
         )
       }
     wasEmpty.orElse(wasUUID).toList
   }
 
-  /**
-    * Game codes are a case-insensitive UUID prefix
+  /** Game codes are a case-insensitive UUID prefix
     */
   val gameCode: Validator[String] = { (str, context) =>
     val wasEmpty = nonEmpty(str, context).headOption
@@ -51,14 +60,27 @@ object Validation {
     }
     val wasUUIDPrefix =
       if (valid) None
-      else Some(Failure(s"$str is not a UUID prefix", "Invalid game code", 400, Some(context)))
+      else
+        Some(
+          Failure(
+            s"$str is not a UUID prefix",
+            "Invalid game code",
+            400,
+            Some(context)
+          )
+        )
     wasEmpty.orElse(wasUUIDPrefix).toList
   }
 
   def minLength(min: Int): Validator[String] = { (str, context) =>
     if (str.length < min)
       List(
-        Failure("Failed min length", s"$context must be at least $min characters", 400, Some(context))
+        Failure(
+          "Failed min length",
+          s"$context must be at least $min characters",
+          400,
+          Some(context)
+        )
       )
     else Nil
   }
@@ -66,45 +88,48 @@ object Validation {
   def validate(createGame: CreateGame): Attempt[Unit] = {
     combineFailures(
       nonEmpty(createGame.gameName, "game name"),
-      nonEmpty(createGame.screenName, "screen name"),
+      nonEmpty(createGame.screenName, "screen name")
     )
   }
 
   def validate(registerPlayer: RegisterPlayer): Attempt[Unit] = {
     val gameCodeFailures =
-      gameCode(registerPlayer.gameCode, "game code") ++ minLength(4)(registerPlayer.gameCode, "game code")
+      gameCode(registerPlayer.gameCode, "game code") ++ minLength(4)(
+        registerPlayer.gameCode,
+        "game code"
+      )
 
     combineFailures(
       gameCodeFailures.headOption.toList,
-      nonEmpty(registerPlayer.screenName, "screen name"),
+      nonEmpty(registerPlayer.screenName, "screen name")
     )
   }
 
   def validate(startGame: StartGame): Attempt[Unit] = {
     combineFailures(
       isUUID(startGame.gameId.value, "game ID"),
-      isUUID(startGame.playerKey.value, "player key"),
+      isUUID(startGame.playerKey.value, "player key")
     )
   }
 
   def validate(becomeBuyer: BecomeBuyer): Attempt[Unit] = {
     combineFailures(
       isUUID(becomeBuyer.gameId.value, "game ID"),
-      isUUID(becomeBuyer.playerKey.value, "player key"),
+      isUUID(becomeBuyer.playerKey.value, "player key")
     )
   }
 
   def validate(relinquishBuyer: RelinquishBuyer): Attempt[Unit] = {
     combineFailures(
       isUUID(relinquishBuyer.gameId.value, "game ID"),
-      isUUID(relinquishBuyer.playerKey.value, "player key"),
+      isUUID(relinquishBuyer.playerKey.value, "player key")
     )
   }
 
   def validate(startPitch: StartPitch): Attempt[Unit] = {
     combineFailures(
       isUUID(startPitch.gameId.value, "game ID"),
-      isUUID(startPitch.playerKey.value, "player key"),
+      isUUID(startPitch.playerKey.value, "player key")
     )
   }
 
@@ -113,7 +138,7 @@ object Validation {
       isUUID(finishPitch.gameId.value, "game ID"),
       isUUID(finishPitch.playerKey.value, "player key"),
       nonEmpty(finishPitch.words._1.value, "first word"),
-      nonEmpty(finishPitch.words._2.value, "second word"),
+      nonEmpty(finishPitch.words._2.value, "second word")
     )
   }
 
@@ -122,21 +147,21 @@ object Validation {
       isUUID(awardPoint.gameId.value, "game ID"),
       isUUID(awardPoint.playerKey.value, "player key"),
       nonEmpty(awardPoint.role.value, "role"),
-      nonEmpty(awardPoint.awardToPlayerWithName, "winning player"),
+      nonEmpty(awardPoint.awardToPlayerWithName, "winning player")
     )
   }
 
   def validate(ping: Ping): Attempt[Unit] = {
     combineFailures(
       isUUID(ping.gameId.value, "game ID"),
-      isUUID(ping.playerKey.value, "player key"),
+      isUUID(ping.playerKey.value, "player key")
     )
   }
 
   def validate(lobbyPing: LobbyPing): Attempt[Unit] = {
     combineFailures(
       isUUID(lobbyPing.gameId.value, "game ID"),
-      isUUID(lobbyPing.playerKey.value, "player key"),
+      isUUID(lobbyPing.playerKey.value, "player key")
     )
   }
 

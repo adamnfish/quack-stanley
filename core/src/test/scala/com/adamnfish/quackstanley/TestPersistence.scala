@@ -7,13 +7,19 @@ import io.circe.Json
 
 import scala.collection.mutable.{Map => MutableMap}
 
-
 class TestPersistence extends Persistence {
   private[quackstanley] val data = MutableMap.empty[String, Json]
 
   override def getJson(path: String): Attempt[Json] = {
-    EitherT.fromOption(data.get(path),
-      Failure("Test data not found", "Test data not found", 500, Some(path), None).asFailedAttempt
+    EitherT.fromOption(
+      data.get(path),
+      Failure(
+        "Test data not found",
+        "Test data not found",
+        500,
+        Some(path),
+        None
+      ).asFailedAttempt
     )
   }
 

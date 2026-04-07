@@ -5,15 +5,19 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.HavePropertyMatcher
 import org.scalatest.matchers.should.Matchers
 
-
 trait HaveMatchers extends Matchers {
-  def having[A](propertyName: String, propertyValue: A): HavePropertyMatcher[AnyRef, Any] = {
-    Symbol(propertyName) (propertyValue)
+  def having[A](
+      propertyName: String,
+      propertyValue: A
+  ): HavePropertyMatcher[AnyRef, Any] = {
+    Symbol(propertyName)(propertyValue)
   }
 
   implicit class HavingTestHelperString(propertyName: String) {
-    infix def as[A](propertyValue: A)(implicit pos: Position): HavePropertyMatcher[AnyRef, Any] = {
-      Symbol(propertyName) (propertyValue)
+    infix def as[A](
+        propertyValue: A
+    )(implicit pos: Position): HavePropertyMatcher[AnyRef, Any] = {
+      Symbol(propertyName)(propertyValue)
     }
   }
 }
@@ -24,8 +28,12 @@ trait RightValues {
       e.fold(
         { l =>
           throw new TestFailedException(
-            _ => Some(s"The Either on which value was invoked was not a Right, got Left($l)"),
-            None, pos
+            _ =>
+              Some(
+                s"The Either on which value was invoked was not a Right, got Left($l)"
+              ),
+            None,
+            pos
           )
         },
         identity

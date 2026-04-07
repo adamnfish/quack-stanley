@@ -8,8 +8,11 @@ import org.scalatest.matchers.should.Matchers
 
 import java.util.UUID
 
-
-class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with OptionValues {
+class ValidationTest
+    extends AnyFreeSpec
+    with Matchers
+    with AttemptValues
+    with OptionValues {
   "nonEmpty" - {
     "returns no errors if the input is not empty" in {
       nonEmpty("non-empty", "context") shouldBe empty
@@ -44,7 +47,10 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
     }
 
     "fails with provided context for non-UUID" in {
-      isUUID("not a UUID", "format test").head.context.value shouldEqual "format test"
+      isUUID(
+        "not a UUID",
+        "format test"
+      ).head.context.value shouldEqual "format test"
     }
   }
 
@@ -83,7 +89,10 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
       }
 
       "fails with provided context" in {
-        isUUID(input, "format test").head.context.value shouldEqual "format test"
+        isUUID(
+          input,
+          "format test"
+        ).head.context.value shouldEqual "format test"
       }
     }
 
@@ -129,7 +138,7 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
       "returns success if both validators pass" in {
         val result = combineFailures(
           nonEmpty("input1", "context1"),
-          nonEmpty("input2", "context2"),
+          nonEmpty("input2", "context2")
         )
         result.isSuccessfulAttempt()
       }
@@ -149,7 +158,10 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
         }
 
         "contains both contexts" in {
-          result.leftValue().failures.map(_.context) shouldEqual List(Some("context1"), Some("context2"))
+          result.leftValue().failures.map(_.context) shouldEqual List(
+            Some("context1"),
+            Some("context2")
+          )
         }
       }
 
@@ -168,7 +180,9 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
         }
 
         "contains both contexts" in {
-          result.leftValue().failures.map(_.context) shouldEqual List(Some("context1"))
+          result.leftValue().failures.map(_.context) shouldEqual List(
+            Some("context1")
+          )
         }
       }
 
@@ -187,7 +201,9 @@ class ValidationTest extends AnyFreeSpec with Matchers with AttemptValues with O
         }
 
         "contains both contexts" in {
-          result.leftValue().failures.map(_.context) shouldEqual List(Some("context2"))
+          result.leftValue().failures.map(_.context) shouldEqual List(
+            Some("context2")
+          )
         }
       }
     }

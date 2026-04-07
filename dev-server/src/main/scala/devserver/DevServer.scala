@@ -11,24 +11,25 @@ import org.http4s.{HttpRoutes, Response, Status, Uri}
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 
-
 object DevServer extends IOApp {
   implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
 
-  private val http4sApp = HttpRoutes.of[IO] {
-    case GET -> Root / "healthcheck" =>
-      IO.pure(Response(Status.Ok))
+  private val http4sApp = HttpRoutes
+    .of[IO] {
+      case GET -> Root / "healthcheck" =>
+        IO.pure(Response(Status.Ok))
 
-    case req @ POST -> Root / "api" =>
-      for {
-        body <- req.as[String]
-        (statusCode, responseBody) <- devQuackStanley(body)
-        status <- Status.fromInt(statusCode) match {
-          case Right(status) => IO.pure(status)
-          case Left(parseFailure) => IO.raiseError(parseFailure)
-        }
-      } yield Response(status).withEntity(responseBody)
-  }.orNotFound
+      case req @ POST -> Root / "api" =>
+        for {
+          body <- req.as[String]
+          (statusCode, responseBody) <- devQuackStanley(body)
+          status <- Status.fromInt(statusCode) match {
+            case Right(status)      => IO.pure(status)
+            case Left(parseFailure) => IO.raiseError(parseFailure)
+          }
+        } yield Response(status).withEntity(responseBody)
+    }
+    .orNotFound
 
   override def run(args: List[String]): IO[ExitCode] = for {
     corsApp <- CORS.policy.withAllowOriginHost(

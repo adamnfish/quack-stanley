@@ -14,20 +14,19 @@ import io.circe.{Decoder, Encoder, Json}
 import java.io.{InputStream, OutputStream}
 import scala.io.Source
 
-
 object LambdaIntegration {
   case class LambdaRequest(
-    httpMethod: String,
-    path: String,
-    queryStringParameters: Option[Map[String, String]],
-    headers: Option[Map[String, String]],
-    body: Option[String]
+      httpMethod: String,
+      path: String,
+      queryStringParameters: Option[Map[String, String]],
+      headers: Option[Map[String, String]],
+      body: Option[String]
   )
 
   case class LambdaResponse(
-    statusCode: Int,
-    headers: Map[String, String],
-    body: String
+      statusCode: Int,
+      headers: Map[String, String],
+      body: String
   )
 
   private implicit val requestDecoder: Decoder[LambdaRequest] = deriveDecoder
@@ -45,8 +44,9 @@ object LambdaIntegration {
     defaultHeaders ++ extraHeaders.getOrElse(Map.empty)
   }
 
-  def parseBody[A](inputStream: InputStream)
-                  (implicit inDecoder: Decoder[A]): Attempt[(A, LambdaRequest)] = {
+  def parseBody[A](
+      inputStream: InputStream
+  )(implicit inDecoder: Decoder[A]): Attempt[(A, LambdaRequest)] = {
     for {
       requestJson <- parseLambdaRequest(inputStream)
       lambdaRequest <- extractLambdaRequest(requestJson)
@@ -65,8 +65,12 @@ object LambdaIntegration {
     } yield (bodyJson, lambdaRequest)
   }
 
-  def respond[A](attempt: Attempt[A], outputStream: OutputStream, context: Context, allowedOrigin: Option[String])
-                (implicit encoder: Encoder[A], runtime: IORuntime): Unit = {
+  def respond[A](
+      attempt: Attempt[A],
+      outputStream: OutputStream,
+      context: Context,
+      allowedOrigin: Option[String]
+  )(implicit encoder: Encoder[A], runtime: IORuntime): Unit = {
     val lambdaResponse = attempt.value.unsafeRunSync() match {
       case Right(out) =>
         LambdaResponse(200, headers(allowedOrigin), out.asJson.noSpaces)
@@ -75,7 +79,11 @@ object LambdaIntegration {
         val body = Json.obj(
           "errors" -> Json.fromValues(failures.failures.map(failureToJson))
         )
-        LambdaResponse(failures.statusCode, headers(allowedOrigin), body.noSpaces)
+        LambdaResponse(
+          failures.statusCode,
+          headers(allowedOrigin),
+          body.noSpaces
+        )
     }
 
     // write output stream
@@ -84,26 +92,49 @@ object LambdaIntegration {
   }
 
   private def parseLambdaRequest(inputStream: InputStream): Attempt[Json] = {
-    EitherT.fromEither(parse(Source.fromInputStream(inputStream, "UTF-8").mkString).left.map { parseFailure =>
-      Failure(s"Could not parse request as JSON: ${parseFailure.message}", "Invalid request", 400).asFailedAttempt
-    })
+    EitherT.fromEither(
+      parse(Source.fromInputStream(inputStream, "UTF-8").mkString).left.map {
+        parseFailure =>
+          Failure(
+            s"Could not parse request as JSON: ${parseFailure.message}",
+            "Invalid request",
+            400
+          ).asFailedAttempt
+      }
+    )
   }
 
   private def extractLambdaRequest(json: Json): Attempt[LambdaRequest] = {
     EitherT.fromEither(json.as[LambdaRequest].left.map { decodingFailure =>
-      Failure(s"Failed to extract lambda request ${decodingFailure.message}", "Request could not be understood", 400, Some(decodingFailure.history.mkString("|"))).asFailedAttempt
+      Failure(
+        s"Failed to extract lambda request ${decodingFailure.message}",
+        "Request could not be understood",
+        400,
+        Some(decodingFailure.history.mkString("|"))
+      ).asFailedAttempt
     })
   }
 
-  private def extractLambdaRequestBody(lambdaRequest: LambdaRequest): Attempt[String] = {
-    EitherT.fromOption(lambdaRequest.body,
-      Failure("No body on request", "The request was empty", 400).asFailedAttempt
+  private def extractLambdaRequestBody(
+      lambdaRequest: LambdaRequest
+  ): Attempt[String] = {
+    EitherT.fromOption(
+      lambdaRequest.body,
+      Failure(
+        "No body on request",
+        "The request was empty",
+        400
+      ).asFailedAttempt
     )
   }
 
   private def parseLambdaRequestBody(body: String): Attempt[Json] = {
     EitherT.fromEither(parse(body).left.map { parsingFailure =>
-      Failure(s"Could not parse request body as JSON: ${parsingFailure.message}", "Invalid request content", 400).asFailedAttempt
+      Failure(
+        s"Could not parse request body as JSON: ${parsingFailure.message}",
+        "Invalid request content",
+        400
+      ).asFailedAttempt
     })
   }
 }
