@@ -7,13 +7,19 @@ import io.circe.Json
 
 import scala.collection.mutable.{Map => MutableMap}
 
-
 class FakePersistence extends Persistence {
   private val data = MutableMap.empty[String, Json]
 
   override def getJson(path: String): Attempt[Json] = {
-    EitherT.fromOption(data.get(path),
-      Failure("Game data not found", "Couldn't find your game", 500, Some(path), None).asFailedAttempt
+    EitherT.fromOption(
+      data.get(path),
+      Failure(
+        "Game data not found",
+        "Couldn't find your game",
+        500,
+        Some(path),
+        None
+      ).asFailedAttempt
     )
   }
 

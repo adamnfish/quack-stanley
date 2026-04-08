@@ -15,11 +15,14 @@ import com.amazonaws.services.lambda.runtime.Context
 
 import scala.util.{Properties, Try}
 
-
 class Main {
   implicit val runtime: IORuntime = IORuntime.global
 
-  def handleRequest(in: InputStream, out: OutputStream, context: Context): Unit = {
+  def handleRequest(
+      in: InputStream,
+      out: OutputStream,
+      context: Context
+  ): Unit = {
     val allowedOrigin = Properties.envOrNone("ORIGIN_LOCATION")
     val result = Try {
       for {
@@ -29,8 +32,12 @@ class Main {
       } yield response
     }.fold(
       { e =>
-        context.getLogger.log(s"Fatal error: ${e.getMessage} ${e.getStackTrace.mkString("; ")}")
-        EitherT.leftT[IO, ApiResponse](Failure(e.getMessage, "Unexpected server error", 500).asFailedAttempt)
+        context.getLogger.log(
+          s"Fatal error: ${e.getMessage} ${e.getStackTrace.mkString("; ")}"
+        )
+        EitherT.leftT[IO, ApiResponse](
+          Failure(e.getMessage, "Unexpected server error", 500).asFailedAttempt
+        )
       },
       identity
     )
@@ -39,12 +46,26 @@ class Main {
 
   def configFromEnvironment(): Attempt[Config] = {
     for {
-      bucket <- EitherT.fromOption[IO](Properties.envOrNone("APP_DATA_S3_BUCKET"), {
-        Failure("Couldn't read S3 bucket name for configuration", "Quack Stanley failed because it is missing configuration", 500, Some("APP_DATA_S3_BUCKET")).asFailedAttempt
-      })
-      stage <- EitherT.fromOption[IO](Properties.envOrNone("APP_STAGE"), {
-        Failure("Couldn't read stage configuration", "Quack Stanley failed because it is missing configuration", 500, Some("APP_STAGE")).asFailedAttempt
-      })
+      bucket <- EitherT.fromOption[IO](
+        Properties.envOrNone("APP_DATA_S3_BUCKET"), {
+          Failure(
+            "Couldn't read S3 bucket name for configuration",
+            "Quack Stanley failed because it is missing configuration",
+            500,
+            Some("APP_DATA_S3_BUCKET")
+          ).asFailedAttempt
+        }
+      )
+      stage <- EitherT.fromOption[IO](
+        Properties.envOrNone("APP_STAGE"), {
+          Failure(
+            "Couldn't read stage configuration",
+            "Quack Stanley failed because it is missing configuration",
+            500,
+            Some("APP_STAGE")
+          ).asFailedAttempt
+        }
+      )
       persistence = new S3(bucket, S3.client())
       wordSource = new S3WordSource(bucket, persistence.s3Client)
     } yield Config(stage, persistence, wordSource)

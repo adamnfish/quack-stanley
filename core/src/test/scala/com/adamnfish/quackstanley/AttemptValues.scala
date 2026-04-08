@@ -7,7 +7,6 @@ import org.scalatest.{Assertion, EitherValues, Failed, Succeeded}
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 
-
 trait AttemptValues extends EitherValues with RightValues with Matchers {
   implicit val runtime: IORuntime = IORuntime.global
 
@@ -22,10 +21,14 @@ trait AttemptValues extends EitherValues with RightValues with Matchers {
       } {
         result match {
           case Right(value) => value
-          case Left(fa) =>
+          case Left(fa)     =>
             throw new TestFailedException(
-              _ => Some(s"Expected successful attempt, got failure: ${fa.logString}"),
-              None, pos
+              _ =>
+                Some(
+                  s"Expected successful attempt, got failure: ${fa.logString}"
+                ),
+              None,
+              pos
             )
         }
       }
@@ -44,25 +47,33 @@ trait AttemptValues extends EitherValues with RightValues with Matchers {
     }
 
     def isSuccessfulAttempt()(implicit pos: Position): Assertion = {
-      attempt.value.unsafeRunSync().fold(
-        { fa =>
-          Failed(s"Expected successful attempt, got failures: ${fa.logString}").toSucceeded
-        },
-        { _ =>
-          Succeeded
-        }
-      )
+      attempt.value
+        .unsafeRunSync()
+        .fold(
+          { fa =>
+            Failed(
+              s"Expected successful attempt, got failures: ${fa.logString}"
+            ).toSucceeded
+          },
+          { _ =>
+            Succeeded
+          }
+        )
     }
 
     def isFailedAttempt()(implicit pos: Position): Assertion = {
-      attempt.value.unsafeRunSync().fold(
-        { _ =>
-          Succeeded
-        },
-        { a =>
-          Failed(s"Expected failed attempt, got successful value: $a").toSucceeded
-        }
-      )
+      attempt.value
+        .unsafeRunSync()
+        .fold(
+          { _ =>
+            Succeeded
+          },
+          { a =>
+            Failed(
+              s"Expected failed attempt, got successful value: $a"
+            ).toSucceeded
+          }
+        )
     }
   }
 }

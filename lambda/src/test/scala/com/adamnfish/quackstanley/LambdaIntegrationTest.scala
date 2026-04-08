@@ -10,8 +10,12 @@ import org.scalatest.matchers.should.Matchers
 
 import java.io.InputStream
 
-
-class LambdaIntegrationTest extends AnyFreeSpec with Matchers with AttemptValues with OptionValues with HaveMatchers {
+class LambdaIntegrationTest
+    extends AnyFreeSpec
+    with Matchers
+    with AttemptValues
+    with OptionValues
+    with HaveMatchers {
   "headers" - {
     "includes default headers (just Content-Type) if no origin is supplied" in {
       headers(None).keys.toList shouldEqual List("Content-Type")
@@ -22,13 +26,16 @@ class LambdaIntegrationTest extends AnyFreeSpec with Matchers with AttemptValues
     }
 
     "includes Access-Control-Allow-Origin header if origin is supplied" in {
-      headers(Some("origin")).get("Access-Control-Allow-Origin").value shouldEqual "origin"
+      headers(Some("origin"))
+        .get("Access-Control-Allow-Origin")
+        .value shouldEqual "origin"
     }
   }
 
   "parseBody" - {
     "parses a create game request" in {
-      val data = """"{ \"operation\": \"create-game\", \"gameName\": \"test-game\", \"screenName\": \"player-one\" }""""
+      val data =
+        """"{ \"operation\": \"create-game\", \"gameName\": \"test-game\", \"screenName\": \"player-one\" }""""
       val (operation, _) = parseBody[ApiOperation](asLambdaRequest(data)).run()
       operation should have(
         "gameName" as ("test-game"),

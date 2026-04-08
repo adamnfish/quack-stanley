@@ -3,7 +3,12 @@ package com.adamnfish.quackstanley.integration
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
-import com.adamnfish.quackstanley.{AttemptValues, QuackStanley, TestPersistence, TestWordSource}
+import com.adamnfish.quackstanley.{
+  AttemptValues,
+  QuackStanley,
+  TestPersistence,
+  TestWordSource
+}
 import org.joda.time.DateTime
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
@@ -11,9 +16,12 @@ import org.scalatest.{OneInstancePerTest, OptionValues}
 
 import java.util.UUID
 
-
-class StartGameIntegrationTest extends AnyFreeSpec with Matchers
-  with OneInstancePerTest with AttemptValues with OptionValues {
+class StartGameIntegrationTest
+    extends AnyFreeSpec
+    with Matchers
+    with OneInstancePerTest
+    with AttemptValues
+    with OptionValues {
 
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence, new TestWordSource)
@@ -25,7 +33,11 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
   val playerDoesNotExistUUID = UUID.randomUUID().toString
   assert(
     Set(
-      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, playerDoesNotExistUUID
+      creatorUUID,
+      gameIdUUID,
+      gameDoesNotExistIdUUID,
+      playerKeyUUID,
+      playerDoesNotExistUUID
     ).size == 5,
     "Ensuring random UUID test data is distinct"
   )
@@ -36,11 +48,19 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
       val gameName = "game-name"
       val creatorScreenName = "creator"
       val creatorKey = PlayerKey(creatorUUID)
-      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
+      val creatorState =
+        PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
       val playerScreenName = "player"
       val playerKey = PlayerKey(playerKeyUUID)
-      val playerState = PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil)
-      val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
+      val playerState =
+        PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil)
+      val gameState = GameState(
+        gameId,
+        gameName,
+        DateTime.now(),
+        started = false,
+        creatorKey,
+        None,
         Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
       )
       GameIO.writeGameState(gameState, persistence).run()
@@ -64,7 +84,10 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
           val request = StartGame(gameId, creatorKey)
           startGame(request, testConfig).run()
           val savedState = GameIO.getGameState(gameId, persistence).run()
-          savedState.players.view.mapValues(_.screenName).toMap.toSet shouldEqual Set(
+          savedState.players.view
+            .mapValues(_.screenName)
+            .toMap
+            .toSet shouldEqual Set(
             creatorKey -> creatorScreenName,
             playerKey -> playerScreenName
           )
@@ -80,7 +103,9 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
         "returns other players in playerInfo" in {
           val request = StartGame(gameId, creatorKey)
           val playerInfo = startGame(request, testConfig).run()
-          playerInfo.opponents.toSet shouldEqual Set(PlayerSummary(playerScreenName, Nil))
+          playerInfo.opponents.toSet shouldEqual Set(
+            PlayerSummary(playerScreenName, Nil)
+          )
         }
 
         "does not include current player in playerInfo's 'otherPlayers'" in {
@@ -105,8 +130,10 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
         "populates (and persists) each player's hand" in {
           val request = StartGame(gameId, creatorKey)
           startGame(request, testConfig).run()
-          val savedCreatorState = GameIO.getPlayerState(creatorKey, gameId, persistence).run()
-          val savedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).run()
+          val savedCreatorState =
+            GameIO.getPlayerState(creatorKey, gameId, persistence).run()
+          val savedPlayerState =
+            GameIO.getPlayerState(playerKey, gameId, persistence).run()
           savedCreatorState.hand.size shouldEqual QuackStanley.handSize
           savedPlayerState.hand.size shouldEqual QuackStanley.handSize
         }
@@ -169,8 +196,15 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
       val gameName = "game-name"
       val creatorScreenName = "creator"
       val creatorKey = PlayerKey(creatorUUID)
-      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
-      val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
+      val creatorState =
+        PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
+      val gameState = GameState(
+        gameId,
+        gameName,
+        DateTime.now(),
+        started = false,
+        creatorKey,
+        None,
         Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
       )
       GameIO.writeGameState(gameState, persistence).run()
@@ -183,7 +217,10 @@ class StartGameIntegrationTest extends AnyFreeSpec with Matchers
     }
 
     "if the game does not exist, fails to auth the player" in {
-      val request = StartGame(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID))
+      val request = StartGame(
+        GameId(gameDoesNotExistIdUUID),
+        PlayerKey(playerDoesNotExistUUID)
+      )
       startGame(request, testConfig).isFailedAttempt()
     }
   }

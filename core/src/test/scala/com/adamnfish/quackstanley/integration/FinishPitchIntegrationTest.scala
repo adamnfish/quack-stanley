@@ -3,7 +3,12 @@ package com.adamnfish.quackstanley.integration
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
-import com.adamnfish.quackstanley.{AttemptValues, QuackStanley, TestPersistence, TestWordSource}
+import com.adamnfish.quackstanley.{
+  AttemptValues,
+  QuackStanley,
+  TestPersistence,
+  TestWordSource
+}
 import org.joda.time.DateTime
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
@@ -11,9 +16,12 @@ import org.scalatest.{OneInstancePerTest, OptionValues}
 
 import java.util.UUID
 
-
-class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
-  with OneInstancePerTest with AttemptValues with OptionValues {
+class FinishPitchIntegrationTest
+    extends AnyFreeSpec
+    with Matchers
+    with OneInstancePerTest
+    with AttemptValues
+    with OptionValues {
 
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence, new TestWordSource)
@@ -25,7 +33,11 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
   val playerDoesNotExistUUID = UUID.randomUUID().toString
   assert(
     Set(
-      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, playerDoesNotExistUUID
+      creatorUUID,
+      gameIdUUID,
+      gameDoesNotExistIdUUID,
+      playerKeyUUID,
+      playerDoesNotExistUUID
     ).size == 5,
     "Ensuring random UUID test data is distinct"
   )
@@ -39,10 +51,27 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
       "and this player is registered" - {
         val screenName = "player name"
         val playerKey = PlayerKey(playerKeyUUID)
-        val hand = Word("one") :: Word("two") :: List.fill(QuackStanley.handSize - 2)(Word("padding"))
-        val playerState = PlayerState(gameId, gameName, screenName, hand, Nil, None, Nil)
-        val creatorState = PlayerState(gameId, gameName, "buyer", Nil, Nil, Some(Role("role")), Nil)
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, Some(Round(creator, Role("role"), Map.empty)),
+        val hand = Word("one") :: Word("two") :: List.fill(
+          QuackStanley.handSize - 2
+        )(Word("padding"))
+        val playerState =
+          PlayerState(gameId, gameName, screenName, hand, Nil, None, Nil)
+        val creatorState = PlayerState(
+          gameId,
+          gameName,
+          "buyer",
+          Nil,
+          Nil,
+          Some(Role("role")),
+          Nil
+        )
+        val gameState = GameState(
+          gameId,
+          gameName,
+          DateTime.now(),
+          true,
+          creator,
+          Some(Round(creator, Role("role"), Map.empty)),
           Map(
             creator -> PlayerSummary("Creator", Nil),
             playerKey -> PlayerSummary(screenName, Nil)
@@ -60,7 +89,9 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
 
         "new hand contains the non-discarded words" in {
           val playerInfo = finishPitch(request, testConfig).run()
-          playerInfo.state.hand.count(_ == Word("padding")) shouldEqual (QuackStanley.handSize - 2)
+          playerInfo.state.hand.count(
+            _ == Word("padding")
+          ) shouldEqual (QuackStanley.handSize - 2)
         }
 
         "new hand contains replacement words" in {
@@ -71,27 +102,36 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
         "new game state includes this pitch" in {
           val playerInfo = finishPitch(request, testConfig).run()
           val roundInfo = playerInfo.round.value
-          roundInfo.products.get(screenName).value shouldEqual (Word("one"), Word("two"))
+          roundInfo.products.get(screenName).value shouldEqual (
+            Word("one"),
+            Word("two")
+          )
         }
 
         "persists new hand in player state" in {
           val playerInfo = finishPitch(request, testConfig).run()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).run()
+          val persistedPlayerState =
+            GameIO.getPlayerState(playerKey, gameId, persistence).run()
           persistedPlayerState.hand shouldEqual playerInfo.state.hand
         }
 
         "persists discarded words to player's state" in {
           val playerInfo = finishPitch(request, testConfig).run()
-          val persistedPlayerState = GameIO.getPlayerState(playerKey, gameId, persistence).run()
-          persistedPlayerState.discardedWords shouldEqual List(Word("one"), Word("two"))
+          val persistedPlayerState =
+            GameIO.getPlayerState(playerKey, gameId, persistence).run()
+          persistedPlayerState.discardedWords shouldEqual List(
+            Word("one"),
+            Word("two")
+          )
         }
 
         "persists pitched product to the game state's round" in {
           finishPitch(request, testConfig).run()
-          val persistedGameState = GameIO.getGameState(gameId, persistence).run()
-          persistedGameState
-            .round.value
-            .products.get(playerKey).value shouldEqual (Word("one"), Word("two"))
+          val persistedGameState =
+            GameIO.getGameState(gameId, persistence).run()
+          persistedGameState.round.value.products
+            .get(playerKey)
+            .value shouldEqual (Word("one"), Word("two"))
         }
 
         "returned playerInfo's otherPlayers excludes current player" in {
@@ -101,43 +141,50 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
 
         "validates user input," - {
           "flags empty game id" in {
-            val request = FinishPitch(GameId(""), playerKey, (Word(""), Word("")))
+            val request =
+              FinishPitch(GameId(""), playerKey, (Word(""), Word("")))
             val failure = finishPitch(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "game ID"
           }
 
           "ensures GameID is the correct format" in {
-            val request = FinishPitch(GameId("not uuid"), playerKey, (Word(""), Word("")))
+            val request =
+              FinishPitch(GameId("not uuid"), playerKey, (Word(""), Word("")))
             val failure = finishPitch(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "game ID"
           }
 
           "flags empty player key" in {
-            val request = FinishPitch(gameId, PlayerKey(""), (Word(""), Word("")))
+            val request =
+              FinishPitch(gameId, PlayerKey(""), (Word(""), Word("")))
             val failure = finishPitch(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "player key"
           }
 
           "ensures player key is the correct format" in {
-            val request = FinishPitch(gameId, PlayerKey("not uuid"), (Word(""), Word("")))
+            val request =
+              FinishPitch(gameId, PlayerKey("not uuid"), (Word(""), Word("")))
             val failure = finishPitch(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "player key"
           }
 
           "flags empty first word" in {
-            val request = FinishPitch(gameId, playerKey, (Word(""), Word("not-empty")))
+            val request =
+              FinishPitch(gameId, playerKey, (Word(""), Word("not-empty")))
             val failure = finishPitch(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "first word"
           }
 
           "flags empty second word" in {
-            val request = FinishPitch(gameId, playerKey, (Word("not-empty"), Word("")))
+            val request =
+              FinishPitch(gameId, playerKey, (Word("not-empty"), Word("")))
             val failure = finishPitch(request, testConfig).leftValue()
             failure.failures.head.context.value shouldEqual "second word"
           }
 
           "gives all errors if multiple fields fail validation" in {
-            val request = FinishPitch(GameId(""), PlayerKey(""), (Word(""), Word("")))
+            val request =
+              FinishPitch(GameId(""), PlayerKey(""), (Word(""), Word("")))
             val failure = finishPitch(request, testConfig).leftValue()
             failure.failures should have length 4
           }
@@ -145,7 +192,13 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
       }
 
       "and this player is not registered, fails to auth player" in {
-        val gameState = GameState(gameId, gameName, DateTime.now(), true, creator, None,
+        val gameState = GameState(
+          gameId,
+          gameName,
+          DateTime.now(),
+          true,
+          creator,
+          None,
           Map(creator -> PlayerSummary("Creator", Nil))
         )
         val playerKey = PlayerKey(playerKeyUUID)
@@ -157,7 +210,11 @@ class FinishPitchIntegrationTest extends AnyFreeSpec with Matchers
     }
 
     "if the game does not exist, fails to auth the player" in {
-      val request = FinishPitch(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID), (Word("one"), Word("two")))
+      val request = FinishPitch(
+        GameId(gameDoesNotExistIdUUID),
+        PlayerKey(playerDoesNotExistUUID),
+        (Word("one"), Word("two"))
+      )
       finishPitch(request, testConfig).isFailedAttempt()
     }
   }

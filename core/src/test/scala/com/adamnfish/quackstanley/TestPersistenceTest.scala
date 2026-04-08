@@ -5,7 +5,6 @@ import org.scalatest.{OptionValues}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.freespec.AnyFreeSpec
 
-
 class TestPersistenceTest extends AnyFreeSpec with Matchers with OptionValues {
   "test persistence" - {
     "saves value" in {

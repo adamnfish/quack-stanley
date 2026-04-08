@@ -3,7 +3,11 @@ package com.adamnfish.quackstanley.integration
 import com.adamnfish.quackstanley.QuackStanley._
 import com.adamnfish.quackstanley.models._
 import com.adamnfish.quackstanley.persistence.GameIO
-import com.adamnfish.quackstanley.{AttemptValues, TestPersistence, TestWordSource}
+import com.adamnfish.quackstanley.{
+  AttemptValues,
+  TestPersistence,
+  TestWordSource
+}
 import org.joda.time.DateTime
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
@@ -11,9 +15,12 @@ import org.scalatest.{OneInstancePerTest, OptionValues}
 
 import java.util.UUID
 
-
-class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
-  with OneInstancePerTest with AttemptValues with OptionValues {
+class LobbyPingIntegrationTest
+    extends AnyFreeSpec
+    with Matchers
+    with OneInstancePerTest
+    with AttemptValues
+    with OptionValues {
 
   val persistence = new TestPersistence
   val testConfig = Config("test", persistence, new TestWordSource)
@@ -26,7 +33,12 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
   val playerDoesNotExistUUID = UUID.randomUUID().toString
   assert(
     Set(
-      creatorUUID, gameIdUUID, gameDoesNotExistIdUUID, playerKeyUUID, player2KeyUUID, playerDoesNotExistUUID
+      creatorUUID,
+      gameIdUUID,
+      gameDoesNotExistIdUUID,
+      playerKeyUUID,
+      player2KeyUUID,
+      playerDoesNotExistUUID
     ).size == 6,
     "Ensuring random UUID test data is distinct"
   )
@@ -37,16 +49,25 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
       val gameName = "game-name"
       val creatorScreenName = "creator"
       val creatorKey = PlayerKey(creatorUUID)
-      val creatorState = PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
+      val creatorState =
+        PlayerState(gameId, gameName, creatorScreenName, Nil, Nil, None, Nil)
 
       val playerScreenName = "player"
       val playerKey = PlayerKey(playerKeyUUID)
-      val playerState = PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil)
+      val playerState =
+        PlayerState(gameId, gameName, playerScreenName, Nil, Nil, None, Nil)
       val player2ScreenName = "player2"
       val player2Key = PlayerKey(player2KeyUUID)
-      val player2State = PlayerState(gameId, gameName, player2ScreenName, Nil, Nil, None, Nil)
+      val player2State =
+        PlayerState(gameId, gameName, player2ScreenName, Nil, Nil, None, Nil)
 
-      val gameState = GameState(gameId, gameName, DateTime.now(), started = false, creatorKey, None,
+      val gameState = GameState(
+        gameId,
+        gameName,
+        DateTime.now(),
+        started = false,
+        creatorKey,
+        None,
         Map(creatorKey -> PlayerSummary(creatorScreenName, Nil))
       )
       GameIO.writeGameState(gameState, persistence).run()
@@ -77,7 +98,10 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
         "includes other players in 'otherPlayers'" in {
           val request = LobbyPing(gameId, creatorKey)
           val playerInfo = lobbyPing(request, testConfig).run()
-          playerInfo.opponents.map(_.screenName) should contain.allOf(playerScreenName, player2ScreenName)
+          playerInfo.opponents.map(_.screenName) should contain.allOf(
+            playerScreenName,
+            player2ScreenName
+          )
         }
 
         "validates user input," - {
@@ -132,7 +156,10 @@ class LobbyPingIntegrationTest extends AnyFreeSpec with Matchers
     }
 
     "if the game does not exist, fails to auth the player" in {
-      val request = LobbyPing(GameId(gameDoesNotExistIdUUID), PlayerKey(playerDoesNotExistUUID))
+      val request = LobbyPing(
+        GameId(gameDoesNotExistIdUUID),
+        PlayerKey(playerDoesNotExistUUID)
+      )
       lobbyPing(request, testConfig).isFailedAttempt()
     }
   }
