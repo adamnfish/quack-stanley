@@ -1,6 +1,6 @@
 ThisBuild / organization := "com.adamnfish"
 ThisBuild / version := "0.1-SNAPSHOT"
-ThisBuild / scalaVersion := "3.8.3"
+ThisBuild / scalaVersion := "3.8.4"
 ThisBuild / scalacOptions ++= Seq(
   // format: off
   "-deprecation",
@@ -9,7 +9,7 @@ ThisBuild / scalacOptions ++= Seq(
   // format: on
 )
 
-val awsSdkVersion = "2.42.29"
+val awsSdkVersion = "2.46.7"
 val catsEffectVersion = "3.7.0"
 val http4sVersion = "1.0.0-M44"
 val http4sBlazeVersion = "1.0.0-M41"
