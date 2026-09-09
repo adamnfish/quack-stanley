@@ -27,6 +27,7 @@ concurrency:
 permissions:
   id-token: write
   contents: read
+  actions: write
 
 jobs:
   build-and-test:
@@ -150,5 +151,16 @@ jobs:
             --distribution-id ${{ steps.discover.outputs.distribution_id }} \
             --paths "/*"
 
-
-
+      - name: Trigger environment E2E tests
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'e2e-env.yml',
+              ref: context.ref,
+              inputs: {
+                environment: process.env.STAGE
+              }
+            });
