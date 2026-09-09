@@ -30,7 +30,8 @@ Resources:
       BucketNamespace: "account-regional"
       LifecycleConfiguration:
         Rules:
-        - ExpirationInDays: 7
+        - Prefix: data/
+          ExpirationInDays: 7
           Status: Enabled
       Tags:
       - Key: app
