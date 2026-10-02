@@ -9,10 +9,10 @@ ThisBuild / scalacOptions ++= Seq(
   // format: on
 )
 
-val awsSdkVersion = "2.46.7"
+val awsSdkVersion = "2.55.11"
 val catsEffectVersion = "3.7.0"
-val http4sVersion = "1.0.0-M44"
-val http4sBlazeVersion = "1.0.0-M41"
+val http4sVersion = "1.0.0-M47"
+val http4sBlazeVersion = "1.0.0-M42"
 val log4catsVersion = "2.8.0"
 
 lazy val root = (project in file("."))
@@ -26,8 +26,8 @@ lazy val core = (project in file("core"))
     name := "core",
     libraryDependencies ++= Seq(
       "joda-time" % "joda-time" % "2.14.1",
-      "io.circe" %% "circe-parser" % "0.14.15",
-      "io.circe" %% "circe-generic" % "0.14.15",
+      "io.circe" %% "circe-parser" % "0.14.16",
+      "io.circe" %% "circe-generic" % "0.14.16",
       "org.typelevel" %% "cats-effect" % catsEffectVersion,
       "org.scalatest" %% "scalatest" % "3.2.20" % Test
     )
@@ -41,7 +41,7 @@ lazy val lambda = (project in file("lambda"))
       "com.amazonaws" % "aws-lambda-java-core" % "1.4.0",
       "software.amazon.awssdk" % "s3" % awsSdkVersion,
       "org.typelevel" %% "cats-effect" % catsEffectVersion,
-      "ch.qos.logback" % "logback-classic" % "1.5.32",
+      "ch.qos.logback" % "logback-classic" % "1.5.38",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.6",
       "org.scalatest" %% "scalatest" % "3.2.20" % Test
     ),
@@ -59,7 +59,7 @@ lazy val devServer = (project in file("dev-server"))
       "org.http4s" %% "http4s-blaze-server" % http4sBlazeVersion,
       "org.http4s" %% "http4s-blaze-client" % http4sBlazeVersion,
       "org.typelevel" %% "log4cats-slf4j" % log4catsVersion,
-      "ch.qos.logback" % "logback-classic" % "1.5.32",
+      "ch.qos.logback" % "logback-classic" % "1.5.38",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.6"
     ),
     run / fork := true,
